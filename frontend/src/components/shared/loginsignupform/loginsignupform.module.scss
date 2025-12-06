@@ -1,0 +1,59 @@
+.topform{
+    height: 85vh;
+    width: 25rem;
+    background-color: rgba(129, 99, 99, 0.089);
+    position: absolute;
+    top: 3rem;
+    right: 12rem;
+    padding: 1.5rem;
+    border-radius: 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.formhd{
+    text-align: center;
+    margin-bottom: 2rem;
+}
+.btnform{
+    width: 20rem;
+    height: 2.2rem;
+    border-radius: 0.5rem;
+    border-width: 0;
+    text-align: center;
+    background-color: blue;
+    color: white;
+    font-size: 1rem;
+    font-weight: 400;
+    cursor: pointer;
+}
+.formtext{
+    font-size: 0.8rem;
+    margin-top: 0.8rem;
+    opacity: 0.7;
+}
+.formtext a{
+    color: blue;
+}
+.email{
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 2.5rem;
+    
+}
+.emailinput{
+    width: 20rem;
+    border-radius: 0.5rem;
+    padding: 0.5rem;
+    border: none;
+    border-width: 0;
+    background-color: rgb(82, 74, 74);
+}
+.emailinput:focus{
+    outline: none;
+}
+.emaillabel{
+    margin-bottom: 0.8rem;
+    font-size: 0.9rem;
+    opacity: 0.8;
+}

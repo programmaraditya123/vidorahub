@@ -1,0 +1,21 @@
+.main{
+    background-color: black;
+    color: white;
+    
+}
+
+.container{
+    margin: 0;
+    padding: 0.5rem;
+    display: flex;
+    gap: 2rem;
+}
+.videocont video{
+    border: 1px solid white;
+    height: 85vh;
+    flex-basis: 90%;
+}
+.suggestcont{
+    flex-basis: 10%;
+    color: white;
+}

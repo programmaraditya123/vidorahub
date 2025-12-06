@@ -1,0 +1,28 @@
+.fullbar{
+    background-color: black;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.5rem;
+    border-bottom: 0.1rem solid rgb(180, 169, 169);
+}
+.icontext{
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+.rightpart{
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+}
+.text{
+    font-size: 1.2rem;
+}
+.userprofile{
+    height: 2rem;
+    width: 2rem;
+    border: 1px solid white;
+    border-radius: 50%;
+}

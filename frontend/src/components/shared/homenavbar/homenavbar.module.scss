@@ -1,0 +1,24 @@
+.topnav{
+    padding: 0.2rem;
+    border-bottom: 0.10rem solid white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.navsearch{
+    padding: 0.4rem;
+    
+}
+.navsearch input{
+    font-size: 1.2rem;
+    border-radius: 0.5rem;
+    border-color: black;
+    border: none;
+    padding: 0.3rem;
+    background-color:rgb(74, 74, 110);
+    color: white;
+}
+.navright{
+    display: flex;
+    gap: 2rem;
+}
