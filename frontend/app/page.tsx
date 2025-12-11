@@ -13,8 +13,10 @@ export default function Home() {
         <HomePageSideBar/>
       </div>
       <div className={styles.homeright}>
+        <div className={styles.navdiv}>
         <HomeNavbar/>
-        {/* <VidorahubIcon.VidorahubIcon className={styles.largeIcon} /> */}
+
+        </div>
         <div className={styles.videocardcontainer}>
            <VideoCard/>
         </div>

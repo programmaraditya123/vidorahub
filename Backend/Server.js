@@ -9,7 +9,8 @@ const app = express()
 connectdb()
 
 const allowed_origins = [
-    "http://localhost:3000"
+    "http://localhost:3000",
+    "https://vidorahub-v6qk.vercel.app"
 ]
 
 const corsOptions = {
