@@ -39,31 +39,31 @@ const LoginSignupForm = ({variant = "primary"}) => {
 
   }
 
-  const onSignin = async(e:React.FormEvent) => {
-    e.preventDefault()
-    setError(null)
-    setLoading(true)
-    setOk(false)
-    try {
-      const res = await userLogin({email:form.email,password:form.password})
-      if(res.ok) {
-        success("🎉 LoggedIn successfully!")
-        router.replace('/')
-      }if (res.message === "Wrong password"){
-        toastError(res.message || "Wrong Email or Password")
-      };
-      success("🎉 LoggedIn successfully!")
-      localStorage.setItem("token",res.token)
-      router.replace('/')
-      
-    } catch (error:any) {
-      toastError(error.message || "Registration failed");
-      
-    }finally{
-      setLoading(false)
+  const onSignin = async (e: React.FormEvent) => {
+  e.preventDefault()
+  setLoading(true)
+
+  try {
+    const res = await userLogin({
+      email: form.email,
+      password: form.password
+    })
+
+    if (!res.ok) {
+      toastError(res.message || 'Wrong Email or Password')
+      return
     }
 
+    localStorage.setItem('token', res.token)
+    success('🎉 Logged in successfully!')
+    router.replace('/')
+  } catch (err: any) {
+    toastError(err.message || 'Login failed')
+  } finally {
+    setLoading(false)
   }
+}
+
   return (
     <div className={styles.topform}>
         {variant === "primary" ? <h1 className={styles.formhd}>Welcome Back</h1> : <h1 className={styles.formhd}>Get Started</h1> }

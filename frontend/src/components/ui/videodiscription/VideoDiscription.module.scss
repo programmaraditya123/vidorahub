@@ -1,0 +1,57 @@
+.wrapper {
+  background: #181818;
+  border-radius: 12px;
+  padding: 1rem;
+  color: #fff;
+  margin-top: 1rem;
+}
+
+/* META */
+.meta {
+  display: flex;
+  gap: 0.4rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+  margin-bottom: 0.4rem;
+}
+
+/* TAGS */
+.tags {
+  margin-bottom: 0.6rem;
+
+  span {
+    color: #3b82f6;
+    font-size: 0.75rem;
+    margin-right: 6px;
+    cursor: pointer;
+  }
+}
+
+/* DESCRIPTION */
+.description {
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: #e5e5e5;
+  max-height: 3.6em;
+  overflow: hidden;
+  white-space: pre-line;
+}
+
+.expanded {
+  max-height: none;
+}
+
+/* TOGGLE */
+.toggle {
+  background: none;
+  border: none;
+  color: #aaa;
+  font-size: 0.75rem;
+  font-weight: 500;
+  margin-top: 0.4rem;
+  cursor: pointer;
+
+  &:hover {
+    color: #fff;
+  }
+}

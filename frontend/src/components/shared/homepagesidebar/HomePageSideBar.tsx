@@ -1,30 +1,64 @@
-import VidorahubIcon from '@/src/icons/VidorahubIcon';
-import styles from './homepagesidebar.module.scss'
-import Link from 'next/link';
+'use client'
 
+import Link from 'next/link'
+import VidorahubIcon from '@/src/icons/VidorahubIcon'
+import styles from './homepagesidebar.module.scss'
 
 const HomePageSideBar = () => {
-    return(
-        <div className={styles.toplogo}>
-        <h1 className={styles.logotext}>Vidorahub</h1>
+  return (
+    <aside className={styles.sidebar}>
+      {/* Logo */}
+      <div className={styles.logo}>
+        <span className={styles.logoIcon}>⬣</span>
+        <h1 className={styles.logoText}>Vidorahub</h1>
+      </div>
+
+      {/* Menu */}
+      <nav className={styles.menu}>
         <ul>
-            <li className={styles.homesideitems}><VidorahubIcon.HomeIcon color='white' height={24} width={24}/>Home</li>
-            <li className={styles.homesideitems}><VidorahubIcon.FollowingIcon color='white'height={24} width={24}/> Following</li>
-            <Link href={'/uploadvideo'}><li className={styles.homesideitems}><VidorahubIcon.UploadIcon color='white' height={24} width={24}/>Upload</li></Link>
-            <li className={styles.homesideitems}><VidorahubIcon.FileIcon color='white' height={24} width={24}/>Library</li>
-            <li className={styles.homesideitems}><VidorahubIcon.ProfileCircleIcon color='white' height={24} width={24}/>Profile</li>
-            <li className={styles.homesideitems}><VidorahubIcon.SettingsIcon color='white' height={24} width={24}/>Settings</li>
+          <li className={`${styles.item} ${styles.active}`}>
+            <VidorahubIcon.HomeIcon width={20} height={20} />
+            Home
+          </li>
+
+          <li className={styles.item}>
+            <VidorahubIcon.FollowingIcon width={20} height={20} />
+            Following
+          </li>
+
+          <Link href="/uploadvideo" className={styles.link}>
+            <li className={styles.item}>
+              <VidorahubIcon.UploadIcon width={20} height={20} />
+              Upload
+            </li>
+          </Link>
+
+          <li className={styles.item}>
+            <VidorahubIcon.FileIcon width={20} height={20} />
+            Library
+          </li>
+
+          <li className={styles.item}>
+            <VidorahubIcon.ProfileCircleIcon width={20} height={20} />
+            Profile
+          </li>
+
+          <li className={styles.item}>
+            <VidorahubIcon.SettingsIcon width={20} height={20} />
+            Settings
+          </li>
         </ul>
-        <div className={styles.toggle}>
-            <ul>
-            {/* <li className={styles.toggleitem}><VidorahubIcon.SunIcon color='white' height={24} width={24}/>Theme</li> */}
-            <li className={styles.toggleitem}><VidorahubIcon.MoonIcon color='white' height={24} width={24}/>Theme</li>
+      </nav>
 
-            </ul>
-
-        </div>
-        </div>
-    )
+      {/* Theme Toggle */}
+      <div className={styles.bottom}>
+        <button className={styles.themeToggle}>
+          <VidorahubIcon.MoonIcon width={18} height={18} />
+          Theme
+        </button>
+      </div>
+    </aside>
+  )
 }
 
-export default HomePageSideBar;
+export default HomePageSideBar

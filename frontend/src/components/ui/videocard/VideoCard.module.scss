@@ -1,51 +1,93 @@
-.cards{
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    gap: 0.5rem;
-    overflow-y: hidden;
-    align-content: flex-start;
-}
-.container{
-    height:auto;
-    width: auto;
-    display: flex;
-    flex-direction: column;
-    // border: 0.1px solid white;
-    border-radius: 0.8rem;
-    cursor: pointer;
-}
-.imgcont img{
-    border-radius: 0.8rem;
-}
-.imgcont{
-    margin-bottom: 0.1rem;
-}
-.userinfo{
-    padding: 0.5rem;
-    display: flex;
-    gap: 1rem;
-}
-.userimg img{
-    border-radius: 50%;
-}
-.creatorname{
-    font-size: 1rem;
-}
-.videotitle{
-    display: flex;
-    flex-direction: column;
-    gap: 0.4rem;
-}
-.views{
-    font-size: 1rem;
-    opacity: 0.8;
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1.2rem;
 }
 
-@media screen and (max-width:420px){
-    .cards{
-        justify-content: center;
-        min-width: auto;
-    }
-    
+/* Card */
+.card {
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
 }
+
+/* Thumbnail */
+.thumbnailWrapper {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.thumbnail {
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.card:hover .thumbnail {
+  transform: scale(1.05);
+}
+
+.duration {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  background: rgba(0, 0, 0, 0.75);
+  color: #fff;
+  font-size: 0.75rem;
+  padding: 2px 6px;
+  border-radius: 6px;
+}
+
+/* Info */
+.info {
+  display: flex;
+  gap: 0.75rem;
+  padding: 0.6rem 0.2rem;
+}
+
+.avatar {
+  border-radius: 50%;
+}
+
+.meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.title {
+  font-size: 0.95rem;
+  font-weight: 500;
+  line-height: 1.3;
+  color: #ffffff;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.creator {
+  font-size: 0.8rem;
+  color: #aaa;
+}
+
+.views {
+  font-size: 0.75rem;
+  color: #888;
+}
+
+.loading {
+  padding: 2rem;
+  text-align: center;
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+  .cards {
+    grid-template-columns: 1fr;
+  }
+}
+
+

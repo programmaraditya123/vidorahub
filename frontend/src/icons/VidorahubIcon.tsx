@@ -324,4 +324,87 @@ const UserIcon: React.FC<VidorahubIconProps> = ({
   </svg>
 );
 
-export default {VidorahubIcon,HomeIcon,FollowingIcon,UploadIcon,FileIcon,ProfileCircleIcon,SettingsIcon,SunIcon,MoonIcon,BellAlertIcon,UserIcon};
+const SearchIcon: React.FC<VidorahubIconProps> = ({
+  width = 16,
+  height = 16,
+  className = "",
+  ...props
+}) => (
+  <svg
+    viewBox="0 0 16 16"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    width={width}
+    height={height}
+    className={className}
+    {...props}
+  >
+    <path
+      d="M7 1C3.68629 1 1 3.68629 1 7C1 10.3137 3.68629 13 7 13C8.43553 13 9.75143 12.4978 10.781 11.659L14.0607 14.9393C14.3536 15.2322 14.8284 15.2322 15.1213 14.9393C15.4142 14.6464 15.4142 14.1716 15.1213 13.8787L11.8416 10.599C12.4978 9.75143 13 8.43553 13 7C13 3.68629 10.3137 1 7 1Z"
+      fill="currentColor"
+    />
+  </svg>
+)
+
+const FilterIcon: React.FC<VidorahubIconProps> = ({
+  width = 16,
+  height = 16,
+  className = "",
+  ...props
+}) => (
+  <svg
+    viewBox="0 0 16 16"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    width={width}
+    height={height}
+    className={className}
+    {...props}
+  >
+    <path
+      d="M1.5 2C1.22386 2 1 2.22386 1 2.5C1 2.77614 1.22386 3 1.5 3H14.5C14.7761 3 15 2.77614 15 2.5C15 2.22386 14.7761 2 14.5 2H1.5Z"
+      fill="currentColor"
+    />
+    <path
+      d="M4 6C4 5.72386 4.22386 5.5 4.5 5.5H11.5C11.7761 5.5 12 5.72386 12 6C12 6.27614 11.7761 6.5 11.5 6.5H4.5C4.22386 6.5 4 6.27614 4 6Z"
+      fill="currentColor"
+    />
+    <path
+      d="M6.5 9C6.22386 9 6 9.22386 6 9.5C6 9.77614 6.22386 10 6.5 10H9.5C9.77614 10 10 9.77614 10 9.5C10 9.22386 9.77614 9 9.5 9H6.5Z"
+      fill="currentColor"
+    />
+  </svg>
+)
+
+const LogoutIcon: React.FC<VidorahubIconProps> = ({
+  width = 16,
+  height = 16,
+  className = "",
+  ...props
+}) => (
+  <svg
+    viewBox="0 0 16 16"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    width={width}
+    height={height}
+    className={className}
+    {...props}
+  >
+    <path
+      d="M6 2C4.34315 2 3 3.34315 3 5V11C3 12.6569 4.34315 14 6 14H9C9.27614 14 9.5 13.7761 9.5 13.5C9.5 13.2239 9.27614 13 9 13H6C4.89543 13 4 12.1046 4 11V5C4 3.89543 4.89543 3 6 3H9C9.27614 3 9.5 2.77614 9.5 2.5C9.5 2.22386 9.27614 2 9 2H6Z"
+      fill="currentColor"
+    />
+    <path
+      d="M10.1464 5.14645C10.3417 4.95118 10.6583 4.95118 10.8536 5.14645L13.8536 8.14645C14.0488 8.34171 14.0488 8.65829 13.8536 8.85355L10.8536 11.8536C10.6583 12.0488 10.3417 12.0488 10.1464 11.8536C9.95118 11.6583 9.95118 11.3417 10.1464 11.1464L12.2929 9H6.5C6.22386 9 6 8.77614 6 8.5C6 8.22386 6.22386 8 6.5 8H12.2929L10.1464 5.85355C9.95118 5.65829 9.95118 5.34171 10.1464 5.14645Z"
+      fill="currentColor"
+    />
+  </svg>
+)
+
+
+
+
+export default {VidorahubIcon,HomeIcon,FollowingIcon,UploadIcon,FileIcon,ProfileCircleIcon,SettingsIcon,SunIcon,MoonIcon,BellAlertIcon,UserIcon,
+  SearchIcon,FilterIcon,LogoutIcon
+};

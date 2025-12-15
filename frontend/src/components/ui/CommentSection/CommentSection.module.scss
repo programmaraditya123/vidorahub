@@ -1,0 +1,100 @@
+.wrapper {
+  margin-top: 1.5rem;
+  color: #fff;
+}
+
+/* HEADER */
+.header {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+/* ADD COMMENT */
+.addComment {
+  display: flex;
+  gap: 0.6rem;
+  margin-bottom: 1.2rem;
+
+  input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid #333;
+    color: #fff;
+    padding: 0.4rem 0;
+
+    &:focus {
+      outline: none;
+      border-color: #3b82f6;
+    }
+  }
+}
+
+/* LIST */
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+/* COMMENT */
+.comment {
+  display: flex;
+  gap: 0.6rem;
+}
+
+.avatar {
+  border-radius: 50%;
+}
+
+/* CONTENT */
+.content {
+  flex: 1;
+}
+
+.userRow {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.75rem;
+}
+
+.user {
+  font-weight: 500;
+}
+
+.creator {
+  background: #3b82f6;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.65rem;
+}
+
+.time {
+  color: #888;
+}
+
+.text {
+  font-size: 0.8rem;
+  margin: 0.3rem 0 0.4rem;
+  line-height: 1.4;
+}
+
+/* ACTIONS */
+.actions {
+  display: flex;
+  gap: 0.6rem;
+
+  button {
+    background: none;
+    border: none;
+    color: #aaa;
+    font-size: 0.7rem;
+    cursor: pointer;
+
+    &:hover {
+      color: #fff;
+    }
+  }
+}

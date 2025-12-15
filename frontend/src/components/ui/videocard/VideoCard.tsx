@@ -7,69 +7,99 @@ import { getVideos } from '@/src/lib/video/uploadvideo'
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 
-
 type Video = {
-  _id: string;
-  title: string;
-  description : string;
-  creatorName?: string;
-  videoUrl?: string;
-};
-
+  _id: string
+  title: string
+  description: string
+  creatorName?: string
+  videoUrl?: string
+  views?: string
+  duration?: string
+}
 
 const VideoCard = () => {
-  const [videos,setVideos] = useState<Video[]>([])
-  const [loading,setLoading] = useState<boolean>(true)
-  const router  = useRouter();
+  const [videos, setVideos] = useState<Video[]>([])
+  const [loading, setLoading] = useState(true)
+  const router = useRouter()
 
   useEffect(() => {
     const fetchVideos = async () => {
       try {
         const data = await getVideos()
-        console.log("************",data)
         setVideos(data.data.items ?? [])
       } catch (error) {
-        console.log(error,"Error in loading videos")
-        
-      }finally{
+        console.error(error)
+      } finally {
         setLoading(false)
       }
     }
-    fetchVideos();
-  },[])
+    fetchVideos()
+  }, [])
 
-  const handleNavigate = (url:string) => {
+  const handleNavigate = (url?: string) => {
+    if (!url) return
     router.push(`/video/${encodeURIComponent(url)}`)
-
   }
 
   if (loading) {
-    return <div className={style.container}>Loading...</div>;
-     }
-  
+    return <div className={style.loading}>Loading videos...</div>
+  }
+
   return (
     <div className={style.cards}>
-    {videos.map((videos)=> (
-      <div className={style.container} key={videos._id} onClick={() => {handleNavigate(`${videos.videoUrl}`)}}>
-        <div className={style.imgcont}>
-            <Image src={th} height={140} width={286} alt='Thumbnail' quality={75}/>
-        </div>
-        <div className={style.userinfo}>
-            <div className={style.userimg}>
-              <Image src={th} height={32} width={32} alt='profile' quality={75}/>
-            </div>
-            <div className={style.videotitle}>
-              <p>{videos.title}</p>
-              <h3 className={style.creatorname}>Aditya</h3>
-              <h3 className={style.views}>1.2M views</h3>
-            </div>
-        </div>
-    </div>
+      {videos.map((video) => (
+        <div
+          key={video._id}
+          className={style.card}
+          onClick={() => handleNavigate(video.videoUrl)}
+        >
+          {/* Thumbnail */}
+          <div className={style.thumbnailWrapper}>
+            <Image
+              src={th}
+              alt="Video thumbnail"
+              fill
+              className={style.thumbnail}
+            />
+            <span className={style.duration}>
+              {video.duration ?? '12:45'}
+            </span>
+          </div>
 
-    ))}
+          {/* Info */}
+          <div className={style.info}>
+            <Image
+              src={th}
+              height={36}
+              width={36}
+              alt="Creator"
+              className={style.avatar}
+            />
+
+            <div className={style.meta}>
+              <p className={style.title}>{video.title}</p>
+              <span className={style.creator}>
+                {video.creatorName ?? 'Aditya'}
+              </span>
+              <span className={style.views}>
+                {video.views ?? '1.2M views'}
+              </span>
+            </div>
+          </div>
+        </div>
+      ))}
     </div>
-    
   )
 }
 
 export default VideoCard
+
+
+
+
+
+
+
+
+
+

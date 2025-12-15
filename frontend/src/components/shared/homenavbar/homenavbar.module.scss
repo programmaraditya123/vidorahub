@@ -1,24 +1,240 @@
-.topnav{
-    padding: 0.2rem;
-    border-bottom: 0.10rem solid white;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+/* ===============================
+   NAVBAR
+================================ */
+
+.topnav {
+  height: 64px;
+  padding: 0 1.5rem;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  background: linear-gradient(to bottom, #0f0f16, #0b0b12);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+
+  position: relative;
+  overflow: visible;
 }
-.navsearch{
-    padding: 0.4rem;
+
+/* ===============================
+   SEARCH BAR
+================================ */
+
+.searchWrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+
+  width: 420px;
+  padding: 0.55rem 0.9rem;
+
+  background: #161625;
+  border-radius: 999px;
+
+  color: #aaa;
+}
+
+.searchWrapper input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+
+  font-size: 0.9rem;
+  color: #fff;
+}
+
+.searchWrapper input::placeholder {
+  color: #888;
+}
+
+/* ===============================
+   RIGHT SECTION
+================================ */
+
+.navright {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+
+  position: relative;
+}
+
+.iconBtn {
+  background: transparent;
+  border: none;
+  color: #ccc;
+  cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.iconBtn:hover {
+  color: #fff;
+}
+
+/* ===============================
+   PROFILE
+================================ */
+
+.profileWrapper {
+  position: relative;
+}
+
+.profile {
+  width: 36px;
+  height: 36px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+  cursor: pointer;
+
+  background: linear-gradient(135deg, #7b5cff, #ff7adf);
+  color: #fff;
+}
+
+/* ===============================
+   DROPDOWN
+================================ */
+
+.dropdown {
+  position: absolute;
+  right: 0;
+  top: 52px;
+
+  width: 220px;
+  background: #161625;
+  border-radius: 12px;
+  padding: 0.6rem;
+
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6);
+  z-index: 100;
+
+  animation: dropdownFade 0.15s ease;
+}
+
+@keyframes dropdownFade {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ===============================
+   DROPDOWN HEADER
+================================ */
+
+.dropdownHeader {
+  padding: 0.6rem;
+}
+
+.username {
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.email {
+  font-size: 0.75rem;
+  color: #aaa;
+}
+
+/* ===============================
+   DROPDOWN ITEMS
+================================ */
+
+.dropdownItem {
+  width: 100%;
+  padding: 0.55rem 0.6rem;
+
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+
+  color: #ddd;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.dropdownItem:hover {
+  background: #1f1f33;
+  color: #fff;
+}
+
+/* ===============================
+   DIVIDER
+================================ */
+
+.divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.08);
+  margin: 0.4rem 0;
+}
+
+/* ===============================
+   LOGOUT
+================================ */
+
+.logout {
+  color: #ff6b6b;
+}
+
+.logout:hover {
+  background: rgba(255, 107, 107, 0.15);
+}
+
+/* ===============================
+   MOBILE
+================================ */
+
+@media (max-width: 640px) {
+  .searchWrapper {
+    width: 100%;
+    max-width: 260px;
+  }
+}
+
+
+
+
+
+
+
+// .topnav{
+//     padding: 0.2rem;
+//     border-bottom: 0.10rem solid white;
+//     display: flex;
+//     justify-content: space-between;
+//     align-items: center;
+// }
+// .navsearch{
+//     padding: 0.4rem;
     
-}
-.navsearch input{
-    font-size: 1.2rem;
-    border-radius: 0.5rem;
-    border-color: black;
-    border: none;
-    padding: 0.3rem;
-    background-color:rgb(74, 74, 110);
-    color: white;
-}
-.navright{
-    display: flex;
-    gap: 2rem;
-}
+// }
+// .navsearch input{
+//     font-size: 1.2rem;
+//     border-radius: 0.5rem;
+//     border-color: black;
+//     border: none;
+//     padding: 0.3rem;
+//     background-color:rgb(74, 74, 110);
+//     color: white;
+// }
+// .navright{
+//     display: flex;
+//     gap: 2rem;
+// }

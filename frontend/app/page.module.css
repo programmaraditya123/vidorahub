@@ -188,7 +188,7 @@
   /* display: flex; */
   gap:0.1rem;
   overflow-y: scroll;
-  max-height: 34rem;
+  max-height: 30rem;
   width: auto;
   scrollbar-width: none;
 }

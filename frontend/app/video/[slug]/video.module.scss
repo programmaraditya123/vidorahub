@@ -1,21 +1,48 @@
-.main{
-    background-color: black;
-    color: white;
-    
+.main {
+  background-color: black;
+  color: white;
+  min-height: 100vh;
 }
 
-.container{
-    margin: 0;
-    padding: 0.5rem;
-    display: flex;
-    gap: 2rem;
+.container {
+  display: flex;
+  gap: 1.5rem;
+  padding: 1rem;
 }
-.videocont video{
-    border: 1px solid white;
-    height: 85vh;
-    flex-basis: 90%;
+
+/* VIDEO SECTION */
+.videocont {
+  flex: 3;
 }
-.suggestcont{
-    flex-basis: 10%;
-    color: white;
+
+.videocont video {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: black;
+  border: 1px solid #333;
+  border-radius: 8px;
+}
+
+/* SUGGESTED VIDEOS */
+.suggestcont {
+  flex: 1;
+  max-height: calc(100vh - 80px);
+  overflow-y: auto;
+  padding-right: 0.5rem;
+}
+
+.suggestcont h1 {
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
+}
+
+
+@media (max-width: 900px) {
+  .container {
+    flex-direction: column;
+  }
+
+  .suggestcont {
+    max-height: none;
+  }
 }

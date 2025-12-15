@@ -1,0 +1,41 @@
+.card {
+  background: linear-gradient(180deg, #1a2b5c, #16224a);
+  border-radius: 12px;
+  padding: 1.2rem;
+  color: #fff;
+  max-width: 360px;
+}
+
+.title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin-bottom: 0.4rem;
+}
+
+.description {
+  font-size: 0.8rem;
+  color: #cbd5ff;
+  margin-bottom: 1rem;
+  line-height: 1.4;
+}
+
+/* BUTTON */
+.downloadBtn {
+  width: 100%;
+  background: #3b82f6;
+  color: white;
+  border: none;
+  padding: 0.55rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+
+  &:hover {
+    background: #2563eb;
+  }
+}
