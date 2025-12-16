@@ -1,0 +1,31 @@
+.container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+  margin-top: 1.2rem;
+}
+
+.card {
+  background: linear-gradient(180deg, #0e1621, #0b1320);
+  border: 1px solid #1e293b;
+  border-radius: 12px;
+  padding: 18px 22px;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    border-color: #334155;
+  }
+}
+
+.value {
+  font-size: 20px;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.label {
+  margin-top: 4px;
+  font-size: 13px;
+  color: #94a3b8;
+}

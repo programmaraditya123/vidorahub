@@ -24,6 +24,13 @@
   /* .navdiv{
     display: none;
   } */
+  .videocardcontainer{
+    padding: 1rem;
+    min-height: 37rem;
+  }
+  .categorytabs{
+    display: none;
+  }
   
 }
 
@@ -191,4 +198,16 @@
   max-height: 30rem;
   width: auto;
   scrollbar-width: none;
+}
+
+
+/* profile route */
+.profilecont{
+  background-color: black;
+}
+.childcont{
+  width: 70%;
+  justify-content: center;
+  margin: auto;
+  min-height: 85vh;
 }

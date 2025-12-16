@@ -26,12 +26,12 @@ const HomePageSideBar = () => {
             Following
           </li>
 
+          <li className={styles.item}>
           <Link href="/uploadvideo" className={styles.link}>
-            <li className={styles.item}>
               <VidorahubIcon.UploadIcon width={20} height={20} />
               Upload
-            </li>
           </Link>
+          </li>
 
           <li className={styles.item}>
             <VidorahubIcon.FileIcon width={20} height={20} />
@@ -39,8 +39,10 @@ const HomePageSideBar = () => {
           </li>
 
           <li className={styles.item}>
+            <Link href="/profile" className={styles.link}>
             <VidorahubIcon.ProfileCircleIcon width={20} height={20} />
             Profile
+            </Link>
           </li>
 
           <li className={styles.item}>
