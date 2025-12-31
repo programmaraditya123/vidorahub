@@ -199,7 +199,7 @@ const SettingsIcon: React.FC<VidorahubIconProps> = ({
   className = "",
   ...props
 }) => (
-   <svg
+  <svg
     viewBox="0 0 24 24"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
@@ -402,9 +402,35 @@ const LogoutIcon: React.FC<VidorahubIconProps> = ({
   </svg>
 )
 
+const BarIcon: React.FC<{
+  width?: number
+  height?: number
+  className?: string
+}> = ({ width = 24, height = 24, className = "" }) => {
+  return (
+    <svg
+      width={width}
+      height={height}
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className={className}
+    >
+      <path
+        d="M3 6h18M3 12h18M3 18h18"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  )
+};
 
 
 
-export default {VidorahubIcon,HomeIcon,FollowingIcon,UploadIcon,FileIcon,ProfileCircleIcon,SettingsIcon,SunIcon,MoonIcon,BellAlertIcon,UserIcon,
-  SearchIcon,FilterIcon,LogoutIcon
+
+export default {
+  VidorahubIcon, HomeIcon, FollowingIcon, UploadIcon, FileIcon, ProfileCircleIcon, SettingsIcon, SunIcon, MoonIcon, BellAlertIcon, UserIcon,
+  SearchIcon, FilterIcon, LogoutIcon,BarIcon
 };

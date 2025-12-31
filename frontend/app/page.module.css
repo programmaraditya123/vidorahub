@@ -7,11 +7,18 @@
   
 }
 .homeleft{
-  flex-basis: 14%;
+  flex-basis: 10%;
+  border-right: 0.1rem solid rgb(151, 134, 134);
+}
+.homeleft1{
+  /* flex-basis: 14%; */
   border-right: 0.1rem solid rgb(151, 134, 134);
 }
 .homeright{
-  flex-basis: 86%;
+  flex-basis: 90%;
+}
+.homeright2{
+  flex-basis: 100%;
 }
 
 @media screen and (max-width:420px) {
