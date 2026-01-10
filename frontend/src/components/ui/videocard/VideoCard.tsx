@@ -6,6 +6,7 @@ import th from './abc.png'
 import { getVideos } from '@/src/lib/video/uploadvideo'
 import { useEffect, useState, useMemo, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
+import { encodeFilename } from '@/src/functions'
 
 type Video = {
   _id: string
@@ -36,16 +37,17 @@ const VideoCard = () => {
     fetchVideos()
   }, [])
 
-  /** ✅ Memoized navigation handler */
   const handleNavigate = useCallback(
     (url?: string) => {
+      // console.log("original Url",url)
+      const lastPart = url?.split('vidorahub/')[1];
+      const encoded = encodeFilename(lastPart!)
       if (!url) return
-      router.push(`/video/${encodeURIComponent(url)}`)
+      router.push(`/video/${encoded}`)
     },
     [router]
   )
 
-  /** ✅ Memoized video cards */
   const videoCards = useMemo(() => {
     return videos.map((video) => (
       <div

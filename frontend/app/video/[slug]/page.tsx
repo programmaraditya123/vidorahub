@@ -7,13 +7,16 @@ import ResourcesCard from '@/src/components/shared/resourcescard/ResourcesCard';
 import UpNextSidebar from '@/src/components/shared/upnextsidebar/UpNextSidebar';
 import VideoDescription from '@/src/components/ui/videodiscription/VideoDiscription';
 import CommentsSection from '@/src/components/ui/CommentSection/CommentSection';
+import { decodeFilename } from '@/src/functions';
 
 const Page = () => {
     const params = useParams();
     const src = params?.slug 
     const vediosrc = Array.isArray(src) ? src[0] : src;
     const videoUrl = vediosrc ? decodeURIComponent(vediosrc) : ''
-    console.log(videoUrl,"***************")
+    const decoded = decodeFilename(videoUrl)
+    const url = `https://storage.googleapis.com/vidorahub/${decoded}`
+    // console.log(url,"***************")
     
 
 
@@ -24,7 +27,7 @@ const Page = () => {
     <div className={style.container}>
         <div className={style.videocont}>
             <video autoPlay controls width={1000} height={420}>
-                <source src={videoUrl}/>
+                <source src={url}/>
             </video>
             <VideoMetaBar
                 title="How to Design a Modern UI in 2024: Complete Masterclass"

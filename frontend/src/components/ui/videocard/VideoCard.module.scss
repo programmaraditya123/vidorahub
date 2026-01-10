@@ -1,7 +1,8 @@
 .cards {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 1.2rem;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 0.2rem;
+ 
 }
 
 /* Card */
@@ -9,7 +10,10 @@
   cursor: pointer;
   display: flex;
   flex-direction: column;
-  padding-right: 0.5rem;
+  // padding-right: 0.5rem;
+  width: 230px;
+  // padding: 0.2rem;
+  padding-left: 0.5rem;
 }
 
 /* Thumbnail */
@@ -19,6 +23,7 @@
   aspect-ratio: 16 / 9;
   border-radius: 14px;
   overflow: hidden;
+  height: 150px ;
 }
 
 .thumbnail {
@@ -88,6 +93,14 @@
 @media (max-width: 480px) {
   .cards {
     grid-template-columns: 1fr;
+  }
+  .thumbnailWrapper{
+    height: 180px;
+  }
+  .card{
+    width: 100%;
+    padding: 0rem;
+    margin: 0;
   }
 }
 

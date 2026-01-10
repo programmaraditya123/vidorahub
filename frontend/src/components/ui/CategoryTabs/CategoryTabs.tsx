@@ -13,7 +13,7 @@ type Tab = {
 const tabs: Tab[] = [
   { id: 'for-you', label: 'For You' },
   { id: 'trending', label: 'Trending' },
-  { id: 'followers', label: 'Followers' },
+  // { id: 'followers', label: 'Followers' },
   { id: 'gaming', label: 'Gaming', icon: '🎮' },
   { id: 'music', label: 'Music', icon: '🎵' },
   { id: 'tech', label: 'Tech', icon: '💻' },

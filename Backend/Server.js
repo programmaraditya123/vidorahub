@@ -42,7 +42,7 @@ app.get('/',(req,res)=>{
 })
 
 app.get('/health',(req,res) => {
-    return res.send({'status':'ok','version':'1.0.0'})
+    return res.send({'status':'ok','version':'1.0.0','date' : '10-01-2026 04:34PM'})
 })
 
 app.use('/api/v1',authRoute)
