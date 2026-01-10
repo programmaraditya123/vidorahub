@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import ToastProvider from "@/src/hooks/ui/ToastProvider/ToastProvider";
 import ReduxProvider from "@/src/redux/provider";
+import { SpeedInsights } from "@vercel/speed-insights/next"
 
 
 export const metadata: Metadata = {
@@ -18,7 +19,7 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <ReduxProvider>
-        <ToastProvider>{children}</ToastProvider>
+        <ToastProvider>{children}<SpeedInsights /></ToastProvider>
         </ReduxProvider>
       </body>
     </html>
