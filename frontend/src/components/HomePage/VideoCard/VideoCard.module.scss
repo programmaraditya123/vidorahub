@@ -1,0 +1,119 @@
+.card {
+  cursor: pointer;
+  border-radius: 26px;
+  overflow: hidden;
+  position: relative;
+  transition: transform 0.35s ease, box-shadow 0.35s ease;
+  @extend .card-glow !optional;
+
+  &:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 0 40px -8px rgba(164, 19, 236, 0.45);
+  }
+}
+
+/* Thumbnail */
+.thumbnailWrapper {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: 26px;
+  overflow: hidden;
+}
+
+.thumbnail {
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.card:hover .thumbnail {
+  transform: scale(1.08);
+}
+
+/* LIVE Badge */
+.liveBadge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: rgba(0, 0, 0, 0.75);
+  padding: 4px 10px;
+  border-radius: 14px;
+  color: var(--primary);
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border: 1px solid rgba(164, 19, 236, 0.5);
+  text-shadow: 0 0 10px rgba(164, 19, 236, 0.8);
+}
+
+/* Duration */
+.duration {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  background: rgba(0,0,0,0.70);
+  padding: 3px 8px;
+  font-size: 0.75rem;
+  border-radius: 6px;
+  color: #fff;
+}
+
+/* Glass Info Box */
+.info {
+  position: absolute;
+  inset: auto 18px 18px 18px;
+  padding: 16px;
+  border-radius: 22px;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  transform: translateY(12px);
+  transition: 0.4s ease;
+
+  .card:hover & {
+    transform: translateY(0);
+  }
+}
+
+/* Avatar placeholder (you can replace later) */
+.avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary), #6b21a8);
+}
+
+/* Meta text */
+.meta {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.title {
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.25;
+  color: #fff;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.creator {
+  font-size: 0.8rem;
+  color: #d1d5db;
+}
+
+.views {
+  font-size: 0.75rem;
+  color: #9ca3af;
+}
+
+.liveText {
+  color: #ff4d4d;
+  font-size: 0.78rem;
+  font-weight: 600;
+}

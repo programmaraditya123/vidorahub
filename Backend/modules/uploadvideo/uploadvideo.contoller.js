@@ -2,6 +2,19 @@ const mongoose = require("mongoose");
 const { uploadToGCS } = require("./uploadvideo.helper");
 const Video = require('./uploadvideo.model')
 const userProfile = require('../auth/auth.model')
+const { getVideoDurationInSeconds } = require("get-video-duration");
+
+const { Readable } = require("stream");
+
+function bufferToStream(buffer) {
+  return new Readable({
+    read() {
+      this.push(buffer);
+      this.push(null);
+    }
+  });
+}
+
 
 
 const UploadVideoController = async (req, res) => {
@@ -11,9 +24,9 @@ const UploadVideoController = async (req, res) => {
 
         }
 
-        console.log('content-type:', req.headers['content-type']);
-        console.log('req.body keys:', Object.keys(req.body || {}));
-        console.log('req.file present?:', !!req.file);
+        // console.log('content-type:', req.headers['content-type']);
+        // console.log('req.body keys:', Object.keys(req.body || {}));
+        // console.log('req.file present?:', !!req.file);
 
         if (!req.file) {
             return res.status(400).json({ ok: false, message: "No video file uploaded" })
@@ -40,6 +53,11 @@ const UploadVideoController = async (req, res) => {
             })
         }
 
+        //get file duration from the video
+        const tempFilePath = bufferToStream(req.file.buffer);
+        const duration = await getVideoDurationInSeconds(tempFilePath);
+        // console.log("Video Duration",duration)
+
         const videoUrl = await uploadToGCS(req.file, {
             prefix: `users/${req.user._id}/videos/`,
             makePublic: true,
@@ -54,7 +72,7 @@ const UploadVideoController = async (req, res) => {
                 title: String(title).trim(),
                 description: String(description).trim(),
                 tags: normalizeTags,
-                // duration: duration ? Number(duration) : 0,
+                duration,
                 visibilty,
                 category,
                 uploader: req.user._id,
@@ -90,6 +108,11 @@ const UploadVideoController = async (req, res) => {
             message: error?.message || 'Failed to upload video',
         });
 
+    } finally{
+        if(session){
+
+            session.endSession()
+        }
     }
 }
 
@@ -101,7 +124,7 @@ const getAllVideosController = async (req, res) => {
 
         const [items, total] = await Promise.all([
             Video.find({})
-                .sort({ createdAt: -1 })   // newest first
+                .sort({ createdAt: -1 })    
                 .skip(skip)
                 .limit(limit)
                 .lean(),

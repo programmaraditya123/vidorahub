@@ -1,94 +1,93 @@
 .wrapper {
-  color: #fff;
-  margin-top: 1rem;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1.3rem;
+}
+
+.topRow {
+  display: flex;
+  align-items: center;
+}
+
+.tag {
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  border: 1px solid rgba(164, 19, 236, 0.4);
+  color: var(--primary);
 }
 
 .title {
-  font-size: 1.4rem;
-  font-weight: 600;
-  line-height: 1.4;
-  margin-bottom: 0.8rem;
+  font-size: 1.9rem;
+  font-weight: 700;
+  line-height: 1.25;
+  color: white;
+  margin-top: -8px;
+
+  span {
+    color: var(--primary);
+    opacity: 0.6;
+  }
 }
 
-/* META ROW */
-.metaRow {
+/* CHANNEL ROW */
+.channelRow {
   display: flex;
-  justify-content: space-between;
   align-items: center;
   gap: 1rem;
-}
-
-/* CHANNEL */
-.channel {
-  display: flex;
-  align-items: center;
-  gap: 0.8rem;
+  padding: 14px;
+  border-radius: 2rem;
+  border: 1px solid rgba(255,255,255,0.08);
+  @extend .glass-dark !optional;
 }
 
 .avatar {
   border-radius: 50%;
+  border: 2px solid rgba(164, 19, 236, 0.25);
+}
+
+.channelInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
 .channelName {
-  font-size: 0.95rem;
-  font-weight: 500;
-}
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.25s ease;
 
-.verified {
-  font-size: 0.75rem;
-  margin-left: 4px;
+  &:hover {
+    color: var(--primary);
+  }
 }
 
 .subscribers {
-  font-size: 0.8rem;
-  color: #aaa;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: rgba(255,255,255,0.4);
 }
 
+/* SUBSCRIBE BUTTON */
 .subscribeBtn {
-  margin-left: 1rem;
-  padding: 0.45rem 1rem;
-  border-radius: 20px;
-  background: #fff;
-  color: #000;
-  font-weight: 600;
-  cursor: pointer;
+  margin-left: auto;
+  padding: 8px 28px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  background: white;
+  color: black;
   border: none;
-}
+  cursor: pointer;
+  transition: 0.25s ease;
 
-/* ACTIONS */
-.actions {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-
-  button {
-    background: #1f1f1f;
-    color: #fff;
-    border: none;
-    padding: 0.45rem 0.8rem;
-    border-radius: 20px;
-    font-size: 0.85rem;
-    cursor: pointer;
-
-    &:hover {
-      background: #2a2a2a;
-    }
-  }
-}
-
-.more {
-  font-size: 1.2rem;
-  padding: 0 0.8rem;
-}
-
-/* MOBILE */
-@media (max-width: 900px) {
-  .metaRow {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .actions {
-    flex-wrap: wrap;
+  &:hover {
+    background: var(--primary);
+    color: white;
   }
 }

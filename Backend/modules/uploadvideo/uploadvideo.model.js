@@ -77,7 +77,7 @@ const videoSchema = new mongoose.Schema(
 
     videoUrl: {
       type: String,
-      required: true, // because you upload to GCS and save the video URL
+      required: true, 
     },
   },
   { timestamps: true }

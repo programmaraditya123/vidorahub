@@ -43,7 +43,7 @@ const userProfileSchema = new mongoose.Schema({
     uploads: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Video", // <-- Must match your Video model name
+        ref: "Video", 
       },
     ],
      role: {

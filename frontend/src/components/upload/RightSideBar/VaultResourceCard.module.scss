@@ -1,0 +1,110 @@
+.card {
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(25px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 1.5rem;
+  padding: 1.8rem;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 1.6rem;
+  box-shadow: 0 0 22px -6px rgba(164, 19, 236, 0.5);
+}
+
+/* Giant icon faint background */
+.bgIcon {
+  position: absolute;
+  top: -1rem;
+  right: -1rem;
+  opacity: 0.08;
+  font-size: 5rem;
+  pointer-events: none;
+  transition: 0.4s;
+}
+
+.card:hover .bgIcon {
+  opacity: 0.2;
+}
+
+.topRow {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.fileIcon {
+  width: 42px;
+  height: 42px;
+  border-radius: 0.9rem;
+  background: rgba(164, 19, 236, 0.15);
+  border: 1px solid rgba(164, 19, 236, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  span {
+    color: #a413ec;
+    font-size: 1.6rem;
+  }
+}
+
+.info h4 {
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.info p {
+  font-size: 0.6rem;
+  color: #aaa;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.bottomRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.premium {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+
+  span:first-child {
+    color: #a413ec;
+    font-size: 1.3rem;
+  }
+
+  span:last-child {
+    font-size: 0.55rem;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: #aaa;
+    font-weight: 700;
+  }
+}
+
+.btnDownload {
+  padding: 0.45rem 1rem;
+  background: #a413ec;
+  color: white;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: 0.3s;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+
+  &:hover {
+    background: white;
+    color: #a413ec;
+  }
+
+  span:last-child {
+    font-size: 1rem;
+  }
+}

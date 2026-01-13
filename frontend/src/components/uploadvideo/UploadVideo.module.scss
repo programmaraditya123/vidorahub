@@ -1,0 +1,115 @@
+.innercontainer {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  padding: 2rem;
+
+  background: rgba(60, 35, 72, 0.2);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(183, 146, 201, 0.1);
+  border-radius: 1.2rem;
+}
+
+.toptext {
+  text-align: center;
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: white;
+  letter-spacing: 0.04em;
+}
+
+/* Upload Box */
+.upload {
+  margin-top: 1rem;
+  padding: 3rem 2rem;
+  border-radius: 1.4rem;
+
+  background: rgba(43, 25, 51, 0.45);
+  border: 1px dashed rgba(164, 19, 236, 0.35);
+  backdrop-filter: blur(12px);
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+  cursor: pointer;
+  transition: 0.25s ease;
+
+  &:hover {
+    border-color: #a413ec;
+    background: rgba(43, 25, 51, 0.6);
+  }
+}
+
+/* When dragging */
+.upload.dragActive {
+  border-color: #d46dff;
+  background: rgba(164, 19, 236, 0.2);
+  box-shadow: 0 0 20px rgba(164, 19, 236, 0.3);
+}
+
+/* Icon */
+.uploadicon {
+  font-size: 3.6rem;
+  color: #a413ec;
+
+  svg {
+    width: 60px;
+    height: 60px;
+  }
+}
+
+/* Main text */
+.uploadtext {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: white;
+}
+
+.uploadtext2 {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+/* Select File Button */
+.selectbtn {
+  margin-top: 1rem;
+  padding: 0.9rem 2rem;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 0.85rem;
+
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+
+  color: white;
+  transition: 0.25s;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.12);
+  }
+
+  &:active {
+    transform: scale(0.96);
+  }
+}
+
+/* Error Message */
+.errorText {
+  margin-top: 0.5rem;
+  color: #ff4f6d;
+  font-weight: 600;
+}
+
+/* Selected File Info Box */
+.selectedFile {
+  margin-top: 1rem;
+  padding: 1rem 1.2rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 1rem;
+  font-size: 0.9rem;
+  color: white;
+  text-align: center;
+}

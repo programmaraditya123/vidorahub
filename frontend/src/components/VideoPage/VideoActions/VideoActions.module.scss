@@ -1,0 +1,118 @@
+.actionsWrapper {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+/* ===========================
+   LIKE / DISLIKE BOX
+   =========================== */
+
+.likeBar {
+  display: flex;
+  align-items: center;
+  border-radius: 999px;
+
+  background: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(28px);
+
+  padding: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* LIKE BTN */
+.likeBtn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  padding: 6px 14px;
+  border-radius: 999px;
+
+  background: transparent;
+  border: none;
+  cursor: pointer;
+
+  transition: 0.25s ease;
+
+  span {
+    font-size: 22px;
+    transition: 0.25s ease;
+  }
+
+  &:hover span {
+    color: var(--primary);
+  }
+}
+
+.likeCount {
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-shadow: 0 0 10px rgba(164,19,236,0.8);
+}
+
+/* DIVIDER */
+.divider {
+  width: 1px;
+  height: 20px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* DISLIKE BTN */
+.dislikeBtn {
+  display: flex;
+  align-items: center;
+
+  padding: 6px 14px;
+  border-radius: 999px;
+
+  background: transparent;
+  border: none;
+  cursor: pointer;
+
+  transition: 0.25s ease;
+
+  span {
+    font-size: 22px;
+    transition: 0.25s ease;
+  }
+
+  &:hover span {
+    color: var(--primary);
+  }
+}
+
+/* ===========================
+   SHARE BUTTON
+   =========================== */
+
+.shareBtn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  padding: 8px 20px;
+  border-radius: 999px;
+
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(18px);
+
+  border: 1px solid rgba(255, 255, 255, 0.1);
+
+  color: white;
+  text-transform: uppercase;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+
+  cursor: pointer;
+  transition: 0.25s ease;
+
+  span.material-symbols-outlined {
+    font-size: 18px;
+  }
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.2);
+  }
+}

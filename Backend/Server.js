@@ -3,6 +3,7 @@ const cors = require('cors')
 const {connectdb} = require('./config/db')
 const authRoute = require('./modules/auth/auth.route')
 const uploadRoute = require('./modules/uploadvideo/uploadvideo.route')
+const videoDataRoute = require('./modules/videodata/videodata.route')
 
 const app = express()
 
@@ -47,7 +48,11 @@ app.get('/health',(req,res) => {
 
 app.use('/api/v1',authRoute)
 
+//this route contain upload video route + getAllVideos route
 app.use('/api/v1',uploadRoute)
+
+//this route is responsible for get and post video data
+app.use('/api/v1',videoDataRoute)
 
 const PORT = process.env.PORT || 8000;
 

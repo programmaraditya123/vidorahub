@@ -1,74 +1,56 @@
-'use client'
+"use client";
 
-import Image from 'next/image'
-import styles from './UpNextSidebar.module.scss'
+import styles from "./UpNextSidebar.module.scss";
+import Image from "next/image";
 
-type VideoItem = {
-  id: string
-  title: string
-  channel: string
-  views: string
-  uploaded: string
-  duration: string
-  thumbnail: string
+interface VideoItem {
+  id: string;
+  title: string;
+  channel: string;
+  views: string;
+  uploaded: string;
+  duration: string;
+  thumbnail: string;
 }
 
-type Props = {
-  videos: VideoItem[]
-  autoplay?: boolean
-  onToggleAutoplay?: (value: boolean) => void
+interface Props {
+  autoplay: boolean;
+  videos: VideoItem[];
 }
 
-const UpNextSidebar = ({
-  videos,
-  autoplay = true,
-  onToggleAutoplay
-}: Props) => {
+export default function UpNextSidebar({ autoplay, videos }: Props) {
   return (
-    <aside className={styles.sidebar}>
-      {/* HEADER */}
-      <div className={styles.header}>
-        <h3>Up Next</h3>
+    <div className={`${styles.sidebar} glass-dark`}>
+      <h2 className={styles.heading}>Up Next</h2>
 
-        <div className={styles.autoplay}>
-          <span>Autoplay</span>
-          <button
-            className={`${styles.toggle} ${autoplay ? styles.on : ''}`}
-            onClick={() => onToggleAutoplay?.(!autoplay)}
-          >
-            <span />
-          </button>
-        </div>
-      </div>
-
-      {/* VIDEO LIST */}
       <div className={styles.list}>
-        {videos.map(video => (
-          <div key={video.id} className={styles.item}>
-            {/* THUMBNAIL */}
-            <div className={styles.thumb}>
+        {videos.map((v) => (
+          <div className={styles.item} key={v.id}>
+            <div className={styles.thumbWrapper}>
               <Image
-                src={video.thumbnail}
-                alt={video.title}
+                src={v.thumbnail}
+                alt={v.title}
                 fill
-                className={styles.thumbImg}
+                className={styles.thumbnail}
               />
-              <span className={styles.duration}>{video.duration}</span>
+
+              <span className={styles.duration}>{v.duration}</span>
             </div>
 
-            {/* INFO */}
-            <div className={styles.info}>
-              <p className={styles.title}>{video.title}</p>
-              <p className={styles.channel}>{video.channel}</p>
-              <p className={styles.meta}>
-                {video.views} views • {video.uploaded}
-              </p>
+            <div className={styles.meta}>
+              <h4 className={styles.title}>{v.title}</h4>
+
+              <div className={styles.sub}>
+                <span>{v.channel}</span>
+                <span>•</span>
+                <span>{v.views}</span>
+              </div>
+
+              <p className={styles.upload}>{v.uploaded}</p>
             </div>
           </div>
         ))}
       </div>
-    </aside>
-  )
+    </div>
+  );
 }
-
-export default UpNextSidebar

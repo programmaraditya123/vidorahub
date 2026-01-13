@@ -1,8 +1,8 @@
 'use client'
 import React,{useState,useRef,useCallback} from 'react'
 import VidorahubIcon from '@/src/icons/VidorahubIcon'
-import styles from '../../../app/page.module.css'
-import { uploadVideo } from '@/src/lib/video/uploadvideo'
+import styles from './UploadVideo.module.scss'
+
 
 const ALLOWED_VIDEO_TYPES = [
     "video/mp4",
@@ -95,47 +95,15 @@ export default function UploadVideo({onFileReady} : Props){
 
     }
 
-    const handlePublish = async () => {
-        try {
-            setLoading(true)
-            if(!file){
-                console.log("No file selected")
-                setLoading(false)
-                return;
-
-            }
-            if(!title){
-                console.log("Please enter title")
-                setLoading(false)
-                return;
-            }
-            if(!description){
-                console.log("Please enter description")
-                setLoading(false)
-                return;
-            }
-            if(!tags){
-                console.log("Please enter tags")
-                setLoading(false)
-                return;
-            }
-        const upload = await uploadVideo({file,title,description,tags})
-        setLoading(false)
-        return upload
-            
-        } catch (error) {
-            setLoading(false)
-            console.log(error,"failed to upload video")
-            
-        }
-        
-    }
+  
 
 
 
     return(
-        <div className={styles.topcontainer}>
+        // <div className={styles.topcontainer}>
             <div className={styles.innercontainer}>
+            {/* // <div className={`${styles.upload} ${dragActive ? styles.dragActive : ""}`} > */}
+
                 <h1 className={styles.toptext}>{loading ? "Video is Uploading" : "Upload Your Video"}</h1>
            
             <div className={styles.upload}
@@ -163,7 +131,54 @@ export default function UploadVideo({onFileReady} : Props){
                     )}
                     </div>
             </div>
-            <div className={styles.innercontainer2}>
+            
+             </div>
+        // </div>
+    )
+
+}
+
+
+
+// import styles from '../../../app/page.module.css'
+// import { uploadVideo } from '@/src/lib/video/uploadvideo'
+
+//   const handlePublish = async () => {
+//         try {
+//             setLoading(true)
+//             if(!file){
+//                 console.log("No file selected")
+//                 setLoading(false)
+//                 return;
+
+//             }
+//             if(!title){
+//                 console.log("Please enter title")
+//                 setLoading(false)
+//                 return;
+//             }
+//             if(!description){
+//                 console.log("Please enter description")
+//                 setLoading(false)
+//                 return;
+//             }
+//             if(!tags){
+//                 console.log("Please enter tags")
+//                 setLoading(false)
+//                 return;
+//             }
+//         const upload = await uploadVideo({file,title,description,tags})
+//         setLoading(false)
+//         return upload
+            
+//         } catch (error) {
+//             setLoading(false)
+//             console.log(error,"failed to upload video")
+            
+//         }
+        
+//     }
+{/* <div className={styles.innercontainer2}>
                  <div className={styles.email1}>
                           <label className={styles.emaillabel1} htmlFor="title">Title(required)</label>
                           <input className={styles.emailinput1} type='text' id='title' name='title' placeholder='Enter Video Title' required
@@ -187,9 +202,4 @@ export default function UploadVideo({onFileReady} : Props){
 
                   
 
-            </div>
-             </div>
-        </div>
-    )
-
-}
+            </div> */}

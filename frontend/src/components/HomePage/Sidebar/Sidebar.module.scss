@@ -1,0 +1,86 @@
+.sidebar {
+  position: fixed;
+  left: 1.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 50;
+}
+
+.nav {
+  padding: 1rem;
+  border-radius: 50px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.4rem;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+}
+
+.logo {
+  color: var(--primary);
+  padding: 0.4rem;
+
+  span {
+    font-size: 2.3rem;
+    font-weight: bold;
+  }
+}
+
+/* Menu Icon Wrapper */
+.link {
+  position: relative;
+  cursor: pointer;
+
+  span {
+    font-size: 26px;
+    color: #bfbfbf;
+    transition: 0.25s ease;
+  }
+
+  &:hover span {
+    color: var(--primary);
+    text-shadow: 0 0 10px var(--primary);
+  }
+
+  &:hover .tooltip {
+    opacity: 1;
+  }
+}
+
+/* Tooltip Label */
+.tooltip {
+  position: absolute;
+  top: 50%;
+  left: 3.2rem;
+  transform: translateY(-50%);
+  padding: 0.3rem 0.6rem;
+  font-size: 12px;
+  border-radius: 6px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+  white-space: nowrap;
+}
+
+/* Divider Line */
+.divider {
+  width: 32px;
+  height: 1px;
+  background: rgba(255,255,255,0.12);
+  margin: 0.3rem 0;
+}
+
+/* Profile Image */
+.profile {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 2px solid rgba(164, 19, 236, 0.45);
+  background-size: cover;
+  background-position: center;
+  transition: 0.25s ease;
+
+  &:hover {
+    transform: scale(1.12);
+  }
+}

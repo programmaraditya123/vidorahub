@@ -1,0 +1,88 @@
+.wrapper {
+  position: fixed;
+  bottom: 35px;
+  right: 35px;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover .menu {
+    width: 360px;
+    height: 360px;
+    opacity: 1;
+  }
+
+  &:hover .fab {
+    transform: rotate(45deg);
+  }
+}
+
+/* Floating glass bubble */
+.menu {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 0px;
+  height: 0px;
+  overflow: hidden;
+  border-radius: 26px;
+  padding: 24px;
+  opacity: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-content: flex-start;
+  transition: all 0.45s ease;
+  border: 1px solid rgba(164, 19, 236, 0.3);
+}
+
+.label {
+  width: 100%;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  font-weight: 700;
+  color: var(--primary);
+  margin-bottom: 6px;
+}
+
+/* Vibe Buttons */
+.vibeBtn {
+  padding: 6px 14px;
+  font-size: 0.75rem;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.15);
+  background: rgba(255,255,255,0.08);
+  color: #eee;
+  cursor: pointer;
+  transition: 0.25s ease;
+
+  &:hover {
+    background: var(--primary);
+    border-color: var(--primary);
+  }
+}
+
+/* Floating FAB Button */
+.fab {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  border: 2px solid rgba(164, 19, 236, 0.4);
+  background: rgba(255,255,255,0.12);
+  box-shadow: 0 0 25px rgba(164, 19, 236, 0.5);
+  backdrop-filter: blur(20px);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  cursor: pointer;
+  transition: 0.35s ease;
+
+  span {
+    font-size: 32px;
+    color: var(--primary);
+  }
+}

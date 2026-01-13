@@ -1,55 +1,71 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import styles from './VideoDiscription.module.scss'
+import styles from "./VideoDiscription.module.scss";
 
-type Props = {
-  views: string
-  uploaded: string
-  hashtags?: string[]
-  description: string
+interface Props {
+  views: string;
+  uploaded: string;
+  hashtags: string[];
+  description: string;
 }
 
-const VideoDescription = ({
+export default function VideoDescription({
   views,
   uploaded,
-  hashtags = [],
-  description
-}: Props) => {
-  const [expanded, setExpanded] = useState(false)
-
+  hashtags,
+  description,
+}: Props) {
   return (
-    <div className={styles.wrapper}>
-      {/* META */}
-      <div className={styles.meta}>
-        <span>{views} views</span>
-        <span>•</span>
-        <span>{uploaded}</span>
+    <div className={`${styles.wrapper} glass-dark`}>
+      {/* TOP ROW */}
+      <div className={styles.headerRow}>
+        <h3 className={`${styles.sectionLabel} neon-glow`}>
+          Description
+        </h3>
+
+        <div className={styles.stats}>
+          <span>{views} views</span>
+          <span>•</span>
+          <span>{uploaded}</span>
+        </div>
       </div>
 
       {/* HASHTAGS */}
-      {hashtags.length > 0 && (
-        <div className={styles.tags}>
-          {hashtags.map(tag => (
-            <span key={tag}>#{tag}</span>
-          ))}
-        </div>
-      )}
+      <div className={styles.tags}>
+        {hashtags.map((tag) => (
+          <span key={tag} className={styles.tag}>
+            #{tag}
+          </span>
+        ))}
+      </div>
 
-      {/* DESCRIPTION */}
-      <p className={`${styles.description} ${expanded ? styles.expanded : ''}`}>
+      {/* TEXT */}
+      <p className={styles.text}>
         {description}
       </p>
 
-      {/* TOGGLE */}
-      <button
-        className={styles.toggle}
-        onClick={() => setExpanded(prev => !prev)}
-      >
-        {expanded ? 'Show less' : 'Show more'}
+      {/* READ MORE */}
+      <button className={styles.readMore}>
+        READ MORE
+        <span className="material-symbols-outlined">keyboard_arrow_down</span>
       </button>
-    </div>
-  )
-}
 
-export default VideoDescription
+      {/* ACTION BAR */}
+      <div className={styles.actions}>
+        <button className={styles.likeBtn}>
+          <span className="material-symbols-outlined">thumb_up</span>
+          42K
+        </button>
+
+        <button className={styles.dislikeBtn}>
+          <span className="material-symbols-outlined">thumb_down</span>
+        </button>
+
+        <button className={styles.shareBtn}>
+          <span className="material-symbols-outlined">share</span>
+          Share
+        </button>
+      </div>
+    </div>
+  );
+}

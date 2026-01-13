@@ -1,0 +1,20 @@
+.mesh {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  @extend .mesh-bg !optional;
+}
+
+.gradient {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background: linear-gradient(
+    to bottom right,
+    #0a0a0c,
+    #020617,
+    #3b0764
+  );
+  opacity: 0.9;
+}

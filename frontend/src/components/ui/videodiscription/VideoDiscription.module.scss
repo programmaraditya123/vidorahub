@@ -1,57 +1,125 @@
 .wrapper {
-  background: #181818;
-  border-radius: 12px;
-  padding: 1rem;
-  color: #fff;
-  margin-top: 1rem;
-}
-
-/* META */
-.meta {
+  width: 100%;
+  padding: 1.6rem;
+  border-radius: 2rem;
+  border: 1px solid rgba(255,255,255,0.06);
   display: flex;
-  gap: 0.4rem;
-  font-size: 0.8rem;
-  font-weight: 500;
-  margin-bottom: 0.4rem;
+  flex-direction: column;
+  gap: 1.4rem;
 }
 
-/* TAGS */
+/* TOP LABEL + STATS */
+.headerRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.sectionLabel {
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  color: var(--primary);
+}
+
+.stats {
+  display: flex;
+  gap: 6px;
+  font-size: 0.75rem;
+  color: rgba(255,255,255,0.5);
+}
+
+/* HASHTAGS */
 .tags {
-  margin-bottom: 0.6rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.tag {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  padding: 4px 10px;
+  font-size: 0.75rem;
+  border-radius: 999px;
+  text-transform: lowercase;
+  color: rgba(255,255,255,0.8);
+}
+
+/* DESCRIPTION TEXT */
+.text {
+  font-size: 0.88rem;
+  line-height: 1.6;
+  color: rgba(255,255,255,0.85);
+  max-height: 5.5rem;
+  overflow: hidden;
+}
+
+/* READ MORE BUTTON */
+.readMore {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--primary);
+  cursor: pointer;
+  transition: 0.2s ease;
 
   span {
-    color: #3b82f6;
-    font-size: 0.75rem;
-    margin-right: 6px;
-    cursor: pointer;
+    font-size: 18px;
+  }
+
+  &:hover {
+    color: white;
   }
 }
 
-/* DESCRIPTION */
-.description {
-  font-size: 0.8rem;
-  line-height: 1.5;
-  color: #e5e5e5;
-  max-height: 3.6em;
-  overflow: hidden;
-  white-space: pre-line;
+/* ACTION BAR */
+.actions {
+  margin-top: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 }
 
-.expanded {
-  max-height: none;
-}
-
-/* TOGGLE */
-.toggle {
-  background: none;
-  border: none;
-  color: #aaa;
+.likeBtn,
+.dislikeBtn,
+.shareBtn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 999px;
   font-size: 0.75rem;
-  font-weight: 500;
-  margin-top: 0.4rem;
   cursor: pointer;
+  transition: 0.2s ease;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.07);
+
+  .material-symbols-outlined {
+    font-size: 18px;
+  }
 
   &:hover {
-    color: #fff;
+    background: rgba(255,255,255,0.2);
+  }
+}
+
+.likeBtn {
+  font-weight: 700;
+  color: white;
+}
+
+.shareBtn {
+  background: rgba(164,19,236,0.2);
+  border-color: rgba(164,19,236,0.4);
+  color: var(--primary);
+
+  &:hover {
+    background: var(--primary);
+    color: white;
   }
 }

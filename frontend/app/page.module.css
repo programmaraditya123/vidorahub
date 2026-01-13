@@ -33,7 +33,7 @@
   } */
   .videocardcontainer{
     padding: 0.1rem;
-    min-height: 40rem;
+    /* min-height: 40rem; */
   }
   .categorytabs{
     display: none;
@@ -202,7 +202,7 @@
   /* display: flex; */
   gap:0.1rem;
   overflow-y: scroll;
-  max-height: 30rem;
+  /* max-height: 30rem; */
   width: auto;
   scrollbar-width: none;
   
@@ -217,5 +217,5 @@
   width: 70%;
   justify-content: center;
   margin: auto;
-  min-height: 85vh;
+  /* min-height: 85vh; */
 }

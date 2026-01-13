@@ -1,59 +1,56 @@
-'use client'
+"use client";
 
-import Image from 'next/image'
-import styles from './VideoMetaBar.module.scss'
+import styles from "./VideoMetaBar.module.scss";
+import Image from "next/image";
 
-type Props = {
-  title: string
-  channelName: string
-  channelImage: string
-  subscribers?: string
+interface Props {
+  title: string;
+  channelName: string;
+  channelImage: string;
+  subscribers: string;
 }
 
-const VideoMetaBar = ({
+export default function VideoMetaBar({
   title,
   channelName,
   channelImage,
-  subscribers = '—'
-}: Props) => {
+  subscribers,
+}: Props) {
   return (
     <div className={styles.wrapper}>
+      {/* CATEGORY / TAG */}
+      <div className={styles.topRow}>
+        <span className={`${styles.tag} neon-glow glass-dark`}>
+          Featured
+        </span>
+      </div>
+
       {/* TITLE */}
-      <h1 className={styles.title}>{title}</h1>
+      <h1 className={styles.title}>
+        {title}
+      </h1>
 
-      {/* META ROW */}
-      <div className={styles.metaRow}>
-        {/* LEFT: CHANNEL INFO */}
-        <div className={styles.channel}>
-          <Image
-            src={channelImage}
-            alt={channelName}
-            width={40}
-            height={40}
-            className={styles.avatar}
-          />
-          <div>
-            <p className={styles.channelName}>
-              {channelName} <span className={styles.verified}>✔</span>
-            </p>
-            <p className={styles.subscribers}>{subscribers} Followers</p>
-          </div>
+      {/* CHANNEL ROW */}
+      <div className={styles.channelRow}>
+        <Image
+          src={channelImage}
+          alt={channelName}
+          width={54}
+          height={54}
+          className={styles.avatar}
+        />
 
-          <button className={styles.subscribeBtn}>Follow</button>
+        <div className={styles.channelInfo}>
+          <h3 className={styles.channelName}>{channelName}</h3>
+          <p className={styles.subscribers}>
+            {subscribers} Subscribers
+          </p>
         </div>
 
-        {/* RIGHT: ACTION BUTTONS */}
-        <div className={styles.actions}>
-          <button>👍 123K</button>
-          <button>👎</button>
-          <button>Share</button>
-          <button>Clip</button>
-          <button>Save</button>
-          <button className={styles.more}>⋯</button>
-        </div>
+        <button className={styles.subscribeBtn}>
+          Subscribe
+        </button>
       </div>
     </div>
-  )
+  );
 }
-
-export default VideoMetaBar

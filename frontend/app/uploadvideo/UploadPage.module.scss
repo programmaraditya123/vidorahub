@@ -1,0 +1,41 @@
+.page {
+  padding: 2rem;
+  display: grid;
+  grid-template-columns: 1fr 420px;
+  gap: 2.5rem;
+  max-width: 1700px;
+  margin: 0 auto;
+  overflow-y: scroll;
+  height: 93vh;
+  scrollbar-width: none;
+}
+
+.leftdiv {
+  position: relative;        
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  height: 100%;
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;                  
+
+  display: flex;
+  justify-content: center;
+  align-items: center;      
+
+  z-index: 15;
+  pointer-events: auto;     
+
+  background: rgba(0, 0, 0, 0.15);  
+  backdrop-filter: blur(4px);  
+   margin-right: -28rem;
+}
+
+.right {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}

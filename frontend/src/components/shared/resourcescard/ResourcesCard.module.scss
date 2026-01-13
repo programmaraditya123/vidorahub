@@ -1,41 +1,126 @@
 .card {
-  background: linear-gradient(180deg, #1a2b5c, #16224a);
-  border-radius: 12px;
-  padding: 1.2rem;
-  color: #fff;
-  max-width: 360px;
+  position: relative;
+  padding: 1.4rem;
+  border-radius: 1.8rem;
+
+  border: 1px solid rgba(164, 19, 236, 0.25);
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(28px);
+
+  overflow: hidden;
 }
 
-.title {
-  font-size: 0.95rem;
-  font-weight: 600;
-  margin-bottom: 0.4rem;
+/* Large faded icon at top-right */
+.bigIcon {
+  position: absolute;
+  top: -20px;
+  right: -10px;
+  opacity: 0.1;
+  font-size: 5rem;
+
+  span {
+    font-size: 5rem;
+  }
 }
 
-.description {
-  font-size: 0.8rem;
-  color: #cbd5ff;
-  margin-bottom: 1rem;
-  line-height: 1.4;
-}
-
-/* BUTTON */
-.downloadBtn {
-  width: 100%;
-  background: #3b82f6;
-  color: white;
-  border: none;
-  padding: 0.55rem;
-  border-radius: 8px;
-  font-size: 0.85rem;
-  font-weight: 500;
-  cursor: pointer;
+/* Top row: ZIP icon + filename */
+.row {
   display: flex;
+  align-items: center;
+  justify-content: space-between;
+  z-index: 2;
+  position: relative;
+}
+
+/* ZIP Icon */
+.iconBox {
+  width: 46px;
+  height: 46px;
+
+  border-radius: 1rem;
+
+  background: rgba(164, 19, 236, 0.2);
+  border: 1px solid rgba(164, 19, 236, 0.3);
+
+  display: flex;
+  align-items: center;
   justify-content: center;
+
+  span {
+    font-size: 1.8rem;
+    color: var(--primary);
+  }
+}
+
+/* Filename + size */
+.info {
+  h4 {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: white;
+  }
+
+  p {
+    font-size: 0.6rem;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: rgba(200, 200, 200, 0.55);
+    margin-top: 2px;
+  }
+}
+
+/* Bottom row: badge + download button */
+.bottomRow {
+  margin-top: 1.6rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.badge {
+  display: flex;
   align-items: center;
   gap: 6px;
 
+  span:first-child {
+    color: var(--primary);
+    font-size: 1.2rem;
+  }
+
+  span:last-child {
+    font-size: 0.6rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: rgba(200, 200, 200, 0.7);
+  }
+}
+
+/* Download button */
+.download {
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: var(--primary);
+  color: white;
+
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  border: none;
+  cursor: pointer;
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+
+  transition: 0.25s ease;
+
+  span.material-symbols-outlined {
+    font-size: 1rem;
+  }
+
   &:hover {
-    background: #2563eb;
+    background: white;
+    color: var(--primary);
   }
 }
