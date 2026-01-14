@@ -1,8 +1,9 @@
 .wrapper {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: auto;
   gap: 0.8rem;
   margin-top: 1.8rem;
+  height: 10rem;
 }
 
 .header {
@@ -110,5 +111,38 @@
   &:hover {
     border-color: white;
     color: white;
+  }
+}
+
+.frame {
+  position: relative;
+
+  img {
+    cursor: pointer;
+    border-radius: 8px;
+  }
+
+  &:hover .deleteBtn {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
+
+.deleteBtn {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background: rgba(0,0,0,0.55);
+  border: none;
+  border-radius: 50%;
+  padding: 4px;
+  cursor: pointer;
+  opacity: 0;
+  transition: 0.2s;
+  pointer-events: none;
+
+  span {
+    color: white;
+    font-size: 18px;
   }
 }

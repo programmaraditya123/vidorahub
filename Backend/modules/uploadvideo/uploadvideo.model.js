@@ -33,7 +33,7 @@ const videoSchema = new mongoose.Schema(
     },
 
     duration: {
-      type: Number, // duration in seconds
+      type: Number,  
       default: 0,
     },
 

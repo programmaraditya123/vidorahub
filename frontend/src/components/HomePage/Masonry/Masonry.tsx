@@ -6,6 +6,7 @@ import { getVideos } from "@/src/lib/video/uploadvideo";
 
 import styles from "./Masonry.module.scss";
 import VideoCard from "../VideoCard/VideoCard";
+import { formatDuration } from "@/src/utils/extractFrames";
 
 type Video = {
   _id: string;
@@ -42,7 +43,19 @@ export default function Masonry() {
     <div className={`${styles.masonry} masonry-grid`}>
       {videos.map((video) => (
         <div key={video._id} className={`${styles.item} masonry-item`}>
-          <VideoCard video={video} />
+          <VideoCard
+              key={video._id}
+              video={{
+                _id: video._id,
+                title: video.title,
+                creatorName: "Unknown", // or fetch from profile
+                thumbnailUrl: video.thumbnailUrl as string,
+                duration: formatDuration(video.duration),
+                views: video.stats?.views || 0,
+                videoUrl: video.videoUrl,
+              }}
+            />
+          {/* /> */}
         </div>
       ))}
     </div>

@@ -219,3 +219,117 @@
   margin: auto;
   /* min-height: 85vh; */
 }
+
+
+/* //this is the upadted css after date 15-01-2026 */
+/* PAGE WRAPPER BASE */
+.page-wrapper {
+  display: grid;
+  grid-template-columns: 240px 1fr 80px;
+  column-gap: 20px;
+  width: 100%;
+  padding: 20px;
+  height: 100%;
+  overflow-x: hidden;
+
+  /* For background visuals */
+  position: relative;
+  z-index: 2;
+}
+
+/* MAIN CONTENT */
+.main-content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-height: 100vh;
+  padding-bottom: 40px;
+}
+
+/* ---------------------------- */
+/* TABLET & SMALL LAPTOP (≤1200px) */
+/* ---------------------------- */
+@media (max-width: 1200px) {
+  .page-wrapper {
+    grid-template-columns: 200px 1fr 70px;
+    column-gap: 16px;
+    padding: 16px;
+  }
+}
+
+/* ---------------------------- */
+/* TABLET PORTRAIT (≤992px) */
+/* ---------------------------- */
+@media (max-width: 992px) {
+  .page-wrapper {
+    grid-template-columns: 70px 1fr 60px; 
+    padding: 14px;
+  }
+}
+
+/* ---------------------------- */
+/* MOBILE LANDSCAPE (≤768px) */
+/* ---------------------------- */
+@media (max-width: 768px) {
+  .page-wrapper {
+    grid-template-columns: 60px 1fr;
+    grid-template-areas:
+      "sidebar header"
+      "sidebar main";
+    column-gap: 12px;
+    padding: 12px;
+  }
+
+  .main-content {
+    grid-area: main;
+  }
+
+  .sidebar {
+    grid-area: sidebar;
+  }
+
+  .vibe-selector {
+    display: none; /* hide for small screens */
+  }
+}
+
+/* ---------------------------- */
+/* MOBILE PORTRAIT (≤600px) */
+/* ---------------------------- */
+@media (max-width: 600px) {
+  .page-wrapper {
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    gap: 12px;
+  }
+
+  .sidebar {
+    width: 100%;
+    order: 1;
+  }
+
+  .main-content {
+    width: 100%;
+    order: 2;
+  }
+
+  .vibe-selector {
+    display: none;
+  }
+}
+
+/* ---------------------------- */
+/* SMALL DEVICES (≤400px) */
+/* ---------------------------- */
+@media (max-width: 400px) {
+  .page-wrapper {
+    padding: 8px;
+    gap: 10px;
+  }
+
+  .main-content {
+    gap: 14px;
+  }
+}
+

@@ -9,35 +9,28 @@ interface Props {
     description: string;
     tags: string[];
   }) => void;
-
   onSaveDraft?: () => void;
 }
 
-export default function DataSculptingForm({ onPublish, onSaveDraft }: Props) {
+export default function DataSculptingForm({
+  onPublish,
+  onSaveDraft
+}: Props) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [tags, setTags] = useState<string[]>([
-    "Cinematic",
-    "MotionGraphics",
-    "VFX",
-  ]);
+  const [tags, setTags] = useState<string[]>(["trending"]);
+  const [adding, setAdding] = useState(false);
+  const [newTag, setNewTag] = useState("");
 
   const addTag = () => {
-    const next = prompt("Enter new tag:");
-    if (!next) return;
-    setTags([...tags, next]);
-  };
+    const cleaned = newTag.trim().replace(/\s+/g, "");
 
-  const removeTag = (t: string) => {
-    setTags(tags.filter((tag) => tag !== t));
-  };
+    if (cleaned && !tags.includes(cleaned)) {
+      setTags([...tags, cleaned]);
+    }
 
-  const onPublishClick = () => {
-    onPublish?.({
-      title,
-      description,
-      tags,
-    });
+    setAdding(false);
+    setNewTag("");
   };
 
   return (
@@ -47,9 +40,8 @@ export default function DataSculptingForm({ onPublish, onSaveDraft }: Props) {
         Data Sculpting
       </h2>
 
-      {/* Title */}
       <div className={styles.formGroup}>
-        <label>Sculpt Your Title</label>
+        <label>Title</label>
         <input
           className={styles.input}
           placeholder="Enter video title..."
@@ -58,18 +50,16 @@ export default function DataSculptingForm({ onPublish, onSaveDraft }: Props) {
         />
       </div>
 
-      {/* Description */}
       <div className={styles.formGroup}>
-        <label>Vision Statement</label>
+        <label>Description</label>
         <textarea
           className={styles.textarea}
-          placeholder="Describe your vision in the glass..."
+          placeholder="Describe the video..."
           value={description}
           onChange={(e) => setDescription(e.target.value)}
         />
       </div>
 
-      {/* Cloud Tags */}
       <div className={styles.tagsWrapper}>
         <label>Cloud Tagging</label>
 
@@ -77,57 +67,197 @@ export default function DataSculptingForm({ onPublish, onSaveDraft }: Props) {
           {tags.map((tag) => (
             <div key={tag} className={styles.tag}>
               #{tag}
-              <span
-                className="material-symbols-outlined"
-                onClick={() => removeTag(tag)}
-              >
+              <span className="material-symbols-outlined" onClick={() => setTags(tags.filter(t => t !== tag))}>
                 close
               </span>
             </div>
           ))}
 
-          <div className={styles.tagAdd} onClick={addTag}>
-            + Add Bubble
-          </div>
+          {adding ? (
+            <input
+              className={styles.tagInput}
+              autoFocus
+              value={newTag}
+              onChange={(e) => setNewTag(e.target.value)}
+              onBlur={addTag}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") addTag();
+                if (e.key === "Escape") setAdding(false);
+              }}
+              placeholder="Tag name..."
+            />
+          ) : (
+            <div className={styles.tagAdd} onClick={() => setAdding(true)}>
+              + Add Bubble
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Resources */}
-      <div className={styles.resourcesWrapper}>
-        <h3>Resources & Vault</h3>
-
-        <div className={styles.resourcesRow}>
-          <div className={styles.resource}>
-            <span className="material-symbols-outlined text-primary text-sm">
-              description
-            </span>
-            <span>project_spec.pdf</span>
-          </div>
-
-          <div className={styles.resource}>
-            <span className="material-symbols-outlined text-blue-400 text-sm">
-              audio_file
-            </span>
-            <span>bg_score.wav</span>
-          </div>
-
-          <button className={styles.resourceAdd}>
-            <span className="material-symbols-outlined text-lg">add</span>
-          </button>
-        </div>
-      </div>
-
-      {/* Buttons */}
       <div className={styles.buttonsRow}>
         <button onClick={onSaveDraft} className={styles.btnDraft}>
           SAVE DRAFT
         </button>
 
-        <button onClick={onPublishClick} className={styles.btnPublish}>
-          PUBLISH KINETIC
+        <button
+          onClick={() => onPublish?.({ title, description, tags })}
+          className={styles.btnPublish}
+        >
+          PUBLISH Video
           <span className="material-symbols-outlined">rocket_launch</span>
         </button>
       </div>
     </div>
   );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// "use client";
+
+// import { useState } from "react";
+// import styles from "./DataSculptingForm.module.scss";
+
+// interface Props {
+//   onPublish?: (data: {
+//     title: string;
+//     description: string;
+//     tags: string[];
+//   }) => void;
+
+//   onSaveDraft?: () => void;
+// }
+
+// export default function DataSculptingForm({ onPublish, onSaveDraft }: Props) {
+//   const [title, setTitle] = useState("");
+//   const [description, setDescription] = useState("");
+//   const [tags, setTags] = useState<string[]>([
+//     "Cinematic",
+//     "MotionGraphics",
+//     "VFX",
+//   ]);
+
+//   const addTag = () => {
+//     const next = prompt("Enter new tag:");
+//     if (!next) return;
+//     setTags([...tags, next]);
+//   };
+
+//   const removeTag = (t: string) => {
+//     setTags(tags.filter((tag) => tag !== t));
+//   };
+
+//   const onPublishClick = () => {
+//     onPublish?.({
+//       title,
+//       description,
+//       tags,
+//     });
+//   };
+
+//   return (
+//     <div className={styles.panel}>
+//       <h2 className={styles.heading}>
+//         <span className="material-symbols-outlined text-primary">draw</span>
+//         Data Sculpting
+//       </h2>
+
+//       {/* Title */}
+//       <div className={styles.formGroup}>
+//         <label>Sculpt Your Title</label>
+//         <input
+//           className={styles.input}
+//           placeholder="Enter video title..."
+//           value={title}
+//           onChange={(e) => setTitle(e.target.value)}
+//         />
+//       </div>
+
+//       {/* Description */}
+//       <div className={styles.formGroup}>
+//         <label>Vision Statement</label>
+//         <textarea
+//           className={styles.textarea}
+//           placeholder="Describe your vision in the glass..."
+//           value={description}
+//           onChange={(e) => setDescription(e.target.value)}
+//         />
+//       </div>
+
+//       {/* Cloud Tags */}
+//       <div className={styles.tagsWrapper}>
+//         <label>Cloud Tagging</label>
+
+//         <div className={styles.tagsBox}>
+//           {tags.map((tag) => (
+//             <div key={tag} className={styles.tag}>
+//               #{tag}
+//               <span
+//                 className="material-symbols-outlined"
+//                 onClick={() => removeTag(tag)}
+//               >
+//                 close
+//               </span>
+//             </div>
+//           ))}
+
+//           <div className={styles.tagAdd} onClick={addTag}>
+//             + Add Bubble
+//           </div>
+//         </div>
+//       </div>
+
+//       {/* Resources */}
+//       {/* <div className={styles.resourcesWrapper}>
+//         <h3>Resources & Vault</h3>
+
+//         <div className={styles.resourcesRow}>
+//           <div className={styles.resource}>
+//             <span className="material-symbols-outlined text-primary text-sm">
+//               description
+//             </span>
+//             <span>project_spec.pdf</span>
+//           </div>
+
+//           <div className={styles.resource}>
+//             <span className="material-symbols-outlined text-blue-400 text-sm">
+//               audio_file
+//             </span>
+//             <span>bg_score.wav</span>
+//           </div>
+
+//           <button className={styles.resourceAdd}>
+//             <span className="material-symbols-outlined text-lg">add</span>
+//           </button>
+//         </div>
+//       </div> */}
+
+//       {/* Buttons */}
+//       <div className={styles.buttonsRow}>
+//         <button onClick={onSaveDraft} className={styles.btnDraft}>
+//           SAVE DRAFT
+//         </button>
+
+//         <button onClick={onPublishClick} className={styles.btnPublish}>
+//           PUBLISH Video
+//           <span className="material-symbols-outlined">rocket_launch</span>
+//         </button>
+//       </div>
+//     </div>
+//   );
+// }

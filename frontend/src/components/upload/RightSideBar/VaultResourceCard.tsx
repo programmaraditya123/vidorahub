@@ -5,10 +5,7 @@ import styles from "./VaultResourceCard.module.scss";
 export default function VaultResourceCard() {
   return (
     <div className={styles.card}>
-      {/* Glow icon behind */}
-      <div className={styles.bgIcon}>
-        <span className="material-symbols-outlined">shield_person</span>
-      </div>
+       
 
       {/* Top section */}
       <div className={styles.topRow}>
@@ -24,10 +21,7 @@ export default function VaultResourceCard() {
 
       {/* Bottom */}
       <div className={styles.bottomRow}>
-        <div className={styles.premium}>
-          <span className="material-symbols-outlined">workspace_premium</span>
-          <span>Attached Vault</span>
-        </div>
+
 
         <button className={styles.btnDownload}>
           <span>Download</span>

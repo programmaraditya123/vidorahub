@@ -1,41 +1,164 @@
-.page {
-  padding: 2rem;
-  display: grid;
-  grid-template-columns: 1fr 420px;
-  gap: 2.5rem;
-  max-width: 1700px;
-  margin: 0 auto;
-  overflow-y: scroll;
-  height: 93vh;
-  scrollbar-width: none;
-}
+/* ---------------------- */
+/* BASE LAYOUT (Mobile)   */
+/* ---------------------- */
 
-.leftdiv {
-  position: relative;        
+.page {
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
-  height: 100%;
+  padding: 1rem;
+  gap: 1.5rem;
+  max-width: 100%;
+  margin: 0 auto;
+  height: auto;
+  overflow: scroll;
+  scrollbar-width: none;
+  height: 100vh;
 }
 
+/* LEFT DIV → FULL WIDTH ON MOBILE */
+.leftdiv {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+/* RIGHT DIV → Full width on mobile */
+.right {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Overlay Fix for UploadVideo */
 .overlay {
   position: absolute;
-  inset: 0;                  
+  inset: 0;
 
   display: flex;
   justify-content: center;
-  align-items: center;      
+  align-items: center;
 
   z-index: 15;
-  pointer-events: auto;     
+  pointer-events: auto;
 
-  background: rgba(0, 0, 0, 0.15);  
-  backdrop-filter: blur(4px);  
-   margin-right: -28rem;
+  background: rgba(0, 0, 0, 0.15);
+  backdrop-filter: blur(4px);
+  width: 100%;
+  height: 100%;
+  margin: 0;   /* FIXED */
 }
 
-.right {
+/* UPLOAD OVERLAY (Progress Box) */
+.uploadOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(8, 8, 8, 0.9);
   display: flex;
-  flex-direction: column;
-  gap: 2rem;
+  justify-content: center;
+  align-items: center;
+  z-index: 99999;
+  padding: 20px;
+}
+
+.progressBox {
+  width: 90%;
+  max-width: 400px;
+  padding: 25px;
+  background: #111;
+  border-radius: 14px;
+  text-align: center;
+  color: white;
+}
+
+.progressBarOuter {
+  width: 100%;
+  height: 10px;
+  background: #333;
+  border-radius: 50px;
+  overflow: hidden;
+  margin-top: 15px;
+}
+
+.progressBarInner {
+  height: 100%;
+  background: #0af;
+  transition: width 0.2s ease;
+}
+
+.cancelBtn {
+  margin-top: 20px;
+  width: 100%;
+  padding: 10px 0;
+  background: red;
+  border-radius: 8px;
+  border: none;
+  color: white;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+/* --------------------------- */
+/* TABLET  → 768px and above   */
+/* --------------------------- */
+
+@media (min-width: 768px) {
+  .page {
+    padding: 1.5rem;
+    gap: 2rem;
+  }
+
+  .leftdiv {
+    margin-bottom: 1rem;
+  }
+}
+
+/* --------------------------- */
+/* LAPTOP → 1024px and above   */
+/* --------------------------- */
+
+@media (min-width: 1024px) {
+  .page {
+    display: grid;
+    grid-template-columns: 1fr 420px; /* left + right */
+    gap: 2rem;
+    max-width: 1400px;
+    height: 92vh;
+    overflow-y: auto;
+    scrollbar-width: none;
+  }
+
+  .right {
+    position: sticky;
+    top: 10px;
+  }
+}
+
+/* --------------------------- */
+/* DESKTOP → 1440px and above  */
+/* --------------------------- */
+
+@media (min-width: 1440px) {
+  .page {
+    max-width: 1600px;
+    grid-template-columns: 1fr 450px;
+  }
+}
+
+/* --------------------------- */
+/* LARGE LED → 1920px+         */
+/* --------------------------- */
+
+@media (min-width: 1920px) {
+  .page {
+    max-width: 1800px;
+    grid-template-columns: 1fr 500px;
+    padding: 3rem;
+    gap: 3rem;
+  }
+
+  .progressBox {
+    max-width: 500px;
+  }
 }
