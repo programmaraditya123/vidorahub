@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { getVideos } from "@/src/lib/video/uploadvideo";
-// import VideoCard from "@/components/VideoCard/VideoCard";
 
 import styles from "./Masonry.module.scss";
 import VideoCard from "../VideoCard/VideoCard";
@@ -14,10 +13,14 @@ type Video = {
   description: string;
   creatorName?: string;
   videoUrl?: string;
-  views?: string;
-  duration?: string;
-  thumbnail?: string;
+  thumbnailUrl?: string;
+  duration?: string | number;
+  views?: number;
+  stats?: {
+    views?: number;
+  };
 };
+
 
 export default function Masonry() {
   const [videos, setVideos] = useState<Video[]>([]);
@@ -50,7 +53,7 @@ export default function Masonry() {
                 title: video.title,
                 creatorName: "Unknown", // or fetch from profile
                 thumbnailUrl: video.thumbnailUrl as string,
-                duration: formatDuration(video.duration),
+                duration: formatDuration(Number(video?.duration)),
                 views: video.stats?.views || 0,
                 videoUrl: video.videoUrl,
               }}
