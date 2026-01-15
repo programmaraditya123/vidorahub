@@ -1,3 +1,6 @@
+/* ------------------------------------------------- */
+/* BASE HEADER */
+/* ------------------------------------------------- */
 .header {
   height: 90px;
   display: flex;
@@ -7,9 +10,12 @@
   position: sticky;
   top: 0;
   z-index: 40;
+  backdrop-filter: blur(20px);
 }
 
-/* Search Bar Section */
+/* ------------------------------------------------- */
+/* SEARCH AREA */
+/* ------------------------------------------------- */
 .searchContainer {
   flex: 1;
   max-width: 500px;
@@ -41,23 +47,16 @@
   outline: none;
   font-size: 0.95rem;
   transition: 0.25s ease;
-  border: 1px solid rgba(255,255,255,0.15);
+  border: 1px solid rgba(255, 255, 255, 0.15);
 
   &::placeholder {
     color: #666;
   }
-
-  &:focus {
-    border-color: var(--primary);
-    box-shadow: 0 0 0 2px rgba(164, 19, 236, 0.4);
-  }
-
-  &:focus ~ .searchIcon {
-    color: var(--primary);
-  }
 }
 
-/* Right Action Buttons */
+/* ------------------------------------------------- */
+/* ACTION BUTTONS */
+/* ------------------------------------------------- */
 .actions {
   display: flex;
   align-items: center;
@@ -72,15 +71,11 @@
   padding: 10px;
   cursor: pointer;
   transition: 0.25s ease;
-  border: 1px solid rgba(255,255,255,0.15);
+  border: 1px solid rgba(255, 255, 255, 0.15);
 
   span {
     color: #d1d5db;
     font-size: 22px;
-  }
-
-  &:hover {
-    background: rgba(255,255,255,0.12);
   }
 }
 
@@ -95,7 +90,6 @@
   box-shadow: 0 0 8px rgba(164, 19, 236, 1);
 }
 
-/* Upload Button */
 .uploadBtn {
   padding: 10px 24px;
   border-radius: 14px;
@@ -103,11 +97,130 @@
   font-weight: 600;
   cursor: pointer;
   transition: 0.25s ease;
-  border: 1px solid rgba(164,19,236,0.2);
+  border: 1px solid rgba(164, 19, 236, 0.2);
   color: white;
 
   &:hover {
     background: var(--primary);
     border-color: var(--primary);
+  }
+}
+
+/* ------------------------------------------------- */
+/* RESPONSIVE BREAKPOINTS */
+/* ------------------------------------------------- */
+
+/* ----------------------- */
+/* Tablets (≤1024px) */
+/* ----------------------- */
+@media (max-width: 1024px) {
+  .header {
+    padding: 0 1rem;
+  }
+
+  .searchContainer {
+    max-width: 400px;
+  }
+}
+
+/* ----------------------- */
+/* Mobile Landscape (≤768px) */
+/* ----------------------- */
+@media (max-width: 768px) {
+  .header {
+    height: 80px;
+    padding: 0 0.8rem;
+    gap: 1rem;
+  }
+
+  .searchContainer {
+    max-width: 320px;
+  }
+
+  .uploadBtn {
+    padding: 8px 18px;
+    font-size: 0.8rem;
+  }
+}
+
+/* ----------------------- */
+/* Mobile Portrait (≤600px) */
+/* ----------------------- */
+@media (max-width: 600px) {
+  .header {
+    padding: 0 0.8rem;
+    height: 75px;
+  }
+
+  .searchContainer {
+    max-width: none;
+    width: 100%;
+  }
+
+  .actions {
+    gap: 0.8rem;
+  }
+
+  .iconBtn {
+    width: 42px;
+    height: 42px;
+    padding: 8px;
+
+    span {
+      font-size: 20px;
+    }
+  }
+
+  .uploadBtn {
+    padding: 8px 14px;
+    font-size: 0.75rem;
+  }
+}
+
+/* ----------------------- */
+/* Small Phones (≤450px) */
+/* ----------------------- */
+@media (max-width: 450px) {
+  /* Upload button shrinks */
+  .uploadBtn {
+    padding: 6px 12px;
+    font-size: 0.7rem;
+  }
+
+  .searchInput {
+    height: 44px;
+    padding-left: 40px;
+  }
+
+  .searchIcon {
+    left: 10px;
+    font-size: 20px;
+  }
+
+  .actions {
+    gap: 0.6rem;
+  }
+}
+
+/* ----------------------- */
+/* Extra Small Phones (≤360px) */
+/* ----------------------- */
+@media (max-width: 360px) {
+  /* Hide Upload button */
+  .uploadBtn {
+    display: none;
+  }
+
+  .header {
+    justify-content: center;
+  }
+
+  .actions {
+    gap: 0.4rem;
+  }
+
+  .iconBtn {
+    width: 38px;
+    height: 38px;
   }
 }

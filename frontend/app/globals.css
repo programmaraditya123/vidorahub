@@ -82,6 +82,13 @@ body {
   overflow-y: auto;
   scrollbar-width: none;
 }
+@media (max-width: 720px)  {
+  .main-content{
+    margin-left: 0px !important;
+    margin-right: 0rem !important;
+  }
+  
+}
 
 .main-content::-webkit-scrollbar {
   display: none;

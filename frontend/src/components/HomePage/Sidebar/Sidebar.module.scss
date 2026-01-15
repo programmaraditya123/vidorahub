@@ -4,6 +4,14 @@
   top: 50%;
   transform: translateY(-50%);
   z-index: 50;
+
+  @media (max-width: 600px) {
+    width: 100%;
+    left: 0;
+    bottom: 0;
+    top: auto;
+    transform: none;
+  }
 }
 
 .nav {
@@ -13,9 +21,21 @@
   flex-direction: column;
   align-items: center;
   gap: 1.4rem;
-  box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(20px);
+
+  @media (max-width: 600px) {
+    flex-direction: row;
+    justify-content: space-around;
+    gap: 1rem;
+    width: 100%;
+    border-radius: 20px 20px 0 0;
+    padding: 0.7rem 1rem;
+    backdrop-filter: blur(12px);
+  }
 }
 
+/* Hide logo on mobile */
 .logo {
   color: var(--primary);
   padding: 0.4rem;
@@ -24,9 +44,13 @@
     font-size: 2.3rem;
     font-weight: bold;
   }
+
+  @media (max-width: 600px) {
+    display: none;
+  }
 }
 
-/* Menu Icon Wrapper */
+/* Navigation links */
 .link {
   position: relative;
   cursor: pointer;
@@ -42,12 +66,18 @@
     text-shadow: 0 0 10px var(--primary);
   }
 
-  &:hover .tooltip {
-    opacity: 1;
+  @media (max-width: 600px) {
+    span {
+      font-size: 24px;
+    }
+
+    .tooltip {
+      display: none; /* hide tooltip on mobile */
+    }
   }
 }
 
-/* Tooltip Label */
+/* Tooltip */
 .tooltip {
   position: absolute;
   top: 50%;
@@ -60,17 +90,25 @@
   pointer-events: none;
   transition: opacity 0.25s ease;
   white-space: nowrap;
+
+  @media (max-width: 600px) {
+    display: none;
+  }
 }
 
-/* Divider Line */
+/* Divider (hidden on mobile) */
 .divider {
   width: 32px;
   height: 1px;
-  background: rgba(255,255,255,0.12);
+  background: rgba(255, 255, 255, 0.12);
   margin: 0.3rem 0;
+
+  @media (max-width: 600px) {
+    display: none;
+  }
 }
 
-/* Profile Image */
+/* Profile avatar */
 .profile {
   width: 38px;
   height: 38px;
@@ -82,5 +120,10 @@
 
   &:hover {
     transform: scale(1.12);
+  }
+
+  @media (max-width: 600px) {
+    width: 34px;
+    height: 34px;
   }
 }

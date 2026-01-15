@@ -84,7 +84,7 @@ Includes exclusive underground tracks, ambient rain, soft pads, vintage synths, 
               />
             </div>
 
-            <div>
+            {/* <div>
               <ResourcesCard
                 filename="Project_Assets.zip"
                 size="24.5 MB • ZIP/PDF"
@@ -95,7 +95,7 @@ Includes exclusive underground tracks, ambient rain, soft pads, vintage synths, 
                 <span className="material-symbols-outlined">info</span>
                 <p>CC BY-NC 4.0 International License Applied</p>
               </div>
-            </div>
+            </div> */}
           </div>
         </main>
 

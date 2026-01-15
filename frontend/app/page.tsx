@@ -11,7 +11,10 @@ export default function Home() {
       <BackgroundLayers />
 
       <div className="page-wrapper">
+        <div className="sidebar-container">
         <Sidebar />
+
+        </div>
 
         <main className="main-content">
           <Header />
