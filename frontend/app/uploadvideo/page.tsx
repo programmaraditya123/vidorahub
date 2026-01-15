@@ -41,7 +41,7 @@ export default function UploadPage() {
       title: formData.title,
       description: formData.description,
       tags: formData.tags,
-      visibility: "private",  
+      visibility: "private" as const,  
       category: "general",
       cancelToken: controller,
       onProgress: (p: number) => setProgress(p),

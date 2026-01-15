@@ -31,7 +31,7 @@ export type UploadResponse = {
 //     )
 //     return data;
 // }
-
+type Visibility = "private" | "public" | "unlisted";
 
 export type UploadPayload = {
   video: File;
@@ -39,7 +39,7 @@ export type UploadPayload = {
   title: string;
   description: string;
   tags: string[];
-  visibility?: "public" | "private" | "unlisted";
+  visibility?: Visibility;
   category?: string;
   onProgress?: (percent: number) => void;
   cancelToken?: AbortController;
