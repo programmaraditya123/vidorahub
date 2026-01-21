@@ -42,7 +42,9 @@ export default function VideoCard({ video }: { video: Video }) {
           src={thumb}
           alt={video.title}
           fill
+          priority={false}
           className={styles.thumbnail}
+          loading="lazy"
         />
 
         {/* Live badge */}

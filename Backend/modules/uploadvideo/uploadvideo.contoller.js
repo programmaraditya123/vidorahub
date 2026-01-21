@@ -126,105 +126,6 @@ const UploadVideoController = async (req, res) => {
 
 
 
-// const UploadVideoController = async (req, res) => {
-//     try {
-//         if (!req.user._id) {
-//             return res.status(401).json({ ok: false, message: "unauthorized" })
-
-//         }
-
-//         // console.log('content-type:', req.headers['content-type']);
-//         // console.log('req.body keys:', Object.keys(req.body || {}));
-//         // console.log('req.file present?:', !!req.file);
-
-//         if (!req.file) {
-//             return res.status(400).json({ ok: false, message: "No video file uploaded" })
-//         }
-//         const { title, description, tags, category = 'general', visibility = 'public' } = req.body;
-//         if (!title || !description || !tags) {
-//             return res.status(400).json({
-//                 success: false,
-//                 message: "Title,Descrition,Tags are required"
-//             })
-//         }
-
-//         const normalizeTags = Array.isArray(tags)
-//             ? tags
-//             : String(tags)
-//                 .split(',')
-//                 .map(s => s.trim())
-//                 .filter(Boolean)
-
-//         if (normalizeTags.length === 0) {
-//             return res.status(400).json({
-//                 success: false,
-//                 message: "Atleast on tag is required"
-//             })
-//         }
-
-//         //get file duration from the video
-//         const tempFilePath = bufferToStream(req.file.buffer);
-//         const duration = await getVideoDurationInSeconds(tempFilePath);
-//         // console.log("Video Duration",duration)
-
-//         const videoUrl = await uploadToGCS(req.file, {
-//             prefix: `users/${req.user._id}/videos/`,
-//             makePublic: true,
-//             resumable: true
-//         })
-
-//         let videoDoc;
-
-//         const session = await mongoose.startSession();
-//         await session.withTransaction(async () => {
-//             videoDoc = await Video.create([{
-//                 title: String(title).trim(),
-//                 description: String(description).trim(),
-//                 tags: normalizeTags,
-//                 duration,
-//                 visibilty,
-//                 category,
-//                 uploader: req.user._id,
-//                 videoUrl,
-//             }], { session });
-
-//             videoDoc = videoDoc[0]
-
-//             await userProfile.findByIdAndUpdate(
-//                 req.user._id,
-//                 {
-//                     $push: { uploads: videoDoc._id },
-//                     $inc: { totalvideos: 1 }
-//                 },
-//                 { session }
-//             )
-//         })
-//         session.endSession()
-//         console.log("Video uploaded successfully")
-
-//         return res.status(201).json({
-//             ok: true,
-//             message: 'Video uploaded successfully',
-//             video: videoDoc,
-//         });
-
-
-//     } catch (error) {
-//         console.error('Upload error:', error);
-//         // Multer errors typically come as err.message
-//         return res.status(500).json({
-//             ok: false,
-//             message: error?.message || 'Failed to upload video',
-//         });
-
-//     } finally{
-//         if(session){
-
-//             session.endSession()
-//         }
-//     }
-// }
-
 const getAllVideosController = async (req, res) => {
     try {
         const page = Math.max(parseInt(req.query.page) || 1, 1);
@@ -233,6 +134,8 @@ const getAllVideosController = async (req, res) => {
 
         const [items, total] = await Promise.all([
             Video.find({})
+                .select("-description -tags -visibility -category -updatedAt -__v -stats.comments -stats.dislikes")
+                .populate({path : "uploader" , select : "name -_id"})
                 .sort({ createdAt: -1 })    
                 .skip(skip)
                 .limit(limit)
