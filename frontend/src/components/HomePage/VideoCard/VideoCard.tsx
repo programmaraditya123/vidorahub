@@ -7,6 +7,9 @@ import { useCallback } from "react";
 import styles from "./VideoCard.module.scss";
 import fallbackThumbnail from "../../../images/sample1.png";
 import { encodeFilename } from "@/src/functions";
+import { setVideoId } from "@/src/utils/videoStorage";
+// import { useAppDispatch } from "@/src/redux/hooks";
+// import { setVideoId } from "@/src/redux/slices/uiSlice";
 
 type Video = {
   _id: string;
@@ -22,9 +25,17 @@ type Video = {
 
 export default function VideoCard({ video }: { video: Video }) {
   const router = useRouter();
+  // const dispatch =  useAppDispatch()
+  
 
   const handleNavigate = useCallback(() => {
     if (!video.videoUrl) return;
+
+    if(video?._id){
+    // dispatch(setVideoId(video?._id))
+    setVideoId(video?._id)
+  }
+   
 
     const lastPart = video.videoUrl.split("vidorahub/")[1];
     const encoded = encodeFilename(lastPart!);

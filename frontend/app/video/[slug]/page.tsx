@@ -10,16 +10,42 @@ import VideoPlayer from "@/src/components/VideoPage/VideoPlayer/VideoPlayer";
 import VideoMeta from "@/src/components/VideoPage/VideoMeta/VideoMeta";
 import VideoActions from "@/src/components/VideoPage/VideoActions/VedioActions";
 import VideoDescription from "@/src/components/VideoPage/VedioDescription/VideoDescription";
-import ResourcesCard from "@/src/components/shared/resourcescard/ResourcesCard";
+// import ResourcesCard from "@/src/components/shared/resourcescard/ResourcesCard";
 import CommentsSection from "@/src/components/ui/CommentSection/CommentSection";
+import { getVideoMetadataExceptCommentsDocs } from "@/src/lib/video/videodata";
+import { useEffect, useState } from "react";
+import { getVideoId } from "@/src/utils/videoStorage";
 
-export default function Page() {
+export default function Page () {
   const params = useParams();
   const slug = params?.slug;
   const encoded = Array.isArray(slug) ? slug[0] : slug;
 
+  const videoId = getVideoId()
+
   const decoded = encoded ? decodeFilename(encoded) : "";
   const videoUrl = `https://storage.googleapis.com/vidorahub/${decoded}`;
+  const [videoMeta, setVideoMeta] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+    if (!videoId) return;
+
+    const fetchMeta = async () => {
+      try {
+        setLoading(true);
+        const res = await getVideoMetadataExceptCommentsDocs(videoId);
+        setVideoMeta(res.data);
+      } catch (error) {
+        console.error("Failed to fetch video metadata", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchMeta();
+  }, [videoId]);
+
 
   return (
     <div className={styles.page}>
@@ -61,27 +87,33 @@ export default function Page() {
           <VideoPlayer src={videoUrl} />
 
           <div className={styles.topMeta}>
-            <VideoMeta
-              title="Lofi Beats for Deep Coding Sessions"
-              category="Cinematic 4K"
-              published="2 hours ago"
-            />
+            {!loading && videoMeta && (
+                <VideoMeta
+                  title={videoMeta.data?.title}
+                  category={videoMeta.data?.tags?.[0] || "General"}
+                  published={new Date(videoMeta.data?.createdAt).toDateString()}
+                />
+              )}
 
-            <VideoActions likes="42K" />
+
+            {/* <VideoActions likes="42K" /> */}
+            {!loading && videoMeta && (
+            <VideoActions likes={videoMeta.data?.stats.likes.toString()} />
+          )}
+
           </div>
 
           <div className={styles.resourcesRow}>
             <div>
-              <VideoDescription
-                views="2,458,123"
-                uploaded="2 weeks ago"
-                hashtags={["Lofi", "Beats", "CodingMusic"]}
-                description={`Dive into the ultimate productivity atmosphere with our Lofi mix. Perfect
-for deep coding sessions, debugging, creative design flow, and late-night
-focus mode.
+              {!loading && videoMeta && (
+                  <VideoDescription
+                    views={videoMeta.data?.stats.views.toLocaleString()}
+                    uploaded={new Date(videoMeta.data?.createdAt).toDateString()}
+                    hashtags={videoMeta.data?.tags}
+                    description={videoMeta.data?.description}
+                  />
+                )}
 
-Includes exclusive underground tracks, ambient rain, soft pads, vintage synths, and a frequency-balanced mix designed to reduce cognitive fatigue.`}
-              />
             </div>
 
             {/* <div>
@@ -101,31 +133,8 @@ Includes exclusive underground tracks, ambient rain, soft pads, vintage synths, 
 
         {/* RIGHT SIDEBAR — COMMENTS */}
         <div className={styles.rightSidebar}>
-          <CommentsSection
-            totalComments={982}
-            comments={[
-              {
-                id: "1",
-                user: "@AlexChen",
-                avatar:
-                  "https://lh3.googleusercontent.com/aida-public/AB6AXuA-i_iUBYH3jBKnaaKXcgLdM6cvyxWBX0eWo_aip3s8luNWE_LC9s6ZaXGxHSlAUCs_ig-cdiEt9g-8wycdKuIKkPwg2BJQ30nVM3fK80XvP9U9IJ6rjDdUNNf9d8FhdDy8nEb0P7Lb7EO-cTes0z4ZSk-zkschdHe6qNNWFjb8LAogFAbph7AJb0-xQ_rhsJks-bMfoCuhXaVbAMgsrxd8eBTkQd0eBpFHvwSNKU3-cHgxKP2MzhG1OiPjR0xMSVzKr_wTNuchxtQe",
-                text:
-                  "The ambient glow effect on this player is absolutely insane. Best UI I've seen in years! 🚀",
-                likes: 14,
-                time: "2m ago",
-              },
-              {
-                id: "2",
-                user: "@SarahKnight",
-                avatar:
-                  "https://lh3.googleusercontent.com/aida-public/AB6AXuBG7mXJsJKbi8MN-mCyFzYxE71yMhJVJFJVB6M86gWP4rQvWnVpCDIUogTjhS6-_dYJ4NUzsrnkKFtuBb1f_ukVThTWR4nUUf4VWq49jMADTD8-p0BduCMg5h40kbswPYomez4wVgz6XKfywm_ngjowFyOwd4CbzBXqbujMP9CjbvXHxSXfmIznXy4Twh5cpB-JMv0L6l8Ydj4FYOV8g-7fRaPK_t7Mp61hrMllWOvaxzLZ8cl6NEblru_bRuS__5787E03BVuhYisg",
-                text:
-                  "Coding to this mix right now. The vibe is immaculate. Anyone else working on LLMs?",
-                likes: 23,
-                time: "14m ago",
-              },
-            ]}
-          />
+          <CommentsSection/>
+            
         </div>
 
       </div>

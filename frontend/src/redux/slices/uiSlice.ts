@@ -1,13 +1,15 @@
-import { createSlice } from '@reduxjs/toolkit'
+import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 
 interface SidebarState {
   isCollapsed: boolean,
   isLight : boolean,
+  videoId: string | null,
 }
 
 const initialState: SidebarState = {
   isCollapsed: false,
   isLight : false,
+  videoId: null,
 }
 
 const uiSlice = createSlice({
@@ -19,9 +21,12 @@ const uiSlice = createSlice({
     },
     toggleTheme : (state) => {
        state.isLight = !state.isLight
+    },
+    setVideoId : (state,action : PayloadAction<string | null>) => {
+       state.videoId = action.payload;
     }
   },
 })
 
-export const { toggleSidebar } = uiSlice.actions
+export const { toggleSidebar,setVideoId } = uiSlice.actions
 export default uiSlice.reducer

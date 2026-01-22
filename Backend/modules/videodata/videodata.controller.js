@@ -1,5 +1,6 @@
 const mongoose = require('mongoose')
 const Video = require('../uploadvideo/uploadvideo.model')
+const Comment = require('./videodata.model')
 
 
 const getVedioDataExceptCommentsDocs = async (req,res) => {
@@ -28,20 +29,206 @@ const getVedioDocs = (req,res) => {
     }
 }
 
-const getVedioComments = (req,res) => {
+const postVedioComments = async (req,res) => {
     try {
+        const {videoId} = req.params;
+        const {content,parentComment} = req.body;
+        const userId = req.user.id;
+
+        if(!content || !content.trim()){
+            return res.status(400).json({
+                success : false,
+                message : "Comment content is required"
+            })
+        }
+
+    const video = await Video.findById({_id : videoId}).select("_id visibility");
+    // console.log("Vedioo",video)
+
+    if (!video) {
+      return res.status(404).json({
+        success: false,
+        message: "Video not found",
+      });
+    }
+
+    if (video.visibility === "private") {
+      return res.status(403).json({
+        success: false,
+        message: "Comments are disabled for this video",
+      });
+    }
+        if(parentComment){
+            const parent = await Comment.findById(parentComment).select("_id video")
+            if(!parent || parent.video.toString() !== videoId){
+                return res.status(400).json({
+                    success : false,
+                    message : "Invalid parent comment"
+                })
+            }
+        }
+
+        const comment = await Comment.create({
+            video : videoId ,
+            user : userId,
+            content : content.trim(),
+            parentComment : parentComment || null
+        })
+        
+        if(!parentComment){
+            await Video.findByIdAndUpdate(videoId , {$inc : {"stats.comments" : 1}})
+        }
+
+        return res.status(201).json({
+            success : true ,
+            message : "Comments posted successfully",
+            data : comment,
+        })
+
         
     } catch (error) {
+        return res.status(500).json({
+            success : false ,
+            message : "failed to post comments"
+        })
         
     }
 }
 
+const getVedioComments = async (req, res) => {
+  try {
+    const { videoId } = req.params;
 
-const getNextVideos = (req,res) => {
-    try {
-        
-    } catch (error) {
-        
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    if (!mongoose.Types.ObjectId.isValid(videoId)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid video ID",
+      });
     }
-}
-module.exports = {getVedioDataExceptCommentsDocs,getVedioComments,getVedioDocs,getNextVideos}
+
+    const comments = await Comment.find({
+      video: videoId,
+      parentComment: null,
+    })
+      .sort({ createdAt: -1 })
+      .select("-isEdited -isPinned -updatedAt -__v")
+      .skip(skip)
+      .limit(limit)
+      .populate("user", "username avatar name")
+      .lean();
+
+    const commentIds = comments.map((c) => c._id);
+
+    const replies = await Comment.find({
+      parentComment: { $in: commentIds },
+    })
+      .sort({ createdAt: 1 })
+      .select("-isEdited -isPinned -updatedAt -__v")
+      .populate("user", "username avatar name")
+      .lean();
+
+    const repliesMap = {};
+    replies.forEach((reply) => {
+      if (!repliesMap[reply.parentComment]) {
+        repliesMap[reply.parentComment] = [];
+      }
+      repliesMap[reply.parentComment].push(reply);
+    });
+
+    const commentsWithReplies = comments.map((comment) => ({
+      ...comment,
+      replies: repliesMap[comment._id] || [],
+    }));
+
+    const totalComments = await Comment.countDocuments({
+      video: videoId,
+      parentComment: null,
+    });
+
+    return res.status(200).json({
+      success: true,
+      data: commentsWithReplies,
+      pagination: {
+        total: totalComments,
+        page,
+        limit,
+        totalPages: Math.ceil(totalComments / limit),
+        hasNextPage: page * limit < totalComments,
+      },
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to fetch comments",
+    });
+  }
+};
+
+
+const getNextVideos = async (req, res) => {
+  try {
+    const {
+      search = "",
+      excludeVideoId,
+      page = 1,
+      limit = 10,
+    } = req.query;
+
+    const skip = (page - 1) * limit;
+
+    const query = {
+      visibility: "public",
+    };
+
+    if (search.trim()) {
+      query.title = {
+        $regex: search.trim(),
+        $options: "i",
+      };
+    }
+
+    if (
+      excludeVideoId &&
+      mongoose.Types.ObjectId.isValid(excludeVideoId)
+    ) {
+      query._id = { $ne: excludeVideoId };
+    }
+
+    const videos = await Video.find(query)
+      .sort({ createdAt: -1 })  
+      .skip(skip)
+      .limit(Number(limit))
+      .select("title thumbnailUrl duration stats.views uploader createdAt")
+      .populate("uploader", "_id username avatar")
+      .lean();
+
+    const total = await Video.countDocuments(query);
+
+    return res.status(200).json({
+      success: true,
+      data: videos,
+      pagination: {
+        total,
+        page: Number(page),
+        limit: Number(limit),
+        totalPages: Math.ceil(total / limit),
+        hasNextPage: page * limit < total,
+      },
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to fetch next videos",
+    });
+  }
+};
+
+
+module.exports = {getVedioDataExceptCommentsDocs,getVedioComments,getVedioDocs,
+    getNextVideos,postVedioComments}

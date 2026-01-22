@@ -1,11 +1,15 @@
 const express = require('express');
-const { getVedioDataExceptCommentsDocs, getVedioComments, getVedioDocs, getNextVideos } = require('./videodata.controller');
+const { getVedioDataExceptCommentsDocs, getVedioComments, getVedioDocs, 
+    getNextVideos, postVedioComments } = require('./videodata.controller');
+const { requireSignIn } = require('../auth/auth.middleware');
+    
 
 const router = express.Router()
 
 router.get('/getVedioDataExceptCommentsDocs/:id',getVedioDataExceptCommentsDocs)
 
-router.get('/getVedioComments',getVedioComments)
+router.post('/postVedioComments/:videoId',requireSignIn,postVedioComments)
+router.get('/getVedioComments/:videoId',getVedioComments)
 
 router.get('/getVedioDocs',getVedioDocs)
 
