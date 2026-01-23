@@ -18,153 +18,204 @@ interface Comment {
   user: User;
   content: string;
   createdAt: string;
-  likes: number;
   replies?: Comment[];
+  optimistic?: boolean;
 }
+
+const tempId = () => `temp-${Date.now()}`;
 
 export default function CommentsSection() {
   const [comments, setComments] = useState<Comment[]>([]);
-  const [totalComments, setTotalComments] = useState(0);
   const [text, setText] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [replyText, setReplyText] = useState("");
+  const [replyTo, setReplyTo] = useState<string | null>(null);
 
   const videoId =
     typeof window !== "undefined" ? getVideoId() : null;
 
-  // ==============================
-  // FETCH COMMENTS
-  // ==============================
-  const fetchComments = async () => {
-    if (!videoId) return;
-
-    try {
-      const res = await http.get(
-        `/api/v1/getVedioComments/${videoId}?page=1&limit=10`
-      );
-
-      setComments(res.data.data); // ✅ array
-      setTotalComments(res.data.pagination.total);
-    } catch (error) {
-      console.error("Failed to fetch comments", error);
-    }
-  };
-
-  // ==============================
-  // POST COMMENT
-  // ==============================
-  const handlePostComment = async () => {
-    if (!text.trim() || !videoId) return;
-
-    try {
-      setLoading(true);
-
-      await http.post(`/api/v1/postVedioComments/${videoId}`, {
-        content: text.trim(),
-      });
-
-      setText("");
-      fetchComments(); // refresh list
-    } catch (error) {
-      console.error("Failed to post comment", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
-    fetchComments();
+    if (!videoId) return;
+    http
+      .get(`/api/v1/getVedioComments/${videoId}?page=1&limit=20`)
+      .then((res) => setComments(res.data.data));
   }, [videoId]);
 
-  // ==============================
-  // UI
-  // ==============================
+  // ======================
+  // OPTIMISTIC INSERT
+  // ======================
+  const insertReply = (
+    tree: Comment[],
+    parentId: string,
+    reply: Comment
+  ): Comment[] =>
+    tree.map((c) =>
+      c._id === parentId
+        ? { ...c, replies: [...(c.replies || []), reply] }
+        : {
+            ...c,
+            replies: c.replies
+              ? insertReply(c.replies, parentId, reply)
+              : [],
+          }
+    );
+
+  const handlePost = async (parentId?: string) => {
+    const content = parentId ? replyText : text;
+    if (!content.trim() || !videoId) return;
+
+    const optimisticComment: Comment = {
+      _id: tempId(),
+      content,
+      createdAt: new Date().toISOString(),
+      optimistic: true,
+      user: { _id: "me", name: "You" },
+      replies: [],
+    };
+
+    // optimistic UI update
+    if (parentId) {
+      setComments((prev) =>
+        insertReply(prev, parentId, optimisticComment)
+      );
+      setReplyText("");
+      setReplyTo(null);
+    } else {
+      setComments((prev) => [optimisticComment, ...prev]);
+      setText("");
+    }
+
+    try {
+      const res = await http.post(
+        `/api/v1/postVedioComments/${videoId}`,
+        {
+          content,
+          parentComment: parentId,
+        }
+      );
+
+      const real = res.data.data;
+
+      // replace temp with real
+      setComments((prev) =>
+        JSON.parse(
+          JSON.stringify(prev).replace(
+            optimisticComment._id,
+            real._id
+          )
+        )
+      );
+    } catch {
+      // rollback on failure
+      setComments((prev) =>
+        prev.filter((c) => c._id !== optimisticComment._id)
+      );
+    }
+  };
+
+  // ======================
+  // RECURSIVE COMMENT
+  // ======================
+  const CommentItem = ({
+    comment,
+    depth = 0,
+  }: {
+    comment: Comment;
+    depth?: number;
+  }) => (
+    <div
+      className={styles.commentRow}
+      style={{ marginLeft: depth * 28 }}
+    >
+      <Image
+        src={comment.user.avatar || fallbackThumbnail}
+        width={depth ? 28 : 36}
+        height={depth ? 28 : 36}
+        alt={comment.user.name}
+        className={styles.avatar}
+      />
+
+      <div
+        className={`${styles.bubble} glass-dark ${
+          comment.optimistic ? styles.optimistic : ""
+        }`}
+      >
+        <div className={styles.meta}>
+          <span className={styles.username}>
+            @{comment.user.name}
+          </span>
+          <span className={styles.time}>
+            {new Date(comment.createdAt).toLocaleDateString()}
+          </span>
+        </div>
+
+        <p className={styles.text}>{comment.content}</p>
+
+        <div className={styles.actions}>
+          <span
+            className="material-symbols-outlined"
+            onClick={() => setReplyTo(comment._id)}
+          >
+            reply
+          </span>
+        </div>
+
+        {replyTo === comment._id && (
+          <div className={styles.replyBox}>
+            <input
+              className={styles.input}
+              placeholder="Write a reply…"
+              value={replyText}
+              onChange={(e) => setReplyText(e.target.value)}
+            />
+            <button
+              className={styles.sendBtn}
+              onClick={() => handlePost(comment._id)}
+            >
+              <span className="material-symbols-outlined">
+                send
+              </span>
+            </button>
+          </div>
+        )}
+
+        {comment.replies?.map((r) => (
+          <CommentItem
+            key={r._id}
+            comment={r}
+            depth={depth + 1}
+          />
+        ))}
+      </div>
+    </div>
+  );
+
   return (
     <div className={styles.wrapper}>
-      {/* HEADER */}
-      <div className={styles.header}>
-        <h2 className={styles.title}>Comments</h2>
-        <span className={styles.count}>{totalComments} Threads</span>
-      </div>
-
-      {/* INPUT */}
       <div className={styles.inputWrapper}>
         <input
-          type="text"
-          placeholder="Share your thoughts..."
           className={styles.input}
+          placeholder="Share your thoughts…"
           value={text}
           onChange={(e) => setText(e.target.value)}
         />
         <button
           className={styles.sendBtn}
-          onClick={handlePostComment}
-          disabled={loading}
+          onClick={() => handlePost()}
         >
           <span className="material-symbols-outlined">send</span>
         </button>
       </div>
 
-      {/* LIST */}
       <div className={styles.commentList}>
         {comments.map((c) => (
-          <div className={styles.commentRow} key={c._id}>
-            <Image
-              src={c.user.avatar || fallbackThumbnail}
-              width={36}
-              height={36}
-              alt={c.user.name}
-              className={styles.avatar}
-            />
-
-            <div className={`${styles.bubble} glass-dark`}>
-              <div className={styles.meta}>
-                <span className={styles.username}>
-                  @{c.user.name}
-                </span>
-                <span className={styles.time}>
-                  {new Date(c.createdAt).toLocaleDateString()}
-                </span>
-              </div>
-
-              <p className={styles.text}>{c.content}</p>
-
-              <div className={styles.actions}>
-                <span className="material-symbols-outlined">thumb_up</span>
-                <span className="material-symbols-outlined">reply</span>
-              </div>
-
-              {/* REPLIES */}
-              {c.replies?.map((r) => (
-                <div className={styles.commentRow} key={r._id}>
-                  <Image
-                    src={r.user.avatar || fallbackThumbnail}
-                    width={30}
-                    height={30}
-                    alt={r.user.name}
-                    className={styles.avatar}
-                  />
-
-                  <div className={`${styles.bubble} glass-dark`}>
-                    <div className={styles.meta}>
-                      <span className={styles.username}>
-                        @{r.user.name}
-                      </span>
-                      <span className={styles.time}>
-                        {new Date(r.createdAt).toLocaleDateString()}
-                      </span>
-                    </div>
-
-                    <p className={styles.text}>{r.content}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
+          <CommentItem key={c._id} comment={c} />
         ))}
       </div>
     </div>
   );
 }
+
+
 
 
 

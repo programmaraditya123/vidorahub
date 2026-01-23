@@ -1,6 +1,6 @@
 .wrapper {
   // margin-top: 2rem;
-  padding: 2rem;
+  padding: 0.5rem;
   display: flex;
   flex-direction: column;
   gap: 1.4rem;
@@ -74,7 +74,7 @@
 .commentRow {
   display: flex;
   align-items: flex-start;
-  gap: 1rem;
+  gap: 0.3rem;
 }
 
 /* Avatar */
@@ -145,3 +145,5 @@
     }
   }
 }
+
+

@@ -58,27 +58,7 @@ export default function Page () {
         
         <div className={styles.leftSidebar}>
           <UpNextSidebar
-            autoplay={true}
-            videos={[
-              {
-                id: "1",
-                title: "The Ultimate Guide to CSS Grid Layouts",
-                channel: "CodeCraft",
-                views: "1.2M",
-                uploaded: "3 days ago",
-                duration: "12:34",
-                thumbnail: "/th",
-              },
-              {
-                id: "2",
-                title: "5 UI Design Trends to Watch in 2024",
-                channel: "PixelPerfect",
-                views: "800K",
-                uploaded: "1 week ago",
-                duration: "8:05",
-                thumbnail: "/th",
-              },
-            ]}
+            
           />
         </div>
 
@@ -92,6 +72,7 @@ export default function Page () {
                   title={videoMeta.data?.title}
                   category={videoMeta.data?.tags?.[0] || "General"}
                   published={new Date(videoMeta.data?.createdAt).toDateString()}
+                  uploader={videoMeta.data?.uploader}
                 />
               )}
 
@@ -131,7 +112,7 @@ export default function Page () {
           </div>
         </main>
 
-        {/* RIGHT SIDEBAR — COMMENTS */}
+        
         <div className={styles.rightSidebar}>
           <CommentsSection/>
             

@@ -8,8 +8,6 @@ import styles from "./VideoCard.module.scss";
 import fallbackThumbnail from "../../../images/sample1.png";
 import { encodeFilename } from "@/src/functions";
 import { setVideoId } from "@/src/utils/videoStorage";
-// import { useAppDispatch } from "@/src/redux/hooks";
-// import { setVideoId } from "@/src/redux/slices/uiSlice";
 
 type Video = {
   _id: string;

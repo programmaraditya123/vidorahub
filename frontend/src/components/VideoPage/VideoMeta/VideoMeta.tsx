@@ -6,9 +6,14 @@ interface Props {
   title: string;
   category: string;
   published: string;
+  uploader : {
+    _id : string,
+    name : string,
+    subscriber : number
+  }
 }
 
-export default function VideoMeta({ title, category, published }: Props) {
+export default function VideoMeta({ title, category, published , uploader}: Props) {
   return (
     <div className={styles.meta}>
       {/* CATEGORY + PUBLISHED */}
@@ -32,9 +37,9 @@ export default function VideoMeta({ title, category, published }: Props) {
           }}
         ></div>
 
-        <div className={styles.channelInfo}>
-          <h3>MusicHub Official</h3>
-          <p>2.4M Subscribers</p>
+        <div className={styles.channelInfo} key={uploader._id}>
+          <h3>{uploader.name}</h3>
+          <p>{uploader.subscriber}</p>
         </div>
 
         <button className={styles.subscribe}>Subscribe</button>

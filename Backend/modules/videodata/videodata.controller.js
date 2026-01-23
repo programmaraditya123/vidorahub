@@ -203,8 +203,8 @@ const getNextVideos = async (req, res) => {
       .sort({ createdAt: -1 })  
       .skip(skip)
       .limit(Number(limit))
-      .select("title thumbnailUrl duration stats.views uploader createdAt")
-      .populate("uploader", "_id username avatar")
+      .select("title thumbnailUrl duration stats.views uploader createdAt videoUrl")
+      .populate("uploader", "-_id name")
       .lean();
 
     const total = await Video.countDocuments(query);
