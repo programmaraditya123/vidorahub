@@ -14,7 +14,6 @@ export default function UploadPage() {
   const [videoPreview, setVideoPreview] = useState<string | null>(null);
   const [frames, setFrames] = useState<any[]>([]);
 
-  // Upload UI state
   const [isUploading, setIsUploading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [abortController, setAbortController] = useState<AbortController | null>(null);
@@ -25,7 +24,6 @@ export default function UploadPage() {
     const selectedThumb = frames.find((f) => f.isCurrent);
     if (!selectedThumb) return alert("Select a thumbnail!");
 
-    // Convert thumbnail base64 → File
     const thumbnailBlob = await (await fetch(selectedThumb.src)).blob();
     const thumbnailFile = new File([thumbnailBlob], "thumbnail.png", { type: "image/png" });
 
@@ -70,7 +68,6 @@ export default function UploadPage() {
   return (
     <div className={styles.page}>
       
-      {/* 🔥 Upload Overlay */}
       {isUploading && (
         <div className={styles.uploadOverlay}>
           <div className={styles.progressBox}>
@@ -90,7 +87,6 @@ export default function UploadPage() {
         </div>
       )}
 
-      {/* Left side */}
       <div className={styles.leftdiv}>
         {!file && (
           <div className={styles.overlay}>
@@ -123,7 +119,6 @@ export default function UploadPage() {
         )}
       </div>
 
-      {/* Right side */}
       {file && (
         <div className={styles.right}>
           <DataSculptingForm

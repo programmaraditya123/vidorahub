@@ -1,0 +1,125 @@
+.card {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8);
+  border-radius: 24px;
+  padding: 48px;
+  max-width: 840px;
+  width: 100%;
+  color: white;
+}
+
+/* Progress */
+.progress {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.phase {
+  color: #a413ec;
+  font-size: 12px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.percent {
+  font-size: 13px;
+  opacity: 0.5;
+}
+
+.bar {
+  height: 6px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 999px;
+  overflow: hidden;
+  margin-bottom: 32px;
+}
+
+.barFill {
+  height: 100%;
+  width: 75%;
+  background: #a413ec;
+  box-shadow: 0 0 10px #a413ec;
+}
+
+/* Header */
+.header {
+  text-align: center;
+  margin-bottom: 32px;
+
+  h1 {
+    font-size: 36px;
+  }
+
+  p {
+    color: rgba(255, 255, 255, 0.6);
+    max-width: 520px;
+    margin: 0 auto;
+  }
+}
+
+/* Vibe Cloud */
+.vibeCloud {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.vibeBubble {
+  background: rgba(164, 19, 236, 0.1);
+  border: 1px solid rgba(164, 19, 236, 0.3);
+  border-radius: 999px;
+  padding: 14px 22px;
+  font-size: 14px;
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+
+  &:hover {
+    transform: scale(1.1);
+    background: rgba(164, 19, 236, 0.25);
+    box-shadow: 0 0 20px rgba(164, 19, 236, 0.4);
+  }
+}
+
+.active {
+  background: #a413ec;
+  box-shadow: 0 0 15px #a413ec;
+}
+
+/* Actions */
+.actions {
+  display: flex;
+  gap: 16px;
+  max-width: 420px;
+  margin: 0 auto;
+}
+
+.backBtn {
+  flex: 1;
+  padding: 16px;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.5);
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.nextBtn {
+  flex: 2;
+  padding: 16px;
+  background: linear-gradient(135deg, #a413ec, #d46bff, #a413ec);
+  border: none;
+  border-radius: 999px;
+  color: white;
+  font-weight: bold;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+}

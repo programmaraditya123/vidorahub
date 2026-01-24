@@ -21,9 +21,11 @@ export default function Toast({ id, message, type, duration, onClose, icon }: Pr
   }, [duration, id, onClose]);
 
   return (
+    <div >
     <div className={`${styles.toast} ${styles[type]}`}>
   {icon && <span className={styles.icon}>{icon}</span>}
   <span className={styles.msg}>{message}</span>
+</div>
 </div>
 
   );

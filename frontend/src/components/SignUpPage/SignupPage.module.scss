@@ -1,0 +1,181 @@
+.wrapper {
+  min-height: 100vh;
+  background: #050505;
+  color: white;
+  font-family: "Space Grotesk", sans-serif;
+  overflow: hidden;
+}
+
+.navbar {
+  position: absolute;
+  top: 0;
+  width: 100%;
+  padding: 24px 40px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.brand {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.loginText {
+  font-size: 14px;
+  color: rgba(255,255,255,0.4);
+
+  a {
+    color: #a413ec;
+    font-weight: 600;
+  }
+}
+
+.main {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.cardContainer {
+  position: relative;
+  width: 100%;
+  max-width: 600px;
+  height: 520px;
+}
+
+.step {
+  position: absolute;
+  inset: 0;
+  background: rgba(255,255,255,0.03);
+  backdrop-filter: blur(28px);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 24px;
+  padding: 40px;
+  transition: all 0.45s ease;
+}
+
+/* STATES */
+.active {
+  opacity: 1;
+  transform: translateX(0);
+  pointer-events: auto;
+}
+
+.hiddenLeft {
+  opacity: 0;
+  transform: translateX(-60px);
+  pointer-events: none;
+}
+
+.hiddenRight {
+  opacity: 0;
+  transform: translateX(60px);
+  pointer-events: none;
+}
+
+/* CONTENT */
+.header {
+  text-align: center;
+  margin-bottom: 32px;
+
+  h1 {
+    font-size: 32px;
+  }
+
+  p {
+    color: rgba(255,255,255,0.4);
+  }
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+
+  label {
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    color: rgba(255,255,255,0.5);
+  }
+
+  input {
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid rgba(255,255,255,0.1);
+    color: white;
+    padding: 12px 4px;
+    font-size: 16px;
+
+    &:focus {
+      border-bottom-color: #a413ec;
+      outline: none;
+    }
+  }
+}
+
+.nextBtn,
+.signupBtn {
+  margin-top: 16px;
+  background: linear-gradient(90deg, #6b0f9c, #a413ec, #6b0f9c);
+  border: none;
+  border-radius: 999px;
+  padding: 14px;
+  color: white;
+  font-weight: bold;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+}
+
+/* VIBES */
+.vibeCloud {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 16px;
+}
+
+.vibeBubble {
+  padding: 12px 20px;
+  border-radius: 999px;
+  background: rgba(164,19,236,0.1);
+  border: 1px solid rgba(164,19,236,0.3);
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  cursor: pointer;
+  transition: 0.3s ease;
+
+  &:hover {
+    transform: scale(1.08);
+    background: rgba(164,19,236,0.25);
+  }
+}
+
+.selected {
+  background: #a413ec;
+  box-shadow: 0 0 15px #a413ec;
+}
+
+/* ACTIONS */
+.actions {
+  display: flex;
+  gap: 16px;
+  margin-top: 32px;
+}
+
+.backBtn {
+  flex: 1;
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.1);
+  color: rgba(255,255,255,0.5);
+  border-radius: 999px;
+  padding: 14px;
+  cursor: pointer;
+}

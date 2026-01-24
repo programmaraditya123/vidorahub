@@ -10,7 +10,6 @@ import VideoPlayer from "@/src/components/VideoPage/VideoPlayer/VideoPlayer";
 import VideoMeta from "@/src/components/VideoPage/VideoMeta/VideoMeta";
 import VideoActions from "@/src/components/VideoPage/VideoActions/VedioActions";
 import VideoDescription from "@/src/components/VideoPage/VedioDescription/VideoDescription";
-// import ResourcesCard from "@/src/components/shared/resourcescard/ResourcesCard";
 import CommentsSection from "@/src/components/ui/CommentSection/CommentSection";
 import { getVideoMetadataExceptCommentsDocs } from "@/src/lib/video/videodata";
 import { useEffect, useState } from "react";

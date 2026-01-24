@@ -63,9 +63,10 @@ export default function ToastProvider({ children }: { children: React.ReactNode 
   }), []);
 
   return (
+    
     <ToastCtx.Provider value={api}>
       {children}
-      <div className={styles.container}>
+        <div className={styles.toastContainer}> 
         {toasts.map(t => (
           <Toast
             key={t.id}
@@ -77,7 +78,8 @@ export default function ToastProvider({ children }: { children: React.ReactNode 
             onClose={dismiss}
           />
         ))}
-      </div>
+        </div>
     </ToastCtx.Provider>
+    
   );
 }
