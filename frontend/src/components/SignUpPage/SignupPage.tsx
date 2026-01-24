@@ -75,7 +75,9 @@ export default function SignupPage() {
       <header className={styles.navbar}>
         <div className={styles.brand}>
           <VidorahubIcon.VidorahubIcon color="purple" height={32} width={32} />
+          <Link href={'/'} className={styles.linktext}>
           <h2>VidoraHub</h2>
+          </Link>
         </div>
         <p className={styles.loginText}>
           Already have an identity?

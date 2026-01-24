@@ -1,3 +1,4 @@
+import Link from "next/link";
 import styles from "../../../app/history/history.module.scss";
 
 export default function Sidebar() {
@@ -8,7 +9,9 @@ export default function Sidebar() {
         <div className={styles.logo}>
           <div className={styles.logoIcon}>▶</div>
           <div>
-            <h1>VidoraHub</h1>
+            <Link href={'/'} className={styles.linktext}>
+            <h1 >VidoraHub</h1>
+            </Link>
             <p>POWER USER</p>
           </div>
         </div>

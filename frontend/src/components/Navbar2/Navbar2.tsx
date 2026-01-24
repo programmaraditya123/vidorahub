@@ -11,7 +11,7 @@ export default function Navbar2() {
       {/* LEFT — Brand */}
       <div className={styles.brand}>
         <span className="material-symbols-outlined">play_circle</span>
-        <Link href='/'><h1>VidoraHub</h1></Link>
+        <Link href='/' className={styles.linktext}><h1>VidoraHub</h1></Link>
         
       </div>
 
