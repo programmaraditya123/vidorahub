@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import styles from "./Header.module.scss";
+import { userValidates } from "@/src/functions";
 
 export default function Header() {
   return (
@@ -28,9 +29,10 @@ export default function Header() {
           <span className={styles.dot}></span>
         </button>
         
-        <Link href='uploadvideo'>
+        <Link href={userValidates() ? 'uploadvideo' : 'login'}>
         <button className={`${styles.uploadBtn} glass-dark`}>
-          Upload
+          {/* Upload */}
+          {userValidates() ? "Upload" : "Login"}
         </button>
         </Link>
         

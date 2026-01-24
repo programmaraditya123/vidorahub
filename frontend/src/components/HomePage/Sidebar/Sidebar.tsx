@@ -1,13 +1,16 @@
 "use client";
 
+import Link from "next/link";
 import styles from "./Sidebar.module.scss";
+import { userValidates } from "@/src/functions";
+import VidorahubIcon from "@/src/icons/VidorahubIcon";
 
 export default function Sidebar() {
   const menu = [
-    { icon: "home", label: "Home" },
-    { icon: "explore", label: "Explore" },
-    { icon: "subscriptions", label: "Subscriptions" },
-    { icon: "history", label: "History" },
+    { icon: "home", label: "Home" , link: '/'},
+    { icon: "explore", label: "Explore" , link : '/explore' },
+    { icon: "subscriptions", label: "Subscriptions" , link : '/subscriptions'},
+    { icon: "history", label: "History" , link : '/history'},
   ];
 
   return (
@@ -21,8 +24,10 @@ export default function Sidebar() {
         {/* Menu Items */}
         {menu.map((item) => (
           <div key={item.label} className={styles.link}>
+            <Link href={item.link}>
             <span className="material-symbols-outlined">{item.icon}</span>
             <span className={`${styles.tooltip} glass`}>{item.label}</span>
+            </Link>
           </div>
         ))}
 
@@ -30,13 +35,11 @@ export default function Sidebar() {
         <div className={styles.divider} />
 
         {/* Profile */}
+        <Link href={userValidates() ? '/profile' : '/signup'}>
         <div
           className={styles.profile}
-          style={{
-            backgroundImage:
-              "url('https://lh3.googleusercontent.com/aida-public/AB6AXuDXT7FOBHU5aqFiL_PQQ8zVR7OKnI2sbWj7b-b6Hj212lNdH9OhL_mgRq-IkjXBBUNHrFJa2v5lXyNHmorwLAAG_B9HMlLZxwNZ7uS4JQCOHV9pkV9y9-25Y0m95nqRfacFSjRd-OqA2uadcmV5s01aH3_-3SEBH0dXBXDJjULeroBJ7EPCCrhJXyvB87vhrvV-M4Jgu9rfgYgyVqVYdGAZUp0pRMUMQYJfycdHfN5s-_RMUYE4gBv3dJuveMHcSV7y0MMEHazxztPQ')",
-          }}
-        ></div>
+        ><VidorahubIcon.UserIcon height={32} width={32}/></div>
+        </Link>
       </nav>
     </aside>
   );

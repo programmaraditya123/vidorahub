@@ -42,3 +42,15 @@ export function decodeFilename(encoded: string): string {
   const decoder = new TextDecoder();
   return decoder.decode(new Uint8Array(bytes));
 }
+
+
+export function userValidates(){
+  const token = localStorage.getItem('token')
+  const userName = localStorage.getItem('userName')
+
+  if(token && userName){
+    return true;
+  } else {
+    return false;
+  }
+}

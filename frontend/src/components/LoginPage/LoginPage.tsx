@@ -26,18 +26,20 @@ export default function LoginPage() {
         password: form.password,
       });
 
-      if (!res.ok) {
+      if (!res.success) {
         toastError(res.message || "Wrong Email or Password");
         return;
       }
 
       localStorage.setItem("token", res.token);
-      success("🎉 Logged in successfully!");
+      localStorage.setItem("userName",res?.user?.name!)
+      success("Logged in successfully!");
       router.replace("/");
     } catch (err: any) {
       toastError(err.message || "Login failed");
     } finally {
       setLoading(false);
+      
     }
   };
 

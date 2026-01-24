@@ -8,7 +8,7 @@ export type RegisterPayload = {
 }
 
 export type RegisterResponse = {
-    ok:boolean,
+    success:boolean,
     user?:{id:string,email:string,name:string},
     message?:string
 }
@@ -20,9 +20,10 @@ export type LoginPayload = {
 }
 
 export type LoginResponse = {
-    ok:boolean,
+    success:boolean,
     token:string,
-    message?:string
+    message?:string,
+    user?:{email:string,name:string},
 }
 
 export async function userRegister(payload:RegisterPayload){

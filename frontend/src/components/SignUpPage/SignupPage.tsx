@@ -54,17 +54,18 @@ export default function SignupPage() {
         // vibes: form.vibes,
       });
 
-      if (!res.ok) {
+      if (!res.success) {
         toastError(res.message || "Registration failed");
         return;
       }
 
-      success("🎉 Account created successfully!");
+      success("Account created successfully!");
       router.replace("/login");
     } catch (err: any) {
       toastError(err.message || "Signup failed");
     } finally {
       setLoading(false);
+      
     }
   };
 
