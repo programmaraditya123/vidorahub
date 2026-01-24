@@ -4,7 +4,7 @@ import Timeline from "@/src/components/History/Timeline";
 import VideoCard from "@/src/components/History/VideoCard";
 import Analytics from "@/src/components/History/Analytics";
 
-export default function ArchivePage() {
+export default function Page() {
   return (
     <div className={styles.app}>
       <Sidebar />

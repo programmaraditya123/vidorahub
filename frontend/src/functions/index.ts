@@ -45,12 +45,10 @@ export function decodeFilename(encoded: string): string {
 
 
 export function userValidates(){
-  const token = localStorage.getItem('token')
-  const userName = localStorage.getItem('userName')
+  if (typeof window === "undefined") return false;
 
-  if(token && userName){
-    return true;
-  } else {
-    return false;
+  const token = localStorage.getItem("token");
+  const userName = localStorage.getItem("userName");
+
+  return Boolean(token && userName)
   }
-}
