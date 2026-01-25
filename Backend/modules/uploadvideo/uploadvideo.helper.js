@@ -1,7 +1,7 @@
 const { Storage } = require("@google-cloud/storage");
 require('dotenv').config();
 // const {ffmpeg}  = require("fluent-ffmpeg");
-
+const fs = require("fs");
 
 const storage = new Storage({
   projectId: process.env.GOOGLE_PROJECT_ID,
@@ -30,16 +30,15 @@ async function uploadToGCS(file) {
         resolve(publicUrl);
     });
 
-    blobStream.end(file.buffer);
+    // blobStream.end(file.buffer);
+    fs.createReadStream(file.path)
+    .pipe(blobStream)
+    .on("finish", () => {
+      fs.unlinkSync(file.path); // cleanup
+    });
+
   });
 }
-
-
-
-
-
-
-
 
 
 module.exports = { uploadToGCS };

@@ -1,7 +1,19 @@
 import styles from "../../../app/profile/Profile.module.scss";
 
+type ProfileData = {
+  _id: string;
+  name: string;
+  subscriber: number;
+  creator: boolean;
+  totalviews: number;
+  totalvideos: number;
+};
 
-export default function ProfileCard() {
+type ProfileCardProps = {
+  data: ProfileData;
+};
+
+export default function ProfileCard({ data }: ProfileCardProps) {
   return (
     <div className={`${styles.profileCard} ${styles.glass}`}>
       <div className={styles.profileRow}>
@@ -17,24 +29,26 @@ export default function ProfileCard() {
           </div>
 
           <div>
-            <h1 className={styles.name}>ZEPHYR VOLT</h1>
+            <h1 className={styles.name}>{data.name}</h1>
 
             <div className={styles.verified}>
-              Verified Universe Architect
+              {data.creator ? "Verified Creator" : "User"}
             </div>
 
             <div className={styles.stats}>
               <div className={styles.stat}>
                 <span>Followers</span>
-                <b>2.4M</b>
+                <b>{data.subscriber}</b>
               </div>
+
               <div className={styles.stat}>
-                <span>Vibe Score</span>
-                <b>98.2</b>
+                <span>Total Views</span>
+                <b>{data.totalviews}</b>
               </div>
+
               <div className={styles.stat}>
                 <span>Videos</span>
-                <b>142</b>
+                <b>{data.totalvideos}</b>
               </div>
             </div>
           </div>

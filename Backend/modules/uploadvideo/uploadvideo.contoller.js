@@ -3,6 +3,7 @@ const { uploadToGCS } = require("./uploadvideo.helper");
 const Video = require('./uploadvideo.model')
 const userProfile = require('../auth/auth.model')
 const { getVideoDurationInSeconds } = require("get-video-duration");
+const fs = require("fs");
 
 const { Readable } = require("stream");
 
@@ -58,7 +59,8 @@ const UploadVideoController = async (req, res) => {
         }
 
         // VIDEO DURATION
-        const tempStream = bufferToStream(videoFile.buffer);
+        // const tempStream = bufferToStream(videoFile.buffer);
+        const tempStream = fs.createReadStream(videoFile.path)
         const duration = await getVideoDurationInSeconds(tempStream);
 
         // UPLOAD VIDEO TO GCS
@@ -101,16 +103,18 @@ const UploadVideoController = async (req, res) => {
                 {
                     $push: { uploads: videoDoc._id },
                     $inc: { totalvideos: 1 },
+                    $set : {role : 1 , creator : true}
                 },
                 { session }
             );
 
-            return res.status(201).json({
+            
+        });
+        return res.status(201).json({
                 ok: true,
                 message: "Video uploaded successfully",
-                video: videoDoc,
+                // video: videoDoc,
             });
-        });
 
     } catch (error) {
         console.error("Upload error:", error);
@@ -135,7 +139,7 @@ const getAllVideosController = async (req, res) => {
         const [items, total] = await Promise.all([
             Video.find({})
                 .select("-description -tags -visibility -category -updatedAt -__v -stats.comments -stats.dislikes")
-                .populate({path : "uploader" , select : "name -_id"})
+                .populate({path : "uploader" , select : "name _id"})
                 .sort({ createdAt: -1 })    
                 .skip(skip)
                 .limit(limit)

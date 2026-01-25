@@ -1,9 +1,18 @@
 import VidorahubIcon from "@/src/icons/VidorahubIcon";
 import styles from "../../../app/profile/Profile.module.scss";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 
 export default function Header() {
+  const router = useRouter();
+
+
+  const handleLogout = () => {
+    localStorage.setItem("token","")
+    localStorage.setItem("userName","")
+    router.replace('/')
+  }
   return (
     <header className={styles.header}>
       <div className={`${styles.logoBox} ${styles.glass}`}>
@@ -15,6 +24,8 @@ export default function Header() {
           <a>Universe</a>
           <a>Trending</a>
           <a>Live</a>
+          
+          <a onClick={() => handleLogout()}>Logout</a>
         </nav>
       </div>
 

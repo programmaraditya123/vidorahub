@@ -30,3 +30,11 @@ export async function getNextVideos({
 
   return res.data;
 }
+
+
+export async function getCreatorProfileData(){
+  const creatorData = await http.get('/api/v1/creatorProfile')
+
+  return creatorData?.data
+
+}

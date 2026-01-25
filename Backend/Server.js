@@ -35,8 +35,9 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions))
-app.use(express.json()); 
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: "2gb" }));
+app.use(express.urlencoded({ extended: true, limit: "2gb" }));
+
 
 app.get('/',(req,res)=>{
     return res.send("Backend is runing")

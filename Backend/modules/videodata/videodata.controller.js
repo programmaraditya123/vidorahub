@@ -1,6 +1,7 @@
 const mongoose = require('mongoose')
 const Video = require('../uploadvideo/uploadvideo.model')
 const Comment = require('./videodata.model')
+const Profile = require('../auth/auth.model')
 
 
 const getVedioDataExceptCommentsDocs = async (req,res) => {
@@ -230,5 +231,29 @@ const getNextVideos = async (req, res) => {
 };
 
 
+const getCreatorProfileData = async (req,res) => {
+  try {
+    if(!req.user?._id){
+      return res.status(401).json({success : false , message : "Please Login first"})
+    }
+    const id = req.user._id;
+
+    const data = await Profile.findById(id).select("-email -password -__v").populate({path : "uploads", 
+      options : {sort : {createdAt : -1}},
+      select : "-description -stats.likes -stats.dislikes -stats.comments -category -tags -updatedAt -__v -uploader"
+    })
+      
+
+    return res.status(200).json({
+      success : true ,
+      message : "Creator data fetched successfully",
+      data : data
+    })
+    
+  } catch (error) {
+    
+  }
+}
+
 module.exports = {getVedioDataExceptCommentsDocs,getVedioComments,getVedioDocs,
-    getNextVideos,postVedioComments}
+    getNextVideos,postVedioComments,getCreatorProfileData}

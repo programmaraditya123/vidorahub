@@ -18,7 +18,10 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <ReduxProvider>
-        <ToastProvider>{children}<SpeedInsightsClient/></ToastProvider>
+        <ToastProvider>
+          {children}
+          <SpeedInsightsClient/>
+          </ToastProvider>
         </ReduxProvider>
       </body>
     </html>

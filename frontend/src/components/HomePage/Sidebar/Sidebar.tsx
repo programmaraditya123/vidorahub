@@ -4,12 +4,14 @@ import Link from "next/link";
 import styles from "./Sidebar.module.scss";
 import { userValidates } from "@/src/functions";
 import VidorahubIcon from "@/src/icons/VidorahubIcon";
+import { usePathname } from "next/navigation";
 
 export default function Sidebar() {
+  const pathName = usePathname();
   const menu = [
     { icon: "home", label: "Home" , link: '/'},
     { icon: "explore", label: "Explore" , link : '/explore' },
-    { icon: "subscriptions", label: "Subscriptions" , link : '/subscriptions'},
+    { icon: "subscriptions", label: "Subscriptions" , link : '/vibes'},
     { icon: "history", label: "History" , link : '/history'},
   ];
 
@@ -22,14 +24,17 @@ export default function Sidebar() {
         </div>
 
         {/* Menu Items */}
-        {menu.map((item) => (
-          <div key={item.label} className={styles.link}>
+        {menu.map((item) => {
+          const isActive = pathName === item.link;
+          return (
+          <div key={item.label} className={`${styles.link} ${isActive ? 'neon-glow' : ''}`}>
             <Link href={item.link}>
             <span className="material-symbols-outlined">{item.icon}</span>
             <span className={`${styles.tooltip} glass`}>{item.label}</span>
             </Link>
           </div>
-        ))}
+          )
+        })}
 
         {/* Divider */}
         <div className={styles.divider} />

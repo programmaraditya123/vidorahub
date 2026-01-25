@@ -21,6 +21,7 @@ export default function DataSculptingForm({
   const [tags, setTags] = useState<string[]>(["trending"]);
   const [adding, setAdding] = useState(false);
   const [newTag, setNewTag] = useState("");
+  const [loading,isLoading] = useState(false)
 
   const addTag = () => {
     const cleaned = newTag.trim().replace(/\s+/g, "");
