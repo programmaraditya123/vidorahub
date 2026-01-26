@@ -212,6 +212,9 @@ background: radial-gradient(
     @media (min-width: 1024px) {
       width: 16rem;
     }
+    @media (max-width : 600px){
+      display: none;
+    }
   }
 }
 
@@ -923,6 +926,9 @@ background: radial-gradient(
 
 @media screen and (min-width : 600px){
   .hiddenSideBar{
+    display: none;
+  }
+  .searchBox{
     display: none;
   }
   

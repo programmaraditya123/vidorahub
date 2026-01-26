@@ -202,14 +202,12 @@
   }
 }
 
-/* ----------------------- */
-/* Extra Small Phones (≤360px) */
-/* ----------------------- */
+ 
 @media (max-width: 360px) {
   /* Hide Upload button */
-  .uploadBtn {
-    display: none;
-  }
+  // .uploadBtn {
+  //   display: none;
+  // }
 
   .header {
     justify-content: center;
@@ -223,4 +221,17 @@
     width: 38px;
     height: 38px;
   }
+  .homeLogo{
+    font-weight: 100;
+    font-size: 1rem;
+  }
+}
+
+.homeLogo{
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.9rem;
+  font-weight: 800;
+  
 }

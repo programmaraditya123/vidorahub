@@ -36,9 +36,9 @@ export default function Header() {
       </div>
 
       <div className={styles.headerRight}>
-        <div className={`${styles.searchBox} ${styles.glass}`}>
+        {/* <div className={`${styles.searchBox} ${styles.glass}`}>
           <input placeholder="Explore universes..." />
-        </div>
+        </div> */}
 
         <div className={`${styles.iconBtn} ${styles.glass}`}>🔔</div>
 

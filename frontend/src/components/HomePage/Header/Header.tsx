@@ -3,13 +3,14 @@
 import Link from "next/link";
 import styles from "./Header.module.scss";
 import { userValidates } from "@/src/functions";
+import VidorahubIcon from "@/src/icons/VidorahubIcon";
 
 export default function Header() {
   return (
     <header className={styles.header}>
       {/* Search Bar */}
       <div className={styles.searchContainer}>
-        <div className={styles.searchWrapper}>
+        {/* <div className={styles.searchWrapper}>
           <span className={`material-symbols-outlined ${styles.searchIcon}`}>
             search
           </span>
@@ -19,7 +20,8 @@ export default function Header() {
             placeholder="Search the Hub..."
             className={styles.searchInput}
           />
-        </div>
+        </div> */}
+        <p className={styles.homeLogo}><VidorahubIcon.VidorahubIcon height={28} width={28} color="purple"/> VidoraHub</p>
       </div>
 
       {/* Right Actions */}
