@@ -8,21 +8,29 @@ import DataSculptingForm from "@/src/components/upload/DataScluptingForm/DataScu
 import UploadVideo from "@/src/components/uploadvideo/UploadVideo";
 import { extractThreeFramesAsItems } from "@/src/utils/extractFrames";
 import { uploadVideo } from "@/src/lib/video/uploadvideo";
+import { useToast } from "@/src/hooks/ui/ToastProvider/ToastProvider";
+import { useRouter } from "next/navigation";
+import Sidebar from "@/src/components/HomePage/Sidebar/Sidebar";
 
 export default function UploadPage() {
   const [file, setFile] = useState<File | null>(null);
   const [videoPreview, setVideoPreview] = useState<string | null>(null);
   const [frames, setFrames] = useState<any[]>([]);
 
+  const router = useRouter()
+
   const [isUploading, setIsUploading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [abortController, setAbortController] = useState<AbortController | null>(null);
+  
+  const { success, error,info  } = useToast();
+
 
   const startUpload = async (formData: { title: string; description: string; tags: string[] }, isDraft: boolean) => {
-    if (!file) return alert("No video selected!");
+    if (!file) return info("No video selected!");
 
     const selectedThumb = frames.find((f) => f.isCurrent);
-    if (!selectedThumb) return alert("Select a thumbnail!");
+    if (!selectedThumb) return info("Select a thumbnail!");
 
     const thumbnailBlob = await (await fetch(selectedThumb.src)).blob();
     const thumbnailFile = new File([thumbnailBlob], "thumbnail.png", { type: "image/png" });
@@ -49,15 +57,16 @@ export default function UploadPage() {
       const res = await uploadVideo(payload);
 
       setIsUploading(false);
-      alert("Video uploaded successfully!");
+      success("Video uploaded successfully!");
+      router.replace('/profile')
 
     } catch (err: any) {
       setIsUploading(false);
 
       if (err?.name === "CanceledError") {
-        alert("Upload cancelled.");
+        error("Upload cancelled.");
       } else {
-        alert("Upload failed.");
+        error("Upload failed.");
       }
     }
   };
@@ -67,6 +76,11 @@ export default function UploadPage() {
 
   return (
     <div className={styles.page}>
+
+      <div className={styles.hiddenSideBar}>
+      <Sidebar/>
+      </div>
+
       
       {isUploading && (
         <div className={styles.uploadOverlay}>

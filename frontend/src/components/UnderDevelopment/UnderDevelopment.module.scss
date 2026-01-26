@@ -1,0 +1,222 @@
+.wrapper {
+  min-height: 100vh;
+  background: #0a0a0a;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow-y: scroll;
+  height: 100vh;
+  font-family: "Space Grotesk", sans-serif;
+  scrollbar-width: none;
+  margin-left: 2rem;
+}
+
+.nebulaBg {
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(circle at 50% 50%, #1c1022 0%, #0a0a0a 100%);
+  z-index: -2;
+}
+
+.gridOverlay {
+  position: fixed;
+  inset: 0;
+  background-image: 
+    linear-gradient(to right, rgba(164, 19, 236, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(164, 19, 236, 0.05) 1px, transparent 1px);
+  background-size: 50px 50px;
+  z-index: -1;
+  mask-image: radial-gradient(circle at center, black, transparent 80%);
+}
+
+.main {
+  text-align: center;
+  padding: 1rem;
+  max-width: 1100px;
+  width: 100%;
+}
+
+.logoArea {
+  height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.floatingV {
+  position: relative;
+  width: 260px;
+  height: 260px;
+  filter: drop-shadow(0 0 30px rgba(164, 19, 236, 0.4));
+}
+
+.vLayerOne {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  &::before {
+    content: "";
+    width: 130px;
+    height: 190px;
+    border-left: 12px solid rgba(164, 19, 236, 0.8);
+    border-bottom: 12px solid rgba(164, 19, 236, 0.8);
+    transform: rotate(-15deg);
+    opacity: 0.6;
+  }
+}
+
+.vLayerTwo {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transform: translate(12px, -12px);
+
+  &::before {
+    content: "";
+    width: 130px;
+    height: 190px;
+    border-right: 12px solid rgba(255, 255, 255, 0.6);
+    border-bottom: 12px solid rgba(255, 255, 255, 0.6);
+    transform: rotate(10deg);
+    backdrop-filter: blur(6px);
+  }
+}
+
+.icon1 {
+  position: absolute;
+  top: -40px;
+  left: 40px;
+  color: #a413ec;
+  font-size: 24px;
+  opacity: 0.8;
+}
+
+.icon2 {
+  position: absolute;
+  top: 20px;
+  right: -40px;
+  color: #a413ec;
+  font-size: 20px;
+  opacity: 0.6;
+}
+
+.icon3 {
+  position: absolute;
+  bottom: -30px;
+  right: 60px;
+  color: white;
+  font-size: 18px;
+  opacity: 0.4;
+}
+
+.lines {
+  position: absolute;
+  inset: 0;
+}
+
+.line1 {
+  position: absolute;
+  top: 25%;
+  left: 25%;
+  width: 4px;
+  height: 120px;
+  background: rgba(164, 19, 236, 0.3);
+  transform: rotate(45deg);
+}
+
+.line2 {
+  position: absolute;
+  bottom: 30%;
+  right: 25%;
+  width: 120px;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.textArea {
+  margin-top: 0rem;
+}
+
+.title {
+  font-size: clamp(2.5rem, 6vw, 5rem);
+  font-weight: 900;
+  text-transform: uppercase;
+  background: linear-gradient(180deg, #ffffff 0%, #a413ec 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: 0.3em;
+  filter: drop-shadow(0 0 10px rgba(164, 19, 236, 0.5));
+  margin-bottom: 0rem;
+}
+
+.subtitle {
+  font-size: clamp(0.7rem, 2vw, 1rem);
+  letter-spacing: 0.4em;
+  opacity: 0.4;
+}
+
+.footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  padding: 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.protocol {
+  font-size: 10px;
+  letter-spacing: 0.3em;
+  opacity: 0.4;
+  display: block;
+}
+
+.copy {
+  font-size: 12px;
+  opacity: 0.3;
+}
+
+.socials {
+  display: flex;
+  gap: 1rem;
+}
+
+.iconBtn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(60, 35, 72, 0.2);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(164, 19, 236, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: 0.3s;
+
+  &:hover {
+    background: rgba(164, 19, 236, 0.2);
+  }
+
+  span {
+    color: rgba(255, 255, 255, 0.6);
+  }
+}
+
+/* 📱 Mobile */
+@media (max-width: 600px) {
+  .footer {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: center;
+    text-align: center;
+  }
+}

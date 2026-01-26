@@ -9,6 +9,7 @@ import MasonryGrid from "@/src/components/ProfilePage/MasonryGrid";
 import Sidebar from "@/src/components/ProfilePage/Sidebar";
 import Footer from "@/src/components/ProfilePage/Footer";
 import { getCreatorProfileData } from "@/src/lib/video/videodata";
+import Sidebar1 from "@/src/components/HomePage/Sidebar/Sidebar";
 
 type VideoStats = {
   views: number;
@@ -70,6 +71,11 @@ export default function ProfilePage() {
         <div className={styles.backdropOverlay}></div>
         <div className={styles.backdropImage} />
       </div>
+       
+       <div className={styles.hiddenSideBar}>
+      <Sidebar1/>
+       </div>
+
 
       <div className={styles.container}>
         <Header />

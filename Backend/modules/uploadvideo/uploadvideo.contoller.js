@@ -136,15 +136,18 @@ const getAllVideosController = async (req, res) => {
         const limit = Math.min(Math.max(parseInt(req.query.limit) || 20, 1), 100);
         const skip = (page - 1) * limit;
 
+        const filter = { isDeleted: { $ne: true } };
+
+
         const [items, total] = await Promise.all([
-            Video.find({})
+            Video.find(filter)
                 .select("-description -tags -visibility -category -updatedAt -__v -stats.comments -stats.dislikes")
                 .populate({path : "uploader" , select : "name _id"})
                 .sort({ createdAt: -1 })    
                 .skip(skip)
                 .limit(limit)
                 .lean(),
-            Video.countDocuments({})
+            Video.countDocuments(filter)
         ]);
 
         const totalPages = Math.max(Math.ceil(total / limit), 1);

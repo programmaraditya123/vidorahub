@@ -4,6 +4,7 @@ const {connectdb} = require('./config/db')
 const authRoute = require('./modules/auth/auth.route')
 const uploadRoute = require('./modules/uploadvideo/uploadvideo.route')
 const videoDataRoute = require('./modules/videodata/videodata.route')
+const { deleteOldUploadFiles } = require('./modules/videodata/videodata.helper')
 
 const app = express()
 
@@ -11,7 +12,8 @@ connectdb()
 
 const allowed_origins = [
     "http://localhost:3000",
-    "https://vidorahub-v6qk.vercel.app"
+    "https://vidorahub-v6qk.vercel.app",
+    "https://www.vidorahub.com"
 ]
 
 const corsOptions = {
@@ -54,6 +56,8 @@ app.use('/api/v1',uploadRoute)
 
 //this route is responsible for get and post video data
 app.use('/api/v1',videoDataRoute)
+
+deleteOldUploadFiles();
 
 const PORT = process.env.PORT || 8000;
 

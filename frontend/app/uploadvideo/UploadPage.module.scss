@@ -162,3 +162,11 @@
     max-width: 500px;
   }
 }
+
+
+@media screen and (min-width : 600px){
+  .hiddenSideBar{
+    display: none;
+  }
+  
+}

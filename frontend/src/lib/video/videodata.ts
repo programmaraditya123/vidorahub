@@ -38,3 +38,11 @@ export async function getCreatorProfileData(){
   return creatorData?.data
 
 }
+
+export async function creatorDeleteVideo (videoId : string) {
+  const deleteVideo = await http.put('/api/v1/deletevideo',{
+    videoId: videoId,  
+  })
+
+  return deleteVideo
+}

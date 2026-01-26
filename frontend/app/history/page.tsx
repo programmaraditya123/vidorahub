@@ -1,15 +1,29 @@
+"use client"
+
 import Sidebar from "@/src/components/History/Sidebar";
 import styles from "./history.module.scss"
 import Timeline from "@/src/components/History/Timeline";
 import VideoCard from "@/src/components/History/VideoCard";
 import Analytics from "@/src/components/History/Analytics";
+import Sidebar2 from "@/src/components/HomePage/Sidebar/Sidebar";
+import { useState } from "react";
+import UnderDevelopment from "@/src/components/UnderDevelopment/UnderDevelopment";
 
 export default function Page() {
+  const [development,setDevelopment] = useState(1)
   return (
-    <div className={styles.app}>
-      <Sidebar />
+    <>
+      <div className={styles.sidebarHiden}>
+      <Sidebar2/>
 
-      <main className={styles.main}>
+      </div>
+    
+     <div className={styles.app}>
+      <Sidebar />
+    
+      
+
+      {development ? <UnderDevelopment/> : <main className={styles.main}>
         <Timeline />
 
         <div className={styles.feed}>
@@ -39,7 +53,8 @@ export default function Page() {
         </div>
 
         <Analytics />
-      </main>
+      </main>}
     </div>
+    </>
   );
 }

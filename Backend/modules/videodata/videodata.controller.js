@@ -184,6 +184,7 @@ const getNextVideos = async (req, res) => {
 
     const query = {
       visibility: "public",
+      isDeleted: { $ne: true }
     };
 
     if (search.trim()) {
@@ -255,5 +256,69 @@ const getCreatorProfileData = async (req,res) => {
   }
 }
 
+
+const deleteVideo = async (req,res) => {
+  try {
+    if(!req.user?._id){
+      return res.status(401).json({success : false , message : "Please Login first"})
+    }
+    const id = req.user?.id;
+    const {videoId} = req.body;
+    
+    if(!videoId){
+      return res.status(401).json({success : false , message : "vedio is not available"})
+    }
+
+    const data = await Video.findById(videoId)
+    if(!data){
+      return res.status(404).json({
+        success : false ,
+        message : "Vedio not found"
+      })
+    }
+
+    if(data.uploader.toString() !== id.toString()){
+      return res.status(403).json({
+        success : false ,
+        message : "you are not allowed to delete this video"
+      })
+    }
+
+    // data.isDeleted = true;
+    // await video.save()
+    session = await mongoose.startSession();
+    await session.withTransaction(async () => {
+
+      await Video.findByIdAndUpdate(videoId,
+        {$set : {isDeleted : true}},
+        {session}
+      )
+
+      await Profile.findByIdAndUpdate(id ,
+        {
+          $pull : {uploads : videoId},
+          $inc : {totalvideos : -1}
+        },
+        {session}
+      )
+    })
+    if (session) session.endSession();
+
+    return res.status(200).json({
+      success : true,
+      message : "video Deleted Successfully"
+    })
+
+
+
+  } catch (error) {
+    return res.status(500).json({success : false , message : "unable to delete this video"})
+    
+  } finally {
+    if (session) session.endSession();
+  }
+}
+
+
 module.exports = {getVedioDataExceptCommentsDocs,getVedioComments,getVedioDocs,
-    getNextVideos,postVedioComments,getCreatorProfileData}
+    getNextVideos,postVedioComments,getCreatorProfileData,deleteVideo}

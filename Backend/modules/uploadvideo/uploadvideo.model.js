@@ -55,6 +55,10 @@ const videoSchema = new mongoose.Schema(
       required: true,
       index:true
     },
+    isDeleted : {
+      type : Boolean,
+      default : false,
+    },
 
     stats: {
       views: {
