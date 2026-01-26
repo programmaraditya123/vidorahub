@@ -4,7 +4,7 @@ const {connectdb} = require('./config/db')
 const authRoute = require('./modules/auth/auth.route')
 const uploadRoute = require('./modules/uploadvideo/uploadvideo.route')
 const videoDataRoute = require('./modules/videodata/videodata.route')
-const { deleteOldUploadFiles } = require('./modules/videodata/videodata.helper')
+// const { deleteOldUploadFiles } = require('./modules/videodata/videodata.helper')
 
 const app = express()
 
@@ -57,7 +57,7 @@ app.use('/api/v1',uploadRoute)
 //this route is responsible for get and post video data
 app.use('/api/v1',videoDataRoute)
 
-deleteOldUploadFiles();
+// deleteOldUploadFiles();
 
 const PORT = process.env.PORT || 8000;
 
