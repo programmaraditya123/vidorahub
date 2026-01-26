@@ -57,7 +57,23 @@ export async function uploadVideo(payload: UploadPayload) {
 
 
 
-export async function getVideos(){
-    const video = await http.get("api/v1/allvideos")
-    return video
+// export async function getVideos(){
+//     const video = await http.get("api/v1/allvideos")
+//     return video
+// }
+
+interface GetVideosParams {
+  page?: number;
+  limit?: number;
+}
+
+export async function getVideos({ page = 1, limit = 20 }: GetVideosParams = {}) {
+  const response = await http.get("/api/v1/allvideos", {
+    params: {
+      page,
+      limit,
+    },
+  });
+
+  return response.data;
 }

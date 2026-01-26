@@ -10,7 +10,7 @@ export default function Sidebar() {
   const pathName = usePathname();
   const menu = [
     { icon: "home", label: "Home" , link: '/'},
-    { icon: "explore", label: "Explore" , link : '/explore' },
+    { icon: "search", label: "search" , link : '/search' },
     { icon: "subscriptions", label: "Subscriptions" , link : '/vibes'},
     { icon: "history", label: "History" , link : '/history'},
   ];

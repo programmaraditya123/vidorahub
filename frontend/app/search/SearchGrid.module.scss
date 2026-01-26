@@ -1,0 +1,570 @@
+.page {
+  min-height: 100vh;
+  background: radial-gradient(circle at top, #2b0f3f 0%, #120015 70%);
+  color: #fff;
+  font-family: "Space Grotesk", sans-serif;
+  height: 100vh;
+  overflow-y: scroll;
+  scrollbar-width: none;
+}
+
+/* ================= NAVBAR ================= */
+.navbar {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  backdrop-filter: blur(14px);
+  background: rgba(20, 5, 30, 0.75);
+  border-bottom: 1px solid rgba(164, 19, 236, 0.2);
+  z-index: 50;
+}
+
+.navInner {
+  max-width: 1400px;
+  margin: auto;
+  padding: 0 24px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  h1 {
+    font-size: 22px;
+    font-weight: 700;
+    text-decoration: none !important;
+     
+  }
+
+  span {
+    // color: #a413ec;
+    text-decoration: none;
+    color: inherit;
+  }
+}
+.LinkLine{
+    text-decoration: none;
+    color: inherit;
+}
+
+.logoIcon {
+  width: 42px;
+  height: 42px;
+//   background: linear-gradient(135deg, #a413ec, #6f00ff);
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+}
+
+/* ================= SEARCH ================= */
+.searchBox {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 14px;
+  padding: 10px 16px;
+
+  input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: white;
+    font-size: 15px;
+
+    &::placeholder {
+      color: rgba(255,255,255,0.4);
+    }
+  }
+
+  button {
+    background: none;
+    border: none;
+    color: #a413ec;
+    cursor: pointer;
+  }
+}
+
+.userActions {
+  display: flex;
+  gap: 16px;
+
+  img {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    border: 2px solid #a413ec;
+  }
+}
+
+/* ================= MAIN ================= */
+.main {
+  padding: 100px 24px 80px;
+  max-width: 1400px;
+  margin: auto;
+}
+
+/* ================= FILTER BAR ================= */
+.filterBar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 34px;
+  flex-wrap: wrap;
+  gap: 18px;
+}
+
+/* Tabs container */
+.tabs {
+  display: flex;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+  padding: 6px;
+  max-width: 100%;
+  overflow-x: auto;
+  scrollbar-width: none; /* Firefox */
+
+  &::-webkit-scrollbar {
+    display: none; /* Chrome */
+  }
+
+  button {
+    background: transparent;
+    border: none;
+    color: rgba(255, 255, 255, 0.55);
+    padding: 8px 20px;
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: 0.25s;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  button:hover {
+    color: white;
+  }
+}
+
+.tabs .active {
+  background: linear-gradient(135deg, #b14cff, #7a2cff);
+  color: white;
+  box-shadow: 0 0 12px rgba(177, 76, 255, 0.6);
+}
+
+/* Right info */
+.resultsInfo {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.55);
+  flex-wrap: wrap;
+
+  i {
+    color: white;
+  }
+}
+
+.gridViewBtn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: rgba(255,255,255,0.6);
+  cursor: pointer;
+
+  &:hover {
+    color: white;
+  }
+}
+
+/* ================= LARGE SCREENS ================= */
+@media (min-width: 1400px) {
+  .tabs button {
+    font-size: 15px;
+    padding: 9px 24px;
+  }
+
+  .resultsInfo {
+    font-size: 14px;
+  }
+}
+
+/* ================= TABLETS ================= */
+@media (max-width: 1024px) {
+  .filterBar {
+    gap: 14px;
+  }
+
+  .tabs button {
+    padding: 7px 18px;
+    font-size: 13px;
+  }
+}
+
+/* ================= MOBILE ================= */
+@media (max-width: 768px) {
+  .filterBar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .resultsInfo {
+    justify-content: space-between;
+    font-size: 12px;
+  }
+}
+
+/* ================= SMALL MOBILE ================= */
+@media (max-width: 480px) {
+  .tabs button {
+    font-size: 12px;
+    padding: 6px 14px;
+  }
+
+  .resultsInfo {
+    font-size: 11px;
+  }
+
+  .gridViewBtn {
+    display: none; /* hide grid view toggle */
+  }
+}
+
+/* ================= EXTRA SMALL PHONES ================= */
+@media (max-width: 360px) {
+  .filterBar {
+    gap: 10px;
+  }
+
+  .tabs {
+    padding: 5px;
+  }
+
+  .tabs button {
+    font-size: 11px;
+    padding: 6px 12px;
+  }
+
+  .resultsInfo {
+    line-height: 1.4;
+    font-size: 11px;
+  }
+}
+
+
+
+ /* ================= GRID ================= */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 22px;
+}
+
+/* ================= CARD ================= */
+.card {
+  background: linear-gradient(
+    180deg,
+    rgba(255,255,255,0.05),
+    rgba(255,255,255,0.02)
+  );
+  border-radius: 16px;
+  overflow: hidden;
+  transition: 0.3s;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.45);
+
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 18px 40px rgba(164,19,236,0.35);
+  }
+}
+
+.thumb {
+  aspect-ratio: 16 / 9;
+  background-size: cover;
+  background-position: center;
+  position: relative;
+}
+
+.duration {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  background: rgba(0,0,0,0.75);
+  padding: 3px 6px;
+  font-size: 10px;
+  border-radius: 6px;
+}
+
+.play {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  opacity: 0;
+  font-size: 38px;
+  color: white;
+  transition: 0.3s;
+}
+
+.card:hover .play {
+  opacity: 1;
+  background: linear-gradient(to top, rgba(0,0,0,0.65), transparent);
+}
+
+/* ================= CARD BODY ================= */
+.cardBody {
+  padding: 14px 16px 16px;
+
+  h3 {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 10px;
+    line-height: 1.3;
+  }
+}
+
+.creator {
+  font-size: 13px;
+  color: rgba(255,255,255,0.85);
+}
+
+
+/* ================= PAGINATION ================= */
+.pagination {
+  margin-top: 70px;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+
+  button {
+    width: 88px;
+    height: 44px;
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,0.1);
+    background: rgba(255,255,255,0.05);
+    color: rgba(255,255,255,0.7);
+    cursor: pointer;
+  }
+
+  .active {
+    background: linear-gradient(135deg, #a413ec, #6f00ff);
+    color: white;
+  }
+}
+
+/* ================= GLOW ================= */
+.glow1 {
+  position: fixed;
+  top: 20%;
+  right: -10%;
+  width: 500px;
+  height: 500px;
+  background: rgba(164,19,236,0.15);
+  filter: blur(140px);
+  pointer-events: none;
+  z-index: -1;
+}
+
+.glow2 {
+  position: fixed;
+  bottom: -10%;
+  left: -5%;
+  width: 400px;
+  height: 400px;
+  background: rgba(164,19,236,0.08);
+  filter: blur(120px);
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* ================= RESPONSIVE ================= */
+@media (max-width: 768px) {
+  .navInner {
+    gap: 12px;
+  }
+
+  .logo h1 {
+    display: none;
+  }
+
+  .filterBar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+/* ================= NAVBAR ================= */
+.navbar {
+  position: fixed;
+  inset: 0 0 auto 0;
+  height: 82px;
+  backdrop-filter: blur(16px);
+  background: linear-gradient(
+    180deg,
+    rgba(35, 10, 50, 0.85),
+    rgba(20, 5, 30, 0.75)
+  );
+  border-bottom: 1px solid rgba(164, 19, 236, 0.25);
+  z-index: 100;
+}
+
+.navInner {
+  max-width: 1400px;
+  height: 100%;
+  margin: auto;
+  padding: 0 28px;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 28px;
+}
+
+/* LOGO */
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  h1 {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+  }
+
+  span {
+    color: #b14cff;
+  }
+}
+
+.logoIcon {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #b14cff, #6f00ff);
+  display: grid;
+  place-items: center;
+  box-shadow: 0 0 18px rgba(177, 76, 255, 0.8);
+}
+
+/* SEARCH */
+.searchWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 16px;
+  padding: 12px 12px;
+  transition: 0.3s;
+  min-width: 350px;
+  margin: auto;
+
+  &:focus-within {
+    border-color: #b14cff;
+    box-shadow: 0 0 18px rgba(177,76,255,0.5);
+  }
+
+  input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: white;
+    font-size: 15px;
+    padding: 0 12px;
+
+    &::placeholder {
+      color: rgba(255,255,255,0.45);
+    }
+  }
+}
+
+.searchIcon {
+  color: #b14cff;
+  font-size: 18px;
+}
+
+.filterBtn {
+  background: none;
+  border: none;
+  color: rgba(255,255,255,0.6);
+  cursor: pointer;
+  font-size: 18px;
+
+  &:hover {
+    color: white;
+  }
+}
+
+/* RIGHT */
+.userActions {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.bell {
+  background: none;
+  border: none;
+  color: rgba(255,255,255,0.65);
+  font-size: 20px;
+  cursor: pointer;
+
+  &:hover {
+    color: #b14cff;
+  }
+}
+
+.userActions img {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 2px solid #b14cff;
+}
+
+/* MOBILE */
+@media (max-width: 900px) {
+  .navInner {
+    grid-template-columns: auto 1fr auto;
+    gap: 14px;
+  }
+
+  .logo h1 {
+    display: none;
+  }
+
+//   .searchWrapper {
+//     max-width: 100%;
+//   }
+}
+
+@media (max-width: 450px) {
+    .bell{
+        display: none;
+    }
+    .searchWrapper{
+        min-width: 150px;
+    }
+}
+@media (max-width: 410px) {
+    .userActions img{
+        display: none;
+    }
+     
+}
+
+@media (min-width : 600px){
+    .hideSidebar{
+        display: none;
+    }
+}
