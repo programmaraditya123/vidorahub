@@ -12,6 +12,13 @@ import { useToast } from "@/src/hooks/ui/ToastProvider/ToastProvider";
 import { useRouter } from "next/navigation";
 import Sidebar from "@/src/components/HomePage/Sidebar/Sidebar";
 
+export const metadata = {
+  title: "Upload Your Video – Share Content on VidoraHub",
+  description:
+    "Upload your videos on VidoraHub and reach viewers around the world. Publish tutorials, vlogs, shorts and creative content using our powerful creator tools."
+};
+
+
 export default function UploadPage() {
   const [file, setFile] = useState<File | null>(null);
   const [videoPreview, setVideoPreview] = useState<string | null>(null);
