@@ -2,12 +2,14 @@
 
 import { useRef, useState, useEffect } from "react";
 import styles from "./VideoPlayer.module.scss";
+import { postView } from "@/src/lib/video/videodata";
 
 interface Props {
   src: string;
+  videoId: string;
 }
 
-export default function VideoPlayer({ src }: Props) {
+export default function VideoPlayer({ src, videoId }: Props) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
 
   const [isPlaying, setIsPlaying] = useState(true);
@@ -15,9 +17,51 @@ export default function VideoPlayer({ src }: Props) {
   const [seeking, setSeeking] = useState(false);
   const [volume, setVolume] = useState(1);
 
-  /* ------------------------
-        PLAY / PAUSE
-  ------------------------- */
+  // ⏱ track watch start
+  const watchStartRef = useRef<number | null>(null);
+
+  // 🆔 session id
+  const sessionIdRef = useRef<string>("");
+
+  useEffect(() => {
+    let sid = sessionStorage.getItem("video_session_id");
+    if (!sid) {
+      sid = crypto.randomUUID();
+      sessionStorage.setItem("video_session_id", sid);
+    }
+    sessionIdRef.current = sid;
+  }, []);
+
+  // ▶️ start timer when src changes (new video)
+  useEffect(() => {
+    watchStartRef.current = Date.now();
+
+    return () => {
+      sendView(); // 🔥 send when src changes or page changes
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [src]);
+
+  const sendView = async () => {
+    if (!watchStartRef.current) return;
+
+    const watchTime = Math.floor(
+      (Date.now() - watchStartRef.current) / 1000
+    );
+
+    if (watchTime < 3) return; // ignore very short views
+
+    try {
+      await postView({
+        videoId,
+        sessionId: sessionIdRef.current,
+        watchTime
+      });
+    } catch (err) {
+      console.error("Failed to post view", err);
+    }
+  };
+
   const togglePlay = () => {
     const v = videoRef.current;
     if (!v) return;
@@ -25,76 +69,51 @@ export default function VideoPlayer({ src }: Props) {
     if (v.paused) {
       v.play();
       setIsPlaying(true);
+      watchStartRef.current = Date.now();
     } else {
       v.pause();
       setIsPlaying(false);
     }
   };
 
-  /* ------------------------
-        TIMELINE PROGRESS
-  ------------------------- */
   const handleTimeUpdate = () => {
-    if (seeking) return; // don't update while dragging
-
+    if (seeking) return;
     const v = videoRef.current;
     if (!v) return;
-
     setProgress((v.currentTime / v.duration) * 100);
   };
 
-  /* ------------------------
-      CLICK TO SEEK
-  ------------------------- */
   const handleTimelineClick = (e: any) => {
     const v = videoRef.current;
     if (!v) return;
-
     const rect = e.currentTarget.getBoundingClientRect();
     const clickX = e.clientX - rect.left;
     const time = (clickX / rect.width) * v.duration;
-
     v.currentTime = time;
   };
 
-  /* ------------------------
-      DRAG TO SEEK (SCRUB)
-  ------------------------- */
   const handleSeekStart = () => setSeeking(true);
-
   const handleSeekMove = (e: any) => {
     if (!seeking) return;
-
     const v = videoRef.current;
     if (!v) return;
-
     const rect = e.currentTarget.getBoundingClientRect();
     let pos = (e.clientX - rect.left) / rect.width;
-
     pos = Math.max(0, Math.min(pos, 1));
-
     v.currentTime = v.duration * pos;
     setProgress(pos * 100);
   };
-
   const handleSeekEnd = () => setSeeking(false);
 
-  /* ------------------------
-          VOLUME
-  ------------------------- */
   const handleVolumeChange = (e: any) => {
     const v = videoRef.current;
     if (!v) return;
-
     const vol = Number(e.target.value);
     v.volume = vol;
     v.muted = vol === 0;
     setVolume(vol);
   };
 
-  /* ------------------------
-        FULLSCREEN
-  ------------------------- */
   const toggleFullScreen = () => {
     const container = videoRef.current?.parentElement!;
     if (!document.fullscreenElement) container.requestFullscreen();
@@ -114,13 +133,10 @@ export default function VideoPlayer({ src }: Props) {
 
         <div className={styles.overlay}>
           <div className={styles.controls}>
-
-            {/* PLAY / PAUSE */}
             <span className="material-symbols-outlined" onClick={togglePlay}>
               {isPlaying ? "pause" : "play_arrow"}
             </span>
 
-            {/* TIMELINE + DRAG SEEK */}
             <div
               className={styles.timeline}
               onClick={handleTimelineClick}
@@ -135,11 +151,12 @@ export default function VideoPlayer({ src }: Props) {
               />
             </div>
 
-            {/* VOLUME TOOLTIP */}
             <div className={styles.volumeWrapper}>
               <span
                 className="material-symbols-outlined"
-                onClick={() => (videoRef.current!.muted = !videoRef.current!.muted)}
+                onClick={() =>
+                  (videoRef.current!.muted = !videoRef.current!.muted)
+                }
               >
                 {videoRef.current?.muted ? "volume_off" : "volume_up"}
               </span>
@@ -155,56 +172,15 @@ export default function VideoPlayer({ src }: Props) {
               />
             </div>
 
-            {/* FULLSCREEN */}
-            <span className="material-symbols-outlined" onClick={toggleFullScreen}>
+            <span
+              className="material-symbols-outlined"
+              onClick={toggleFullScreen}
+            >
               fullscreen
             </span>
-
           </div>
         </div>
       </div>
     </div>
   );
 }
-
-
-
-
-
-
-
-// "use client";
-
-// import styles from "./VideoPlayer.module.scss";
-
-// interface Props {
-//   src: string;
-// }
-
-// export default function VideoPlayer({ src }: Props) {
-//   return (
-//     <div className={`${styles.playerWrapper} playerGlow glass`}>
-//       <div className={styles.inner}>
-//         <video
-//           src={src}
-//           autoPlay
-//           className={styles.video}
-//         ></video>
-
-//         {/* HOVER OVERLAY */}
-//         <div className={styles.overlay}>
-//           <div className={styles.controls}>
-//             <span className="material-symbols-outlined">play_arrow</span>
-
-//             <div className={styles.timeline}>
-//               <div className={styles.progress}></div>
-//             </div>
-
-//             <span className="material-symbols-outlined">volume_up</span>
-//             <span className="material-symbols-outlined">fullscreen</span>
-//           </div>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// }

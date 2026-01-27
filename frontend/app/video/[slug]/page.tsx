@@ -63,7 +63,7 @@ export default function Page () {
 
         <main className={styles.center}>
           
-          <VideoPlayer src={videoUrl} />
+          <VideoPlayer src={videoUrl} videoId={videoId!}/>
 
           <div className={styles.topMeta}>
             {!loading && videoMeta && (

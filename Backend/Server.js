@@ -4,11 +4,14 @@ const {connectdb} = require('./config/db')
 const authRoute = require('./modules/auth/auth.route')
 const uploadRoute = require('./modules/uploadvideo/uploadvideo.route')
 const videoDataRoute = require('./modules/videodata/videodata.route')
+const db = require('./config/db2')
+const viewsRoute = require('./modules/videoviews/videoviews.route')
 // const { deleteOldUploadFiles } = require('./modules/videodata/videodata.helper')
 
 const app = express()
 
 connectdb()
+db;
 
 const allowed_origins = [
     "http://localhost:3000",
@@ -49,6 +52,26 @@ app.get('/health',(req,res) => {
     return res.send({'status':'ok','version':'1.0.0','date' : '10-01-2026 04:34PM'})
 })
 
+
+// async function createCollection() {
+//   const collections = await db.listCollections();
+
+//   const exists = collections.some(
+//     (c) => c.name === "video_views_collection"
+//   );
+
+//   if (!exists) {
+//     await db.createCollection("video_views_collection");
+//     console.log("✅ Collection created: video_views_collection");
+//   } else {
+//     console.log("ℹ️ Collection already exists");
+//   }
+// }
+
+// createCollection();
+
+
+
 app.use('/api/v1',authRoute)
 
 //this route contain upload video route + getAllVideos route
@@ -58,6 +81,9 @@ app.use('/api/v1',uploadRoute)
 app.use('/api/v1',videoDataRoute)
 
 // deleteOldUploadFiles();
+
+//this routes are for cassandra post views
+app.use('/api/v1',viewsRoute)
 
 const PORT = process.env.PORT || 8000;
 

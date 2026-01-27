@@ -12,15 +12,18 @@
     "dev": "nodemon Server.js"
   },
   "dependencies": {
+    "@datastax/astra-db-ts": "^2.1.2",
     "@google-cloud/storage": "^7.18.0",
     "bcrypt": "^6.0.0",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
+    "geoip-lite": "^1.4.10",
     "get-video-duration": "^5.0.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.19.2",
     "multer": "^2.0.2",
-    "nodemon": "^3.1.10"
+    "nodemon": "^3.1.10",
+    "ua-parser-js": "^2.0.8"
   }
 }

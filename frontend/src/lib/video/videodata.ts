@@ -46,3 +46,16 @@ export async function creatorDeleteVideo (videoId : string) {
 
   return deleteVideo
 }
+
+ 
+
+type PostViewPayload = {
+  videoId: string;
+  sessionId: string;
+  watchTime: number;
+};
+
+export async function postView(payload: PostViewPayload) {
+  const response = await http.post("/api/v1/views", payload);
+  return response.data;
+}
