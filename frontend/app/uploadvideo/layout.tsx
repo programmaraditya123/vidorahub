@@ -28,7 +28,7 @@ export const metadata = {
     siteName: "VidoraHub",
     images: [
       {
-        url: "https://vidorahub.com/og-upload.png",
+        url: "https://vidorahub.com/vercel.svg",
         width: 1200,
         height: 630,
         alt: "VidoraHub Creator Studio – Upload Videos"
@@ -42,7 +42,7 @@ export const metadata = {
     title: "Upload Videos – Creator Studio | VidoraHub",
     description:
       "Upload your videos, reach viewers and grow your channel with VidoraHub’s creator studio.",
-    images: ["https://vidorahub.com/og-upload.png"]
+    images: ["https://vidorahub.com/vercel.svg"]
   },
 
   robots: {
