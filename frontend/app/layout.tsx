@@ -5,7 +5,7 @@ import ReduxProvider from "@/src/redux/provider";
 import SpeedInsightsClient from "./SpeedInsightsClient";
 
 
-export const metadata = {
+export const metadata : Metadata= {
   title: {
     default: "VidoraHub – The Future of Video Sharing",
     template: "%s | VidoraHub"
@@ -16,7 +16,7 @@ export const metadata = {
   openGraph: {
     siteName: "VidoraHub",
     type: "website",
-    images: ["/vercel.svg"]
+    images: ["/og-image.png"]
   },
 
   twitter: {

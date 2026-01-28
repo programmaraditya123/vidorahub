@@ -5,17 +5,6 @@ const userProfile = require('../auth/auth.model')
 const { getVideoDurationInSeconds } = require("get-video-duration");
 const fs = require("fs");
 
-const { Readable } = require("stream");
-
-function bufferToStream(buffer) {
-  return new Readable({
-    read() {
-      this.push(buffer);
-      this.push(null);
-    }
-  });
-}
-
 
 const UploadVideoController = async (req, res) => {
     let session;
@@ -120,7 +109,7 @@ const UploadVideoController = async (req, res) => {
         console.error("Upload error:", error);
         return res.status(500).json({
             ok: false,
-            message: error?.message || "Upload failed",
+            message: error || "Upload failed",
         });
 
     } finally {

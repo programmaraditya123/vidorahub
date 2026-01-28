@@ -19,26 +19,49 @@ async function uploadToGCS(file) {
     const blob = bucket.file(Date.now() + "-" + file.originalname);
 
     const blobStream = blob.createWriteStream({
-      resumable: false,
+      resumable: true,
       contentType: file.mimetype,
     });
 
-    blobStream.on("error", (err) => reject(err));
-    blobStream.on("finish", () => {
-        // await blob.makePublic();
+    const readStream = fs.createReadStream(file.path);
+
+    readStream
+      .pipe(blobStream)
+      .on("error", reject)
+      .on("finish", async () => {
+        fs.unlinkSync(file.path);
         const publicUrl = `https://storage.googleapis.com/${bucket.name}/${blob.name}`;
         resolve(publicUrl);
-    });
-
-    // blobStream.end(file.buffer);
-    fs.createReadStream(file.path)
-    .pipe(blobStream)
-    .on("finish", () => {
-      fs.unlinkSync(file.path); // cleanup
-    });
-
+      });
   });
 }
+
+
+// async function uploadToGCS(file) {
+//   return new Promise((resolve, reject) => {
+//     const blob = bucket.file(Date.now() + "-" + file.originalname);
+
+//     const blobStream = blob.createWriteStream({
+//       resumable: false,
+//       contentType: file.mimetype,
+//     });
+
+//     blobStream.on("error", (err) => reject(err));
+//     blobStream.on("finish", () => {
+//         // await blob.makePublic();
+//         const publicUrl = `https://storage.googleapis.com/${bucket.name}/${blob.name}`;
+//         resolve(publicUrl);
+//     });
+
+//     // blobStream.end(file.buffer);
+//     fs.createReadStream(file.path)
+//     .pipe(blobStream)
+//     .on("finish", () => {
+//       fs.unlinkSync(file.path); 
+//     });
+
+//   });
+// }
 
 
 module.exports = { uploadToGCS };
