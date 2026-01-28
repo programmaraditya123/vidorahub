@@ -16,7 +16,7 @@ export const metadata = {
   openGraph: {
     siteName: "VidoraHub",
     type: "website",
-    images: ["/og-image.png"]
+    images: ["/vercel.svg"]
   },
 
   twitter: {
