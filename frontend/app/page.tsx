@@ -35,7 +35,7 @@ export const metadata: Metadata = {
     siteName: "VidoraHub",
     images: [
       {
-        url: "https://vidorahub.com/og-image.png",
+        url: "https://vidorahub.com/vercel.svg",
         width: 1200,
         height: 630,
         alt: "VidoraHub Video Sharing Platform"
@@ -50,7 +50,7 @@ export const metadata: Metadata = {
     title: "VidoraHub – The Future of Video Sharing",
     description:
       "Watch, upload and discover meaningful videos on VidoraHub. A powerful platform for creators and viewers.",
-    images: ["https://vidorahub.com/og-image.png"],
+    images: ["https://vidorahub.com/vercel.svg"],
     creator: "@vidorahub"
   },
 
