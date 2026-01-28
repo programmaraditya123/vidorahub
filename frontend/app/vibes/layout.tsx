@@ -27,7 +27,7 @@ export const metadata = {
     siteName: "VidoraHub",
     images: [
       {
-        url: "https://vidorahub.com/og-vibes.png",
+        url: "https://vidorahub.com/vercel.svg",
         width: 1200,
         height: 630,
         alt: "VidoraHub Vibes – Short Videos Platform"
@@ -41,7 +41,7 @@ export const metadata = {
     title: "Vibes – Short Videos on VidoraHub",
     description:
       "Discover viral short videos and trending reels on Vibes, VidoraHub’s short-form video experience.",
-    images: ["https://vidorahub.com/og-vibes.png"]
+    images: ["https://vidorahub.com/vercel.svg"]
   },
 
   robots: {
