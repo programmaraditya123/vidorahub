@@ -25,7 +25,7 @@ export const metadata: Metadata = {
     siteName: "VidoraHub",
     images: [
       {
-        url: "https://vidorahub.com/og-signup.png",
+        url: "https://vidorahub.com/vercel.svg",
         width: 1200,
         height: 630,
         alt: "VidoraHub Signup Page"
@@ -39,7 +39,7 @@ export const metadata: Metadata = {
     title: "Sign Up – VidoraHub",
     description:
       "Join VidoraHub to watch videos, upload content and support creators.",
-    images: ["https://vidorahub.com/og-signup.png"]
+    images: ["https://vidorahub.com/vercel.svg"]
   },
 
   robots: {
