@@ -7,7 +7,7 @@ import styles from "./UploadPage.module.scss";
 import DataSculptingForm from "@/src/components/upload/DataScluptingForm/DataSculptingForm";
 import UploadVideo from "@/src/components/uploadvideo/UploadVideo";
 import { extractThreeFramesAsItems } from "@/src/utils/extractFrames";
-import { uploadVideo } from "@/src/lib/video/uploadvideo";
+import { uploadVideoFlow} from "@/src/lib/video/uploadvideo";
 import { useToast } from "@/src/hooks/ui/ToastProvider/ToastProvider";
 import { useRouter } from "next/navigation";
 import Sidebar from "@/src/components/HomePage/Sidebar/Sidebar";
@@ -29,50 +29,52 @@ export default function UploadPage() {
   const { success, error,info  } = useToast();
 
 
-  const startUpload = async (formData: { title: string; description: string; tags: string[] }, isDraft: boolean) => {
-    if (!file) return info("No video selected!");
+  const startUpload = async (
+  formData: { title: string; description: string; tags: string[] },
+  isDraft: boolean
+) => {
+  if (!file) return info("No video selected!");
 
-    const selectedThumb = frames.find((f) => f.isCurrent);
-    if (!selectedThumb) return info("Select a thumbnail!");
+  const selectedThumb = frames.find((f) => f.isCurrent);
+  if (!selectedThumb) return info("Select a thumbnail!");
 
-    const thumbnailBlob = await (await fetch(selectedThumb.src)).blob();
-    const thumbnailFile = new File([thumbnailBlob], "thumbnail.png", { type: "image/png" });
+  const thumbnailBlob = await (await fetch(selectedThumb.src)).blob();
+  const thumbnailFile = new File([thumbnailBlob], "thumbnail.png", {
+    type: "image/png",
+  });
 
-    const controller = new AbortController();
-    setAbortController(controller);
+  const controller = new AbortController();
+  setAbortController(controller);
 
-    setIsUploading(true);
-    setProgress(0);
+  setIsUploading(true);
+  setProgress(0);
 
-    const payload = {
-      video: file,
-      thumbnail: thumbnailFile,
+  try {
+    await uploadVideoFlow({
+      videoFile: file,
+      thumbnailFile,
       title: formData.title,
       description: formData.description,
       tags: formData.tags,
-      visibility: "public" as const,  
       category: "general",
-      cancelToken: controller,
+      visibility: "public",
       onProgress: (p: number) => setProgress(p),
-    };
+    });
 
-    try {
-      const res = await uploadVideo(payload);
+    setIsUploading(false);
+    success("Video uploaded successfully!");
+    router.replace("/profile");
+  } catch (err: any) {
+    setIsUploading(false);
 
-      setIsUploading(false);
-      success("Video uploaded successfully!");
-      router.replace('/profile')
-
-    } catch (err: any) {
-      setIsUploading(false);
-
-      if (err?.name === "CanceledError") {
-        error("Upload cancelled.");
-      } else {
-        error("Upload failed.");
-      }
+    if (err?.name === "CanceledError") {
+      error("Upload cancelled.");
+    } else {
+      console.error(err);
+      error("Upload failed.");
     }
-  };
+  }
+};
 
   const handlePublish = (data: any) => startUpload(data, false);
   const handleSaveDraft = (data: any) => startUpload(data, true);

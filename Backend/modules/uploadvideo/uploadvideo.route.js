@@ -1,21 +1,13 @@
 const express = require('express')
-const { UploadVideoController, getAllVideosController } = require('./uploadvideo.contoller')
+const { UploadVideoController, getAllVideosController,getUploadUrlController } = require('./uploadvideo.contoller')
 const { requireSignIn } = require('../auth/auth.middleware')
 const { upload } = require('./uploadvideo.service')
 
 const router = express.Router()
 
-// router.post('/uploadvideo',requireSignIn,upload.single('video'),UploadVideoController)
-router.post(
-  '/uploadvideo',
-  requireSignIn,
-  upload.fields([
-    { name: 'video', maxCount: 1 },
-    { name: 'thumbnail', maxCount: 1 }
-  ]),
-  UploadVideoController
-);
+router.post("/get-upload-url",requireSignIn,getUploadUrlController);
 
+router.post("/uploadvideo",requireSignIn,UploadVideoController);
 
 router.get('/allvideos',getAllVideosController)
 

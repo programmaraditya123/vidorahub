@@ -1,126 +1,254 @@
 const mongoose = require("mongoose");
-const { uploadToGCS } = require("./uploadvideo.helper");
 const Video = require('./uploadvideo.model')
 const userProfile = require('../auth/auth.model')
-const { getVideoDurationInSeconds } = require("get-video-duration");
-const fs = require("fs");
+const { Storage } = require("@google-cloud/storage");
+const storage = new Storage({
+  projectId: process.env.GOOGLE_PROJECT_ID,
+  credentials: {
+    client_email: process.env.GOOGLE_CLIENT_EMAIL,
+    private_key: process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, "\n"),
+  },
+});const bucket = storage.bucket("vidorahub");
 
+const getUploadUrlController = async (req, res) => {
+  try {
+    if (!req.user?._id) {
+      return res.status(401).json({ ok: false, message: "Unauthorized" });
+    }
 
+    const { fileName, contentType, type } = req.body;
+
+    if (!fileName || !contentType || !type) {
+      return res.status(400).json({
+        ok: false,
+        message: "fileName, contentType and type are required",
+      });
+    }
+
+    const folder = type === "thumbnail" ? "thumbnails" : "videos";
+    const filePath = `users/${req.user._id}/${folder}/${Date.now()}-${fileName}`;
+
+    const file = bucket.file(filePath);
+
+    const [uploadUrl] = await file.getSignedUrl({
+      version: "v4",
+      action: "write",
+      expires: Date.now() + 15 * 60 * 1000, // 15 minutes
+      contentType,
+    });
+
+    return res.json({
+      uploadUrl,
+      publicUrl: `https://storage.googleapis.com/${bucket.name}/${filePath}`,
+    });
+
+  } catch (err) {
+    console.error("Signed URL error:", err);
+    return res.status(500).json({
+      ok: false,
+      message: "Failed to create upload URL",
+    });
+  }
+};
+
+/* ============================
+   SAVE VIDEO METADATA
+============================ */
 const UploadVideoController = async (req, res) => {
-    let session;
-    try {
-        req.on("aborted", () => {
-            console.log("❌ CLIENT CONNECTION ABORTED");
-            });
+  let session;
+  try {
+    if (!req.user?._id) {
+      return res.status(401).json({ ok: false, message: "Unauthorized" });
+    }
 
-        if (!req.user?._id) {
-            return res.status(401).json({ ok: false, message: "Unauthorized" });
-        }
+    const {
+      title,
+      description,
+      tags,
+      category = "general",
+      visibility = "public",
+      duration,
+      videoUrl,
+      thumbnailUrl = null,
+    } = req.body;
 
-        if (!req.files?.video?.[0]) {
-            return res.status(400).json({ ok: false, message: "No video uploaded" });
-        }
+    if (!title || !description || !tags || !videoUrl || !duration) {
+      return res.status(400).json({
+        ok: false,
+        message: "Missing required fields",
+      });
+    }
 
-        const videoFile = req.files.video[0];
-        const thumbnailFile = req.files.thumbnail?.[0]; // optional
+    const normalizeTags = Array.isArray(tags)
+      ? tags
+      : tags.split(",").map(t => t.trim()).filter(Boolean);
 
-        const {
-            title,
-            description,
-            tags,
-            category = "general",
-            visibility = "public",
-        } = req.body;
+    if (!normalizeTags.length) {
+      return res.status(400).json({
+        ok: false,
+        message: "At least one tag is required",
+      });
+    }
 
-        if (!title || !description || !tags) {
-            return res.status(400).json({
-                ok: false,
-                message: "Title, Description & Tags are required",
-            });
-        }
+    session = await mongoose.startSession();
+    await session.withTransaction(async () => {
+      const [videoDoc] = await Video.create(
+        [{
+          title: title.trim(),
+          description: description.trim(),
+          tags: normalizeTags,
+          visibility,
+          category,
+          duration,
+          thumbnailUrl,
+          uploader: req.user._id,
+          videoUrl,
+        }],
+        { session }
+      );
 
-        // Normalize tags
-        const normalizeTags = Array.isArray(tags)
-            ? tags
-            : tags.split(",").map(t => t.trim()).filter(Boolean);
+      await userProfile.findByIdAndUpdate(
+        req.user._id,
+        {
+          $push: { uploads: videoDoc._id },
+          $inc: { totalvideos: 1 },
+          $set: { role: 1, creator: true },
+        },
+        { session }
+      );
+    });
 
-        if (normalizeTags.length === 0) {
-            return res.status(400).json({
-                ok: false,
-                message: "At least one tag is required",
-            });
-        }
+    return res.status(201).json({
+      ok: true,
+      message: "Video uploaded successfully",
+    });
 
-        // VIDEO DURATION
-        // const tempStream = bufferToStream(videoFile.buffer);
-        // const tempStream = fs.createReadStream(videoFile.path)
-        // const duration = await getVideoDurationInSeconds(tempStream);
-        const duration = 0
+  } catch (error) {
+    console.error("Upload error:", error);
+    return res.status(500).json({
+      ok: false,
+      message: "Upload failed",
+    });
+  } finally {
+    if (session) session.endSession();
+  }
+};
 
-        // UPLOAD VIDEO TO GCS
-        const videoUrl = await uploadToGCS(videoFile, {
-            prefix: `users/${req.user._id}/videos/`,
-            makePublic: true,
-        });
 
-        // UPLOAD THUMBNAIL (if provided)
-        let thumbnailUrl = null;
-        if (thumbnailFile) {
-            thumbnailUrl = await uploadToGCS(thumbnailFile, {
-                prefix: `users/${req.user._id}/thumbnails/`,
-                makePublic: true,
-            });
-        }
+// const UploadVideoController = async (req, res) => {
+//     let session;
+//     try {
+//         req.on("aborted", () => {
+//             console.log("❌ CLIENT CONNECTION ABORTED");
+//             });
 
-        // SAVE IN DATABASE
-        session = await mongoose.startSession();
-        await session.withTransaction(async () => {
-            const [videoDoc] = await Video.create(
-                [
-                    {
-                        title: title.trim(),
-                        description: description.trim(),
-                        tags: normalizeTags,
-                        visibility,
-                        category,
-                        duration,
-                        thumbnailUrl,
-                        uploader: req.user._id,
-                        videoUrl,
-                    },
-                ],
-                { session }
-            );
+//         if (!req.user?._id) {
+//             return res.status(401).json({ ok: false, message: "Unauthorized" });
+//         }
 
-            await userProfile.findByIdAndUpdate(
-                req.user._id,
-                {
-                    $push: { uploads: videoDoc._id },
-                    $inc: { totalvideos: 1 },
-                    $set : {role : 1 , creator : true}
-                },
-                { session }
-            );
+//         if (!req.files?.video?.[0]) {
+//             return res.status(400).json({ ok: false, message: "No video uploaded" });
+//         }
+
+//         const videoFile = req.files.video[0];
+//         const thumbnailFile = req.files.thumbnail?.[0]; // optional
+
+//         const {
+//             title,
+//             description,
+//             tags,
+//             category = "general",
+//             visibility = "public",
+//         } = req.body;
+
+//         if (!title || !description || !tags) {
+//             return res.status(400).json({
+//                 ok: false,
+//                 message: "Title, Description & Tags are required",
+//             });
+//         }
+
+//         // Normalize tags
+//         const normalizeTags = Array.isArray(tags)
+//             ? tags
+//             : tags.split(",").map(t => t.trim()).filter(Boolean);
+
+//         if (normalizeTags.length === 0) {
+//             return res.status(400).json({
+//                 ok: false,
+//                 message: "At least one tag is required",
+//             });
+//         }
+
+//         // VIDEO DURATION
+//         // const tempStream = bufferToStream(videoFile.buffer);
+//         const tempStream = fs.createReadStream(videoFile.path)
+//         const duration = await getVideoDurationInSeconds(tempStream);
+
+//         // UPLOAD VIDEO TO GCS
+//         const videoUrl = await uploadToGCS(videoFile, {
+//             prefix: `users/${req.user._id}/videos/`,
+//             makePublic: true,
+//         });
+
+//         // UPLOAD THUMBNAIL (if provided)
+//         let thumbnailUrl = null;
+//         if (thumbnailFile) {
+//             thumbnailUrl = await uploadToGCS(thumbnailFile, {
+//                 prefix: `users/${req.user._id}/thumbnails/`,
+//                 makePublic: true,
+//             });
+//         }
+
+//         // SAVE IN DATABASE
+//         session = await mongoose.startSession();
+//         await session.withTransaction(async () => {
+//             const [videoDoc] = await Video.create(
+//                 [
+//                     {
+//                         title: title.trim(),
+//                         description: description.trim(),
+//                         tags: normalizeTags,
+//                         visibility,
+//                         category,
+//                         duration,
+//                         thumbnailUrl,
+//                         uploader: req.user._id,
+//                         videoUrl,
+//                     },
+//                 ],
+//                 { session }
+//             );
+
+//             await userProfile.findByIdAndUpdate(
+//                 req.user._id,
+//                 {
+//                     $push: { uploads: videoDoc._id },
+//                     $inc: { totalvideos: 1 },
+//                     $set : {role : 1 , creator : true}
+//                 },
+//                 { session }
+//             );
 
             
-        });
-        return res.status(201).json({
-                ok: true,
-                message: "Video uploaded successfully",
-                // video: videoDoc,
-            });
+//         });
+//         return res.status(201).json({
+//                 ok: true,
+//                 message: "Video uploaded successfully",
+//                 // video: videoDoc,
+//             });
 
-    } catch (error) {
-        console.error("Upload error:", error);
-        return res.status(500).json({
-            ok: false,
-            message: error || "Upload failed",
-        });
+//     } catch (error) {
+//         console.error("Upload error:", error);
+//         return res.status(500).json({
+//             ok: false,
+//             message: error || "Upload failed",
+//         });
 
-    } finally {
-        if (session) session.endSession();
-    }
-};
+//     } finally {
+//         if (session) session.endSession();
+//     }
+// };
 
 
 
@@ -163,4 +291,4 @@ const getAllVideosController = async (req, res) => {
     }
 }
 
-module.exports = { UploadVideoController,getAllVideosController}
+module.exports = { UploadVideoController,getAllVideosController,getUploadUrlController}
