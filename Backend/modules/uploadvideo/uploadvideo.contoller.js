@@ -9,6 +9,10 @@ const fs = require("fs");
 const UploadVideoController = async (req, res) => {
     let session;
     try {
+        req.on("aborted", () => {
+            console.log("❌ CLIENT CONNECTION ABORTED");
+            });
+
         if (!req.user?._id) {
             return res.status(401).json({ ok: false, message: "Unauthorized" });
         }
@@ -49,8 +53,9 @@ const UploadVideoController = async (req, res) => {
 
         // VIDEO DURATION
         // const tempStream = bufferToStream(videoFile.buffer);
-        const tempStream = fs.createReadStream(videoFile.path)
-        const duration = await getVideoDurationInSeconds(tempStream);
+        // const tempStream = fs.createReadStream(videoFile.path)
+        // const duration = await getVideoDurationInSeconds(tempStream);
+        const duration = 0
 
         // UPLOAD VIDEO TO GCS
         const videoUrl = await uploadToGCS(videoFile, {

@@ -40,6 +40,7 @@ export async function uploadVideo(payload: UploadPayload) {
     headers: {
       "Content-Type": "multipart/form-data",
     },
+    timeout: 1000 * 60 * 10,
     signal: payload.cancelToken?.signal,
     onUploadProgress: (ev) => {
       if (payload.onProgress && ev.total) {

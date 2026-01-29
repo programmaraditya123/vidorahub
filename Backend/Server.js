@@ -7,6 +7,8 @@ const videoDataRoute = require('./modules/videodata/videodata.route')
 const db = require('./config/db2')
 const viewsRoute = require('./modules/videoviews/videoviews.route')
 // const { deleteOldUploadFiles } = require('./modules/videodata/videodata.helper')
+const fs = require("fs");
+const path = require("path");
 
 const app = express()
 
@@ -42,6 +44,12 @@ const corsOptions = {
 app.use(cors(corsOptions))
 app.use(express.json({ limit: "2gb" }));
 app.use(express.urlencoded({ extended: true, limit: "2gb" }));
+
+const uploadDir = path.join(__dirname, "uploads");
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+  console.log("📁 uploads folder created");
+}
 
 
 app.get('/',(req,res)=>{
@@ -87,6 +95,9 @@ app.use('/api/v1',viewsRoute)
 
 const PORT = process.env.PORT || 8000;
 
-app.listen(PORT,() => {
+const server = app.listen(PORT,() => {
     console.log(`The backend is runing on port ${PORT}`)
 })
+
+server.setTimeout(10 * 60 * 1000);
+
