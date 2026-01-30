@@ -16,6 +16,10 @@ export default function VideoPlayer({ src, videoId }: Props) {
   const [progress, setProgress] = useState(0);
   const [seeking, setSeeking] = useState(false);
   const [volume, setVolume] = useState(1);
+  const [muted, setMuted] = useState(false);
+
+ const lastUpdateRef = useRef(0);
+
 
   // ⏱ track watch start
   const watchStartRef = useRef<number | null>(null);
@@ -39,7 +43,6 @@ export default function VideoPlayer({ src, videoId }: Props) {
     return () => {
       sendView(); // 🔥 send when src changes or page changes
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [src]);
 
   const sendView = async () => {
@@ -76,12 +79,19 @@ export default function VideoPlayer({ src, videoId }: Props) {
     }
   };
 
-  const handleTimeUpdate = () => {
-    if (seeking) return;
-    const v = videoRef.current;
-    if (!v) return;
-    setProgress((v.currentTime / v.duration) * 100);
-  };
+
+const handleTimeUpdate = () => {
+  const now = Date.now();
+  if (now - lastUpdateRef.current < 200) return; // 5fps max
+  lastUpdateRef.current = now;
+
+  if (seeking) return;
+  const v = videoRef.current;
+  if (!v || !v.duration) return;
+
+  setProgress((v.currentTime / v.duration) * 100);
+};
+
 
   const handleTimelineClick = (e: any) => {
     const v = videoRef.current;
@@ -120,6 +130,45 @@ export default function VideoPlayer({ src, videoId }: Props) {
     else document.exitFullscreen();
   };
 
+  const toggleMute = () => {
+  const v = videoRef.current;
+  if (!v) return;
+  v.muted = !v.muted;
+  setMuted(v.muted);
+};
+
+
+  useEffect(() => {
+  const v = videoRef.current;
+  if (!v) return;
+
+  const onPlay = () => setIsPlaying(true);
+  const onPause = () => setIsPlaying(false);
+
+  v.addEventListener("play", onPlay);
+  v.addEventListener("pause", onPause);
+
+  return () => {
+    v.removeEventListener("play", onPlay);
+    v.removeEventListener("pause", onPause);
+  };
+}, []);
+
+
+useEffect(() => {
+  const handleUnload = () => sendView();
+
+  window.addEventListener("beforeunload", handleUnload);
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) sendView();
+  });
+
+  return () => {
+    window.removeEventListener("beforeunload", handleUnload);
+  };
+}, []);
+
+
   return (
     <div className={styles.playerWrapper}>
       <div className={styles.inner} onClick={togglePlay}>
@@ -127,15 +176,23 @@ export default function VideoPlayer({ src, videoId }: Props) {
           ref={videoRef}
           src={src}
           autoPlay
+          playsInline
+          preload="metadata"
+          poster="/thumb.jpg"
           onTimeUpdate={handleTimeUpdate}
           className={styles.video}
         />
 
+
         <div className={styles.overlay}>
           <div className={styles.controls}>
-            <span className="material-symbols-outlined" onClick={togglePlay}>
-              {isPlaying ? "pause" : "play_arrow"}
-            </span>
+            <span
+  className="material-symbols-outlined"
+  onClick={toggleMute}
+>
+  {muted ? "volume_off" : "volume_up"}
+</span>
+
 
             <div
               className={styles.timeline}

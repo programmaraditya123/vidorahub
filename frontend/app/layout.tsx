@@ -5,28 +5,34 @@ import ReduxProvider from "@/src/redux/provider";
 import SpeedInsightsClient from "./SpeedInsightsClient";
 
 
-export const metadata : Metadata= {
-  title: {
-    default: "VidoraHub – The Future of Video Sharing",
-    template: "%s | VidoraHub"
-  },
+export const metadata: Metadata = {
+  metadataBase: new URL("https://www.vidorahub.com"),
+
+  title: "VidoraHub – Discover, Watch & Share Videos That Matter",
   description:
-    "VidoraHub is a modern video sharing platform to watch, upload and discover powerful videos from creators worldwide.",
+    "VidoraHub is a next-generation video sharing platform to watch, upload and discover trending videos, original creators and powerful stories.",
 
   openGraph: {
+    title: "VidoraHub – Discover, Watch & Share Videos That Matter",
+    description:
+      "A modern video sharing platform built for creators and viewers.",
+    url: "https://www.vidorahub.com",
     siteName: "VidoraHub",
+    images: [
+      {
+        url: "/og-image.png",    
+        width: 1200,
+        height: 630,
+        alt: "VidoraHub Video Sharing Platform",
+      },
+    ],
     type: "website",
-    images: ["/og-image.png"]
   },
 
   twitter: {
-    card: "summary_large_image"
+    card: "summary_large_image",
+    images: ["/og-image.png"],
   },
-
-  robots: {
-    index: true,
-    follow: true
-  }
 };
 
 
