@@ -45,11 +45,7 @@ app.use(cors(corsOptions))
 app.use(express.json({ limit: "2gb" }));
 app.use(express.urlencoded({ extended: true, limit: "2gb" }));
 
-// const uploadDir = path.join(__dirname, "uploads");
-// if (!fs.existsSync(uploadDir)) {
-//   fs.mkdirSync(uploadDir, { recursive: true });
-//   console.log("📁 uploads folder created");
-// }
+
 
 
 app.get('/',(req,res)=>{
@@ -57,7 +53,7 @@ app.get('/',(req,res)=>{
 })
 
 app.get('/health',(req,res) => {
-    return res.send({'status':'ok','version':'1.0.0','date' : '10-01-2026 04:34PM'})
+    return res.send({'status':'ok','version':'1.0.0','date' : '04-02-2026 04:34PM'})
 })
 
 
