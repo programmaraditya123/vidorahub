@@ -15,7 +15,7 @@ type Props = {
   onFileReady?: (file: File) => void
 }
 
-const MAX_SIZE_MB = 1024;
+const MAX_SIZE_MB = 2048;
 
 export default function UploadVideo({onFileReady} : Props){
     const [dragActive,setDragActive] = useState<boolean>(false);
