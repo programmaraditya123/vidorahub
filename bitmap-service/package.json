@@ -12,9 +12,12 @@
     "dev": "nodemon server.js"
   },
   "dependencies": {
+    "@datastax/astra-db-ts": "^2.1.2",
     "cors": "^2.8.6",
     "dotenv": "^17.2.3",
     "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^9.1.6",
     "nodemon": "^3.1.11",
     "redis": "^5.10.0",
     "roaring": "^2.7.0"

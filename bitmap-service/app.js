@@ -1,10 +1,15 @@
 const express = require('express')
 const cors = require('cors');
 const { default: client } = require('./config/redis');
+const bitmapRoute = require('./routes/bitmap.routes');
+const  {connectdb} = require('./config/db')
+const  {db2} = require('./config/db2')
 
 const app = express();
 
 client;
+connectdb();
+db2;
 
 const allowed_origins = [
     "http://localhost:3000",
@@ -45,6 +50,8 @@ app.get("/", (req, res) => {
 app.get("/health", (req, res) => {
   res.status(200).json({ status: "OK" });
 });
+
+app.use('/bitmap/v1',bitmapRoute)
 
 app.use((req, res) => {
   res.status(404).json({ error: "Route not found" });

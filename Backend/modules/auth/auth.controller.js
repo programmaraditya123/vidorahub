@@ -1,6 +1,7 @@
 const userProfile = require('./auth.model')
 const {hashPassword,comparePassword} = require('./auth.helper')
-const jwt = require('jsonwebtoken')
+const jwt = require('jsonwebtoken');
+const { getNextNumber } = require('../counter/counter.controller');
 require("dotenv").config();
 
 const userRegister = async(req,res) => {
@@ -26,7 +27,9 @@ const userRegister = async(req,res) => {
 
         const hashedPassword = await hashPassword(password);
         //save to db
-        const user =  await new userProfile({name,email,password:hashedPassword}).save()
+        const user =  await new userProfile({name,email,password:hashedPassword,
+             userSerialNumber : await getNextNumber("user")
+        }).save()
 
         res.status(200).json({
             success:true,
@@ -63,7 +66,7 @@ const userLoginController = async (req,res) => {
                 message:"Email is not registred"
             })
         }
-        console.log("8888888888",user)
+        // console.log("8888888888",user)
 
         const match = await comparePassword(password,user.password)
         if(!match){
@@ -80,7 +83,8 @@ const userLoginController = async (req,res) => {
             message:"LoggedIn Successfully",
             user:{
                 name:user.name,
-                email:user.email
+                email:user.email,
+                userSerialNumber : user.userSerialNumber
             },
             token
         })

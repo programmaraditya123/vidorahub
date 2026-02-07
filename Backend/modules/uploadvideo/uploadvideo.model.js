@@ -83,6 +83,10 @@ const videoSchema = new mongoose.Schema(
       type: String,
       required: true, 
     },
+    videoSerialNumber : {
+      type : Number,
+
+    },
   },
   { timestamps: true }
 );

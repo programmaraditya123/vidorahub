@@ -22,14 +22,14 @@ function getBitmap(key) {
 function addToBitmap(key, value) {
   const bitmap = getBitmap(key);
   bitmap.add(value);
-  return bitmap.getCardinality();
+  return bitmap.size;
 }
 
 // 🔹 Remove value
 function removeFromBitmap(key, value) {
   const bitmap = getBitmap(key);
   bitmap.remove(value);
-  return bitmap.getCardinality();
+  return bitmap.size;
 }
 
 // 🔹 Check if value exists
@@ -41,7 +41,7 @@ function existsInBitmap(key, value) {
 // 🔹 Count values
 function countBitmap(key) {
   const bitmap = getBitmap(key);
-  return bitmap.getCardinality();
+  return bitmap.size;
 }
 
 // 🔹 Get all values (be careful for large sets)

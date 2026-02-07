@@ -23,7 +23,7 @@ export type LoginResponse = {
     success:boolean,
     token:string,
     message?:string,
-    user?:{email:string,name:string},
+    user?:{email:string,name:string,userSerialNumber:string},
 }
 
 export async function userRegister(payload:RegisterPayload){

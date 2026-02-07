@@ -9,7 +9,7 @@ const getVedioDataExceptCommentsDocs = async (req,res) => {
         const {id} = req.params;
         const data = await Video.findById(id)
         .select("-videoUrl -updatedAt -category -thumbnailUrl -_id")
-        .populate({path : "uploader" , select : "name subscriber"})
+        .populate({path : "uploader" , select : "name subscriber userSerialNumber"})
         res.json({
             ok : true,
             data

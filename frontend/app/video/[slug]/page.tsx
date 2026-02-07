@@ -78,7 +78,11 @@ export default function Page () {
 
             {/* <VideoActions likes="42K" /> */}
             {!loading && videoMeta && (
-            <VideoActions likes={videoMeta.data?.stats.likes.toString()} />
+            // <VideoActions likes={videoMeta.data?.stats.likes.toString()} 
+            //     videoSerialNumber={videoMeta.data?.videoSerialNumber}
+            //     dislike={videoMeta.data?.stats.dislikes.toString()}
+            //     />
+            <VideoActions videoSerialNumber={videoMeta.data?.videoSerialNumber}/>
           )}
 
           </div>

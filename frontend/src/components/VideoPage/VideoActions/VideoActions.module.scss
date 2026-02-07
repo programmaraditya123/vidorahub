@@ -116,3 +116,33 @@
     background: rgba(255, 255, 255, 0.2);
   }
 }
+
+.activeLike {
+  background: rgba(164, 19, 236, 0.15);
+
+  span {
+    color: var(--primary);
+    font-variation-settings: "FILL" 1;
+    transform: scale(1.05);
+    text-shadow: 0 0 14px rgba(164, 19, 236, 0.9);
+  }
+}
+
+
+.activeDislike {
+  background: rgba(255, 80, 80, 0.15);
+
+  span {
+    color: #ff5050;
+    font-variation-settings: "FILL" 1;
+    transform: scale(1.05);
+    text-shadow: 0 0 14px rgba(255, 80, 80, 0.9);
+  }
+}
+
+
+.likeBtn:active,
+.dislikeBtn:active {
+  transform: scale(0.92);
+}
+

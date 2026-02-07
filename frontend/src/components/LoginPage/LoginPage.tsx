@@ -33,6 +33,7 @@ export default function LoginPage() {
 
       localStorage.setItem("token", res.token);
       localStorage.setItem("userName",res?.user?.name!)
+      localStorage.setItem('userSerialNumber',res?.user?.userSerialNumber!)
       success("Logged in successfully!");
       router.replace("/");
     } catch (err: any) {
