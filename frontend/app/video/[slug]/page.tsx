@@ -82,6 +82,7 @@ export default function Page () {
             //     videoSerialNumber={videoMeta.data?.videoSerialNumber}
             //     dislike={videoMeta.data?.stats.dislikes.toString()}
             //     />
+            //infuture we have to add a fallback layer
             <VideoActions videoSerialNumber={videoMeta.data?.videoSerialNumber}/>
           )}
 
