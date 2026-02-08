@@ -22,25 +22,23 @@ export default function VideoActions({ videoSerialNumber }: Props) {
   const [loading, setLoading] = useState(false);
 
   const [userSerialNumber, setUserSerialNumber] = useState<number | null>(null);
+  const [authChecked, setAuthChecked] = useState(false);
 
-  /*
-  --------------------------------
-  LOAD USER FROM LOCAL STORAGE
-  --------------------------------
-  */
+
   useEffect(() => {
+    const token = localStorage.getItem("token");
     const storedUserSerial = localStorage.getItem("userSerialNumber");
-    if (storedUserSerial) {
+
+    if (token && storedUserSerial) {
       setUserSerialNumber(Number(storedUserSerial));
     }
+
+    setAuthChecked(true);
   }, []);
 
-  /*
-  --------------------------------
-  LOAD REACTION STATE
-  --------------------------------
-  */
   useEffect(() => {
+    if (!authChecked) return;
+
     const loadReactions = async () => {
       try {
         const res = await getVideoReactions(
@@ -58,13 +56,9 @@ export default function VideoActions({ videoSerialNumber }: Props) {
     };
 
     loadReactions();
-  }, [videoSerialNumber, userSerialNumber]);
+  }, [authChecked, videoSerialNumber]);
 
-  /*
-  --------------------------------
-  LIKE HANDLER
-  --------------------------------
-  */
+  
   const handleLike = async () => {
     if (loading || !userSerialNumber) return;
 
@@ -84,11 +78,7 @@ export default function VideoActions({ videoSerialNumber }: Props) {
     }
   };
 
-  /*
-  --------------------------------
-  DISLIKE HANDLER
-  --------------------------------
-  */
+   
   const handleDislike = async () => {
     if (loading || !userSerialNumber) return;
 

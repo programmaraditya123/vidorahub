@@ -66,19 +66,6 @@ export async function removeDislike(payload: ReactionPayload) {
 }
 
 
-// export async function validateLikeDislike(
-//   userSerialNumber: number,
-//   videoSerialNumber: number
-// ) {
-//   const { data } = await http2.get<ValidateReactionResponse>(
-//     "bitmap/v1/validateLikeDislike",
-//     {
-//       params: { userSerialNumber, videoSerialNumber },
-//     }
-//   );
-
-//   return data;
-// }
 
 export async function getVideoReactions(
   videoSerialNumber: number,

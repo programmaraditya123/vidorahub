@@ -11,8 +11,9 @@ export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   const handleLogout = () => {
-    localStorage.setItem("token", "");
-    localStorage.setItem("userName", "");
+    localStorage.removeItem("token");
+    localStorage.removeItem("userName");
+    localStorage.removeItem("userSerialNumber")
     router.replace("/");
   };
 

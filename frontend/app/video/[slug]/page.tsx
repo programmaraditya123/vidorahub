@@ -107,18 +107,6 @@ export default function Page () {
 
             </div>
 
-            {/* <div>
-              <ResourcesCard
-                filename="Project_Assets.zip"
-                size="24.5 MB • ZIP/PDF"
-                onDownload={() => console.log("download zip")}
-              />
-
-              <div className={styles.licenseBox}>
-                <span className="material-symbols-outlined">info</span>
-                <p>CC BY-NC 4.0 International License Applied</p>
-              </div>
-            </div> */}
           </div>
         </main>
 
