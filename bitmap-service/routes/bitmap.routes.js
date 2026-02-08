@@ -16,7 +16,7 @@ router.post('/removeDislike',requireSignIn,removeDislike)
 
 router.get('/validateLikeDislike',requireSignIn,validateeLikeDislike)
 
-router.get("/reactions", getVideoReactions);
+router.get("/reactions",getVideoReactions);
 
 
 

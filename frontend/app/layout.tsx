@@ -10,28 +10,20 @@ export const metadata: Metadata = {
 
   title: "VidoraHub – Discover, Watch & Share Videos That Matter",
   description:
-    "VidoraHub is a next-generation video sharing platform to watch, upload and discover trending videos, original creators and powerful stories.",
+    "VidoraHub is a next-generation video sharing platform.",
 
   openGraph: {
-    title: "VidoraHub – Discover, Watch & Share Videos That Matter",
-    description:
-      "A modern video sharing platform built for creators and viewers.",
+    title: "VidoraHub",
+    description: "Modern video sharing platform",
     url: "https://www.vidorahub.com",
     siteName: "VidoraHub",
-    images: [
-      {
-        url: "/og-image.png",    
-        width: 1200,
-        height: 630,
-        alt: "VidoraHub Video Sharing Platform",
-      },
-    ],
+    images: ["https://www.vidorahub.com/og-image.png"],
     type: "website",
   },
 
   twitter: {
     card: "summary_large_image",
-    images: ["/og-image.png"],
+    images: ["https://www.vidorahub.com/og-image.png"],
   },
 };
 
