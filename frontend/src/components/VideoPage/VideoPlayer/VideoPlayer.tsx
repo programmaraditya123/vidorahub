@@ -77,6 +77,19 @@ export default function VideoPlayer({ src, videoId }: Props) {
     else document.exitFullscreen();
   };
 
+// const toggleFullScreen = async () => {
+//   const container = videoRef.current?.parentElement;
+//   if (!container) return;
+
+//   if (!document.fullscreenElement) {
+//     await container.requestFullscreen();
+//   } else {
+//     await document.exitFullscreen();
+//   }
+// };
+
+
+
   const handleTimeUpdate = () => {
     const now = Date.now();
     if (now - lastUpdateRef.current < 200) return;
@@ -237,6 +250,8 @@ export default function VideoPlayer({ src, videoId }: Props) {
 
     return () => clearInterval(interval);
   }, []);
+
+  
 
   return (
     <div className={styles.playerWrapper}>

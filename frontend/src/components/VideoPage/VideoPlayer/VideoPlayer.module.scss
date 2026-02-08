@@ -292,3 +292,31 @@
   display: flex;
   justify-content: space-between;
 }
+.video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: black;
+}
+
+:fullscreen {
+  background: black;
+}
+
+:fullscreen .inner {
+  width: 100vw;
+  height: 100vh;
+}
+
+:fullscreen video {
+  object-fit: contain;
+}
+
+
+.playerWrapper:fullscreen {
+  width: 100vw;
+  height: 100vh;
+  border-radius: 0;
+  padding: 0;
+}
+
