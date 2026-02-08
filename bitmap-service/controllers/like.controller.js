@@ -15,33 +15,34 @@ const addLike = async (req, res) => {
     const likeKey = `video:${videoSerialNumber}:likes`;
     const dislikeKey = `video:${videoSerialNumber}:dislikes`;
 
-    if (existsInBitmap(likeKey, userSerialNumber)) {
+    if (await existsInBitmap(likeKey, userSerialNumber)) {
       return res.json({
         success: true,
         liked: true,
         disliked: false,
-        likes: countBitmap(likeKey),
-        dislikes: countBitmap(dislikeKey),
+        likes: await countBitmap(likeKey),
+        dislikes: await countBitmap(dislikeKey),
       });
     }
 
-    if (existsInBitmap(dislikeKey, userSerialNumber)) {
-      removeFromBitmap(dislikeKey, userSerialNumber);
+    if (await existsInBitmap(dislikeKey, userSerialNumber)) {
+      await removeFromBitmap(dislikeKey, userSerialNumber);
     }
 
-    addToBitmap(likeKey, userSerialNumber);
+    await addToBitmap(likeKey, userSerialNumber);
 
     res.json({
       success: true,
       liked: true,
       disliked: false,
-      likes: countBitmap(likeKey),
-      dislikes: countBitmap(dislikeKey),
+      likes: await countBitmap(likeKey),
+      dislikes: await countBitmap(dislikeKey),
     });
   } catch (error) {
     res.status(500).json({ error: "Like failed" });
   }
 };
+
 
 
 
@@ -52,16 +53,16 @@ const removeLike = async (req, res) => {
     const likeKey = `video:${videoSerialNumber}:likes`;
     const dislikeKey = `video:${videoSerialNumber}:dislikes`;
 
-    removeFromBitmap(likeKey, userSerialNumber);
+    await removeFromBitmap(likeKey, userSerialNumber);
 
     res.json({
       success: true,
       liked: false,
       disliked: false,
-      likes: countBitmap(likeKey),
-      dislikes: countBitmap(dislikeKey),
+      likes: await countBitmap(likeKey),
+      dislikes: await countBitmap(dislikeKey),
     });
-  } catch (error) {
+  } catch {
     res.status(500).json({ error: "Remove like failed" });
   }
 };
@@ -75,33 +76,34 @@ const addDislike = async (req, res) => {
     const likeKey = `video:${videoSerialNumber}:likes`;
     const dislikeKey = `video:${videoSerialNumber}:dislikes`;
 
-    if (existsInBitmap(dislikeKey, userSerialNumber)) {
+    if (await existsInBitmap(dislikeKey, userSerialNumber)) {
       return res.json({
         success: true,
         liked: false,
         disliked: true,
-        likes: countBitmap(likeKey),
-        dislikes: countBitmap(dislikeKey),
+        likes: await countBitmap(likeKey),
+        dislikes: await countBitmap(dislikeKey),
       });
     }
 
-    if (existsInBitmap(likeKey, userSerialNumber)) {
-      removeFromBitmap(likeKey, userSerialNumber);
+    if (await existsInBitmap(likeKey, userSerialNumber)) {
+      await removeFromBitmap(likeKey, userSerialNumber);
     }
 
-    addToBitmap(dislikeKey, userSerialNumber);
+    await addToBitmap(dislikeKey, userSerialNumber);
 
     res.json({
       success: true,
       liked: false,
       disliked: true,
-      likes: countBitmap(likeKey),
-      dislikes: countBitmap(dislikeKey),
+      likes: await countBitmap(likeKey),
+      dislikes: await countBitmap(dislikeKey),
     });
-  } catch (error) {
+  } catch {
     res.status(500).json({ error: "Dislike failed" });
   }
 };
+
 
 
  
@@ -109,23 +111,21 @@ const removeDislike = async (req, res) => {
   try {
     const { userSerialNumber, videoSerialNumber } = req.body;
 
-    const likeKey = `video:${videoSerialNumber}:likes`;
     const dislikeKey = `video:${videoSerialNumber}:dislikes`;
 
-    removeFromBitmap(dislikeKey, userSerialNumber);
+    await removeFromBitmap(dislikeKey, userSerialNumber);
 
     res.json({
       success: true,
       liked: false,
       disliked: false,
-      likes: countBitmap(likeKey),
-      dislikes: countBitmap(dislikeKey),
+      likes: await countBitmap(`video:${videoSerialNumber}:likes`),
+      dislikes: await countBitmap(dislikeKey),
     });
-  } catch (error) {
+  } catch {
     res.status(500).json({ error: "Remove dislike failed" });
   }
 };
-
 
  
 const validateeLikeDislike = async (req, res) => {
@@ -155,21 +155,29 @@ const getVideoReactions = async (req, res) => {
     const likeKey = `video:${videoSerialNumber}:likes`;
     const dislikeKey = `video:${videoSerialNumber}:dislikes`;
 
-    const liked = existsInBitmap(likeKey, Number(userSerialNumber));
-    const disliked = existsInBitmap(dislikeKey, Number(userSerialNumber));
+    let liked = false;
+    let disliked = false;
+
+    if (userSerialNumber) {
+      const userId = Number(userSerialNumber);
+      liked = await existsInBitmap(likeKey, userId);
+      disliked = await existsInBitmap(dislikeKey, userId);
+    }
 
     res.json({
       success: true,
       liked,
       disliked,
-      likes: countBitmap(likeKey),
-      dislikes: countBitmap(dislikeKey),
+      likes: await countBitmap(likeKey),
+      dislikes: await countBitmap(dislikeKey),
     });
   } catch (error) {
-    console.log("error",error)
+    console.log(error)
     res.status(500).json({ error: "Fetch reactions failed" });
   }
 };
+
+
 
 
 module.exports = {

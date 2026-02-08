@@ -81,16 +81,21 @@ export async function removeDislike(payload: ReactionPayload) {
 // }
 
 export async function getVideoReactions(
-  userSerialNumber: number,
-  videoSerialNumber: number
+  videoSerialNumber: number,
+  userSerialNumber?: number
 ) {
+  const params: any = { videoSerialNumber };
+
+  if (userSerialNumber !== undefined) {
+    params.userSerialNumber = userSerialNumber;
+  }
+
   const { data } = await http2.get<VideoReactionsResponse>(
     "bitmap/v1/reactions",
-    {
-      params: { userSerialNumber, videoSerialNumber },
-    }
+    { params }
   );
 
   return data;
 }
+
 

@@ -14,6 +14,7 @@ import CommentsSection from "@/src/components/ui/CommentSection/CommentSection";
 import { getVideoMetadataExceptCommentsDocs } from "@/src/lib/video/videodata";
 import { useEffect, useState } from "react";
 import { getVideoId } from "@/src/utils/videoStorage";
+import Sidebar from "@/src/components/HomePage/Sidebar/Sidebar";
 
 export default function Page () {
   const params = useParams();
@@ -50,6 +51,11 @@ export default function Page () {
     <div className={styles.page}>
       
       <BackgroundLayers />
+      <div className={styles.sidebar}>
+
+      <Sidebar/>
+
+      </div>
 
       <Navbar2 />
 

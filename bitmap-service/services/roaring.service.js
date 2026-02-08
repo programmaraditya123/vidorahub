@@ -1,83 +1,79 @@
 const RoaringBitmap32 = require("roaring/RoaringBitmap32");
+const redis = require("../config/redis"); // your redis file
 
 const bitmapStore = new Map();
+const dirtyBitmaps = new Set();
+const FLUSH_INTERVAL = 30000;
 
-/*
-  Key examples:
-    video:10:likes
-    video:10:dislikes
-    user:5:seen
-    user:5:following
-*/
+ 
+async function loadBitmap(key) {
+  const data = await redis.get(key);
 
-// 🔹 Get or create bitmap
-function getBitmap(key) {
+  if (!data) {
+    return new RoaringBitmap32();
+  }
+
+  const buffer = Buffer.from(data, "base64");
+  return RoaringBitmap32.deserialize(buffer,true);
+}
+
+ 
+async function saveBitmap(key, bitmap) {
+  const buffer = bitmap.serialize(true);
+
+  // Redis stores string → encode buffer safely
+  await redis.set(key, buffer.toString("base64"));
+}
+ 
+async function getBitmap(key) {
   if (!bitmapStore.has(key)) {
-    bitmapStore.set(key, new RoaringBitmap32());
+    const bitmap = await loadBitmap(key);
+    bitmapStore.set(key, bitmap);
   }
   return bitmapStore.get(key);
 }
 
-// 🔹 Add value
-function addToBitmap(key, value) {
-  const bitmap = getBitmap(key);
+ 
+async function flushBitmaps() {
+  if (dirtyBitmaps.size === 0) return;
+
+  console.log(`Flushing ${dirtyBitmaps.size} bitmaps to Redis`);
+
+  for (const key of dirtyBitmaps) {
+    const bitmap = bitmapStore.get(key);
+    if (bitmap) {
+      await saveBitmap(key, bitmap);
+    }
+  }
+
+  dirtyBitmaps.clear();
+}
+
+setInterval(flushBitmaps, FLUSH_INTERVAL);
+
+ 
+async function addToBitmap(key, value) {
+  const bitmap = await getBitmap(key);
   bitmap.add(value);
+  dirtyBitmaps.add(key);
   return bitmap.size;
 }
 
-// 🔹 Remove value
-function removeFromBitmap(key, value) {
-  const bitmap = getBitmap(key);
+async function removeFromBitmap(key, value) {
+  const bitmap = await getBitmap(key);
   bitmap.remove(value);
+  dirtyBitmaps.add(key);
   return bitmap.size;
 }
 
-// 🔹 Check if value exists
-function existsInBitmap(key, value) {
-  const bitmap = getBitmap(key);
+async function existsInBitmap(key, value) {
+  const bitmap = await getBitmap(key);
   return bitmap.has(value);
 }
 
-// 🔹 Count values
-function countBitmap(key) {
-  const bitmap = getBitmap(key);
+async function countBitmap(key) {
+  const bitmap = await getBitmap(key);
   return bitmap.size;
-}
-
-// 🔹 Get all values (be careful for large sets)
-function getAllValues(key) {
-  const bitmap = getBitmap(key);
-  return bitmap.toArray();
-}
-
-// 🔹 Union (OR)
-function unionBitmaps(key1, key2) {
-  const bm1 = getBitmap(key1);
-  const bm2 = getBitmap(key2);
-
-  const result = RoaringBitmap32.or(bm1, bm2);
-  return result.toArray();
-}
-
-// 🔹 Intersection (AND)
-function intersectBitmaps(key1, key2) {
-  const bm1 = getBitmap(key1);
-  const bm2 = getBitmap(key2);
-
-  const result = RoaringBitmap32.and(bm1, bm2);
-  return result.toArray();
-}
-
-// 🔹 Delete bitmap completely
-function deleteBitmap(key) {
-  return bitmapStore.delete(key);
-}
-
-// 🔹 Stats
-function stats() {
-  return {
-    totalBitmaps: bitmapStore.size,
-  };
 }
 
 module.exports = {
@@ -85,9 +81,4 @@ module.exports = {
   removeFromBitmap,
   existsInBitmap,
   countBitmap,
-  getAllValues,
-  unionBitmaps,
-  intersectBitmaps,
-  deleteBitmap,
-  stats,
 };

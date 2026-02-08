@@ -37,30 +37,28 @@ export default function VideoActions({ videoSerialNumber }: Props) {
 
   /*
   --------------------------------
-  LOAD REACTION STATE (SOURCE OF TRUTH)
+  LOAD REACTION STATE
   --------------------------------
   */
   useEffect(() => {
-    if (!userSerialNumber) return;
-
     const loadReactions = async () => {
       try {
         const res = await getVideoReactions(
-          userSerialNumber,
-          videoSerialNumber
+          videoSerialNumber,
+          userSerialNumber ?? undefined
         );
 
         setLiked(res.liked);
         setDisliked(res.disliked);
         setLikeCount(res.likes);
         setDislikeCount(res.dislikes);
-      } catch (err) {
+      } catch {
         console.log("reaction load failed");
       }
     };
 
     loadReactions();
-  }, [userSerialNumber, videoSerialNumber]);
+  }, [videoSerialNumber, userSerialNumber]);
 
   /*
   --------------------------------
@@ -69,6 +67,7 @@ export default function VideoActions({ videoSerialNumber }: Props) {
   */
   const handleLike = async () => {
     if (loading || !userSerialNumber) return;
+
     setLoading(true);
 
     try {
@@ -80,8 +79,6 @@ export default function VideoActions({ videoSerialNumber }: Props) {
       setDisliked(res.disliked);
       setLikeCount(res.likes);
       setDislikeCount(res.dislikes);
-    } catch {
-      console.log("like error");
     } finally {
       setLoading(false);
     }
@@ -94,6 +91,7 @@ export default function VideoActions({ videoSerialNumber }: Props) {
   */
   const handleDislike = async () => {
     if (loading || !userSerialNumber) return;
+
     setLoading(true);
 
     try {
@@ -105,8 +103,6 @@ export default function VideoActions({ videoSerialNumber }: Props) {
       setDisliked(res.disliked);
       setLikeCount(res.likes);
       setDislikeCount(res.dislikes);
-    } catch {
-      console.log("dislike error");
     } finally {
       setLoading(false);
     }
@@ -118,7 +114,7 @@ export default function VideoActions({ videoSerialNumber }: Props) {
         <button
           className={`${styles.likeBtn} ${liked ? styles.activeLike : ""}`}
           onClick={handleLike}
-          disabled={loading}
+          disabled={loading || !userSerialNumber}
         >
           <span className="material-symbols-outlined">thumb_up</span>
           <span className={styles.likeCount}>{likeCount}</span>
@@ -131,7 +127,7 @@ export default function VideoActions({ videoSerialNumber }: Props) {
             disliked ? styles.activeDislike : ""
           }`}
           onClick={handleDislike}
-          disabled={loading}
+          disabled={loading || !userSerialNumber}
         >
           <span className="material-symbols-outlined">thumb_down</span>
           <span className={styles.likeCount}>{dislikeCount}</span>
