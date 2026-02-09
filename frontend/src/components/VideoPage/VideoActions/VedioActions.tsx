@@ -9,20 +9,25 @@ import {
   removeDislike,
   getVideoReactions,
 } from "@/src/lib/video/likesDislikes";
+import ShareBlade from "../../ui/ShareBlade/ShareBlade";
 
 interface Props {
   videoSerialNumber: number;
+  thumbnailUrl : string;
+
 }
 
-export default function VideoActions({ videoSerialNumber }: Props) {
+export default function VideoActions({ videoSerialNumber ,thumbnailUrl}: Props) {
   const [likeCount, setLikeCount] = useState(0);
   const [dislikeCount, setDislikeCount] = useState(0);
   const [liked, setLiked] = useState(false);
   const [disliked, setDisliked] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [shareOpen, setShareOpen] = useState(false);
 
   const [userSerialNumber, setUserSerialNumber] = useState<number | null>(null);
   const [authChecked, setAuthChecked] = useState(false);
+  const [fullUrl,setFullUrl] = useState('')
 
 
   useEffect(() => {
@@ -58,7 +63,7 @@ export default function VideoActions({ videoSerialNumber }: Props) {
     loadReactions();
   }, [authChecked, videoSerialNumber]);
 
-  
+
   const handleLike = async () => {
     if (loading || !userSerialNumber) return;
 
@@ -78,7 +83,7 @@ export default function VideoActions({ videoSerialNumber }: Props) {
     }
   };
 
-   
+
   const handleDislike = async () => {
     if (loading || !userSerialNumber) return;
 
@@ -98,6 +103,10 @@ export default function VideoActions({ videoSerialNumber }: Props) {
     }
   };
 
+  useEffect(() => {
+      setFullUrl(window.location.href)
+  },[])
+
   return (
     <div className={styles.actionsWrapper}>
       <div className={styles.likeBar}>
@@ -113,9 +122,8 @@ export default function VideoActions({ videoSerialNumber }: Props) {
         <div className={styles.divider}></div>
 
         <button
-          className={`${styles.dislikeBtn} ${
-            disliked ? styles.activeDislike : ""
-          }`}
+          className={`${styles.dislikeBtn} ${disliked ? styles.activeDislike : ""
+            }`}
           onClick={handleDislike}
           disabled={loading || !userSerialNumber}
         >
@@ -124,10 +132,19 @@ export default function VideoActions({ videoSerialNumber }: Props) {
         </button>
       </div>
 
-      <button className={styles.shareBtn}>
+      <button
+        className={styles.shareBtn}
+        onClick={() => setShareOpen(true)}
+      >
         <span className="material-symbols-outlined">share</span>
         <span>Share</span>
       </button>
+      <ShareBlade
+        isOpen={shareOpen}
+        onClose={() => setShareOpen(false)}
+        thumbnailUrl={thumbnailUrl}
+        link={fullUrl}
+      />
     </div>
   );
 }
