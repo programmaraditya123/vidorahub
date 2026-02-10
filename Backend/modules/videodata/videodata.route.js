@@ -2,7 +2,8 @@ const express = require('express');
 const { getVedioDataExceptCommentsDocs, getVedioComments, getVedioDocs, 
     getNextVideos, postVedioComments, 
     getCreatorProfileData,
-    deleteVideo} = require('./videodata.controller');
+    deleteVideo,
+    getCreatorChannel} = require('./videodata.controller');
 const { requireSignIn } = require('../auth/auth.middleware');
     
 
@@ -27,5 +28,7 @@ router.get('/creatorProfile',requireSignIn,getCreatorProfileData)
 //the below api are where creator changes its video permision and details
 
 router.put('/deletevideo',requireSignIn,deleteVideo)
+
+router.get('/creatorchannel/:id',getCreatorChannel)
 
 module.exports = router;

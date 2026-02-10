@@ -252,6 +252,40 @@ const getCreatorProfileData = async (req,res) => {
     })
     
   } catch (error) {
+    return res.status(500).json({
+      success : false,
+      message : "unable to fetch creator"
+    })
+    
+  }
+}
+
+
+const getCreatorChannel = async (req,res) => {
+  try {
+    
+    const {id }= req.params;
+    if(!id){
+      return res.status(401).json({success : false , message : "Please provide creator id"})
+    }
+
+    const data = await Profile.findById(id).select("-email -password -__v").populate({path : "uploads", 
+      options : {sort : {createdAt : -1}},
+      select : "-description -stats.likes -stats.dislikes -stats.comments -category -tags -updatedAt -__v -uploader"
+    })
+      
+
+    return res.status(200).json({
+      success : true ,
+      message : "Creator data fetched successfully",
+      data : data
+    })
+    
+  } catch (error) {
+    return res.status(500).json({
+      success : false,
+      message : "unable to fetch creator"
+    })
     
   }
 }
@@ -321,4 +355,4 @@ const deleteVideo = async (req,res) => {
 
 
 module.exports = {getVedioDataExceptCommentsDocs,getVedioComments,getVedioDocs,
-    getNextVideos,postVedioComments,getCreatorProfileData,deleteVideo}
+    getNextVideos,postVedioComments,getCreatorProfileData,deleteVideo,getCreatorChannel}

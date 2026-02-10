@@ -39,6 +39,15 @@ export async function getCreatorProfileData(){
 
 }
 
+export async function creatorchannel(objectId: string) {
+  const CreatorData = await http.get(
+    `/api/v1/creatorchannel/${objectId}`
+  );
+
+  return CreatorData?.data;
+}
+
+
 export async function creatorDeleteVideo (videoId : string) {
   const deleteVideo = await http.put('/api/v1/deletevideo',{
     videoId: videoId,  

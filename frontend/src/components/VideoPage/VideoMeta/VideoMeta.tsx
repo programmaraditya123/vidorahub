@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import styles from "./VideoMeta.module.scss";
 
 interface Props {
@@ -36,11 +37,14 @@ export default function VideoMeta({ title, category, published , uploader}: Prop
               "url('https://lh3.googleusercontent.com/aida-public/AB6AXuB7l0EWz1hBqpdjmRYNzy7ggwUEvmYk-4CzCpwX1RSEZR8jc5B2W85SNXX4A5yW5V64bw9Vrutfyll7spm4H1iifX1_buEQ6Dc-tB9WNCHMp9hT17YJXhYu8PJY2Aw1wuE2PX3X66HMl60gdC1e6cYdJz2FgUNF6WrZuUIjsDPjJpLNQ-IHg1F3-wgqJLi045QB5I4Lal9SOmRyArMS7pWAgcupMFgFaJMW8S3MvJf7BHVncFqhXoPYf2k9ViJsFga5QDJikEIQf8U1')",
           }}
         ></div>
-
+        
         <div className={styles.channelInfo} key={uploader._id}>
+          <Link href={`/channel/${uploader._id}`}> 
           <h3>{uploader.name}</h3>
           <p>{uploader.subscriber}</p>
+          </Link>
         </div>
+        
 
         <button className={styles.subscribe}>Subscribe</button>
       </div>
