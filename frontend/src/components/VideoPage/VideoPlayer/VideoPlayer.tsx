@@ -183,7 +183,7 @@ export default function VideoPlayer({ src, videoId }: Props) {
         watchTime,
       });
     } catch (err) {
-      console.error("Failed to post view", err);
+      console.log("Failed to post view", err);
     }
   };
 

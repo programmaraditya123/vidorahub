@@ -106,9 +106,10 @@
 
 /* ================= MAIN ================= */
 .main {
-  padding: 100px 24px 80px;
+  padding: 100px 4px 4px;
   max-width: 1400px;
-  margin: auto;
+  // max-width: 100wh;
+  // margin: auto;
 }
 
 /* ================= FILTER BAR ================= */
@@ -266,9 +267,40 @@
  /* ================= GRID ================= */
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 22px;
+  gap: 14px;
+
+  /* Instagram-style responsive grid */
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+
+  max-width: 1200px;
+  margin: 0 auto;
+  // padding: 10px 16px 40px;
 }
+
+@media (max-width: 900px) {
+  .grid {
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  }
+}
+
+@media (max-width: 600px) {
+  .grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+  }
+
+  .cardBody {
+    display: none;
+  }
+
+  .thumb {
+    border-radius: 10px;
+  }
+}
+
+
+
+
 
 /* ================= CARD ================= */
 .card {
@@ -293,6 +325,7 @@
   background-size: cover;
   background-position: center;
   position: relative;
+  cursor: pointer;
 }
 
 .duration {

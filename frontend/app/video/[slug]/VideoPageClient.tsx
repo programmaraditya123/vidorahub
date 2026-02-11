@@ -46,7 +46,7 @@ export default function VideoPageClient() {
     fetchMeta();
   }, [videoId]);
 
-  console.log("vedio meta data", videoMeta)
+  // console.log("vedio meta data", videoMeta)
 
 
   return (
