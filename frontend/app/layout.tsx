@@ -12,6 +12,10 @@ export const metadata: Metadata = {
   description:
     "VidoraHub is a next-generation video sharing platform.",
 
+  icons: {
+    icon: "/favicon.ico",
+  },
+
   openGraph: {
     title: "VidoraHub",
     description: "Modern video sharing platform",
