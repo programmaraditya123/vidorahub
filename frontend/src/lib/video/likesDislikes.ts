@@ -85,4 +85,54 @@ export async function getVideoReactions(
   return data;
 }
 
+//folow unfollow apis
+export async function getFollowReaction(
+  creatorId: string,
+  userSerialNumber: number,
+  creatorSerialNumber: number
+) {
+  const { data } = await http2.get(
+    `bitmap/v1/followReaction/${creatorId}`,
+    {
+      params: {
+        userserialnumber: userSerialNumber,
+        creatorserialnumber: creatorSerialNumber,
+      },
+    }
+  );
+
+  return data;
+}
+
+export async function followCreator(
+  creatorId: string,
+  userSerialNumber: number,
+  creatorSerialNumber: number
+) {
+  const { data } = await http2.post(
+    `bitmap/v1/follow/${creatorId}`,
+    {
+      userSerialNumber,
+      creatorSerialNumber,
+    }
+  );
+
+  return data;
+}
+
+export async function unfollowCreator(
+  creatorId: string,
+  userSerialNumber: number,
+  creatorSerialNumber: number
+) {
+  const { data } = await http2.post(
+    `bitmap/v1/unfollow/${creatorId}`,
+    {
+      userSerialNumber,
+      creatorSerialNumber,
+    }
+  );
+
+  return data;
+}
 

@@ -1,10 +1,10 @@
 const express = require('express');
-const { addLike, removeLike, addDislike, removeDislike, validateeLikeDislike, getVideoReactions } = require('../controllers/like.controller');
+const { addLike, removeLike, addDislike, removeDislike, 
+    validateeLikeDislike, getVideoReactions } = require('../controllers/like.controller');
 const { requireSignIn } = require('../moddlewares/auth.moddleware');
 
 const router = express.Router()
 
-// router.post('/addLike',requireSignIn,addLike)
 router.post('/addLike',requireSignIn,addLike)
 
 

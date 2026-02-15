@@ -4,6 +4,7 @@ const { default: client } = require('./config/redis');
 const bitmapRoute = require('./routes/bitmap.routes');
 const  {connectdb} = require('./config/db')
 const  {db2} = require('./config/db2')
+const followRoute = require('./modules/FollowUnfollow/FollowUnfollow.route')
 
 const app = express();
 
@@ -52,6 +53,8 @@ app.get("/health", (req, res) => {
 });
 
 app.use('/bitmap/v1',bitmapRoute)
+
+app.use('/bitmap/v1',followRoute)
 
 app.use((req, res) => {
   res.status(404).json({ error: "Route not found" });
