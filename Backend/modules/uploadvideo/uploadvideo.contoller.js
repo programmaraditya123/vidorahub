@@ -9,7 +9,9 @@ const storage = new Storage({
     client_email: process.env.GOOGLE_CLIENT_EMAIL,
     private_key: process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, "\n"),
   },
-});const bucket = storage.bucket("vidorahub");
+});
+
+const bucket = storage.bucket("vidorahub");
 
 const getUploadUrlController = async (req, res) => {
   try {
@@ -27,7 +29,7 @@ const getUploadUrlController = async (req, res) => {
     }
 
     const folder = type === "thumbnail" ? "thumbnails" : "videos";
-    const filePath = `users/${req.user._id}/${folder}/${Date.now()}-${fileName}`;
+    const filePath = `users/${req.user._id}/-${fileName}`;
 
     const file = bucket.file(filePath);
 
