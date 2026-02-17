@@ -10,6 +10,7 @@ import Sidebar from "@/src/components/ProfilePage/Sidebar";
 import Footer from "@/src/components/ProfilePage/Footer";
 import { getCreatorProfileData } from "@/src/lib/video/videodata";
 import Sidebar1 from "@/src/components/HomePage/Sidebar/Sidebar";
+import VidoraHubLoader from "@/src/components/ui/VidoraHubLoader/VidoraHubLoader";
 
 type VideoStats = {
   views: number;
@@ -63,7 +64,7 @@ export default function ProfilePage() {
     fetchData();
   }, []);
 
-  if (!profileData) return <div>Loading...</div>;
+  // if (!profileData) return <div><VidoraHubLoader/></div>;
 
   return (
     <div className={styles.page}>
@@ -81,17 +82,21 @@ export default function ProfilePage() {
         <Header />
 
         <main className={styles.main}>
-          <section className={styles.content}>
+          {!profileData ? <VidoraHubLoader/> : (<section className={styles.content}>
             <ProfileCard data={profileData} />
             <Tabs />
             <MasonryGrid uploads={uploads} />
-          </section>
-
-          <Sidebar />
+          </section>)}
+          
+          <div>
+            <Sidebar />
+          </div>
+          
         </main>
 
-        <Footer />
+        
       </div>
+      <Footer />
     </div>
   );
 }

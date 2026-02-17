@@ -10,100 +10,96 @@ import { creatorchannel } from "@/src/lib/video/videodata";
 import Sidebar1 from "@/src/components/HomePage/Sidebar/Sidebar";
 import MasonryGrid2 from "@/src/components/ChannelPage/MassonaryGrid2";
 import Navbar2 from "@/src/components/Navbar2/Navbar2";
-import style from './channel.module.scss'
+import style from "./channel.module.scss";
 
 type VideoStats = {
-    views: number;
+  views: number;
 };
 
 type UploadVideo = {
-    _id: string;
-    title: string;
-    thumbnailUrl: string;
-    duration: number;
-    visibility: "public" | "private";
-    videoUrl: string;
-    createdAt: string;
-    stats: VideoStats;
+  _id: string;
+  title: string;
+  thumbnailUrl: string;
+  duration: number;
+  visibility: "public" | "private";
+  videoUrl: string;
+  createdAt: string;
+  stats: VideoStats;
 };
 
 type ProfileData = {
-    _id: string;
-    name: string;
-    subscriber: number;
-    creator: boolean;
-    totalviews: number;
-    totalvideos: number;
-    uploads: UploadVideo[];
-    role: number;
-    createdAt: string;
-    updatedAt: string;
+  _id: string;
+  name: string;
+  subscriber: number;
+  creator: boolean;
+  totalviews: number;
+  totalvideos: number;
+  uploads: UploadVideo[];
+  role: number;
+  createdAt: string;
+  updatedAt: string;
 };
 
 type CreatorProfileResponse = {
-    success: boolean;
-    message: string;
-    data: ProfileData;
+  success: boolean;
+  message: string;
+  data: ProfileData;
 };
 
 interface ChannelPageProps {
-    id: string;
+  id: string;
 }
 
 export default function ChannelPage({ id }: ChannelPageProps) {
-    const [profileData, setProfileData] = useState<ProfileData | null>(null);
-    const [uploads, setUploads] = useState<UploadVideo[]>([]);
+  const [profileData, setProfileData] = useState<ProfileData | null>(null);
+  const [uploads, setUploads] = useState<UploadVideo[]>([]);
 
-    useEffect(() => {
-        const fetchData = async () => {
-            const res: CreatorProfileResponse = await creatorchannel(id);
+  useEffect(() => {
+    const fetchData = async () => {
+      const res: CreatorProfileResponse = await creatorchannel(id);
 
-            const publicUploads = res.data.uploads
+      const publicUploads = res.data.uploads;
 
+      setProfileData(res.data);
+      setUploads(publicUploads);
+    };
 
-            setProfileData(res.data);
-            setUploads(publicUploads);
-        };
+    fetchData();
+  }, [id]);
 
-        fetchData();
-    }, [id]);
+  if (!profileData) return <div>Loading...</div>;
 
-    if (!profileData) return <div>Loading...</div>;
+  return (
+    <div className={styles.page}>
+      <div className={styles.backdrop}>
+        <div className={styles.backdropOverlay}></div>
+        <div className={styles.backdropImage} />
+      </div>
 
-    return (
-        
-        <div className={styles.page}>
-            <div className={styles.backdrop}>
-                <div className={styles.backdropOverlay}></div>
-                <div className={styles.backdropImage} />
-            </div>
+      <div className={styles.hiddenSideBar}>
+        <Sidebar1 />
+      </div>
 
-            <div className={styles.hiddenSideBar}>
-                <Sidebar1 />
-            </div>
+      <Navbar2 />
 
-            <Navbar2 />
-            
-            <div className={styles.container}>
-                {/* <Header /> */}
+      <div className={styles.container}>
+        {/* <Header /> */}
 
+        <div className={style.setting}>
+          <main className={styles.main}>
+            <section className={styles.content}>
+              <ProfileCard data={profileData} />
+              <Tabs />
+              {/* <MassonaryGrid uploads={uploads} /> */}
+              <MasonryGrid2 uploads={uploads} />
+            </section>
 
+            <Sidebar />
+          </main>
 
-<div className={style.setting}>
-                <main className={styles.main}>
-                    <section className={styles.content}>
-                        <ProfileCard data={profileData} />
-                        <Tabs />
-                        {/* <MassonaryGrid uploads={uploads} /> */}
-                        <MasonryGrid2 uploads={uploads} />
-                    </section>
-
-                    <Sidebar />
-                </main>
-
-                <Footer />
-            </div>
+          <Footer />
         </div>
-        </div>
-    );
+      </div>
+    </div>
+  );
 }

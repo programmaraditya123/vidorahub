@@ -3,8 +3,11 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import styles from "./VideoMeta.module.scss";
-import { followCreator, getFollowReaction, unfollowCreator } from "@/src/lib/video/likesDislikes";
- 
+import {
+  followCreator,
+  getFollowReaction,
+  unfollowCreator,
+} from "@/src/lib/video/likesDislikes";
 
 interface Props {
   title: string;
@@ -25,11 +28,8 @@ export default function VideoMeta({
   uploader,
 }: Props) {
   const [following, setFollowing] = useState(false);
-  const [subscriberCount, setSubscriberCount] = useState(
-    uploader.subscriber
-  );
+  const [subscriberCount, setSubscriberCount] = useState(uploader.subscriber);
   const [loading, setLoading] = useState(false);
-
 
   const creatorId = uploader._id;
   const creatorSerialNumber = uploader.userSerialNumber;
@@ -50,7 +50,7 @@ export default function VideoMeta({
         const res = await getFollowReaction(
           creatorId,
           userSerialNumber,
-          creatorSerialNumber
+          creatorSerialNumber,
         );
 
         setFollowing(res.following);
@@ -66,47 +66,43 @@ export default function VideoMeta({
     TOGGLE FOLLOW
   */
 
-const toggleSubscribe = async () => {
-  if (!userSerialNumber || loading) return;
+  const toggleSubscribe = async () => {
+    if (!userSerialNumber || loading) return;
 
-  setLoading(true);
+    setLoading(true);
 
-  try {
-    if (following) {
-      const res = await unfollowCreator(
-        creatorId,
-        userSerialNumber,
-        creatorSerialNumber
-      );
+    try {
+      if (following) {
+        const res = await unfollowCreator(
+          creatorId,
+          userSerialNumber,
+          creatorSerialNumber,
+        );
 
-      setFollowing(false);
-      setSubscriberCount(res.totalSubscribers);
-    } else {
-      const res = await followCreator(
-        creatorId,
-        userSerialNumber,
-        creatorSerialNumber
-      );
+        setFollowing(false);
+        setSubscriberCount(res.totalSubscribers);
+      } else {
+        const res = await followCreator(
+          creatorId,
+          userSerialNumber,
+          creatorSerialNumber,
+        );
 
-      setFollowing(true);
-      setSubscriberCount(res.totalSubscribers);
+        setFollowing(true);
+        setSubscriberCount(res.totalSubscribers);
+      }
+    } catch (err) {
+      console.log(err);
+    } finally {
+      setLoading(false);
     }
-  } catch (err) {
-    console.log(err);
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
   return (
     <div className={styles.meta}>
       <div className={styles.top}>
-        <span className={`${styles.category} neon-glow`}>
-          {category}
-        </span>
-        <span className={styles.published}>
-          Published {published}
-        </span>
+        <span className={`${styles.category} neon-glow`}>{category}</span>
+        <span className={styles.published}>Published {published}</span>
       </div>
 
       <h1 className={styles.title}>
@@ -130,15 +126,14 @@ const toggleSubscribe = async () => {
         </div>
 
         <button
-  className={`${styles.subscribe} ${
-    following ? styles.subscribed : ""
-  }`}
-  onClick={toggleSubscribe}
-  disabled={loading}
->
-  {loading ? "..." : following ? "Subscribed" : "Subscribe"}
-</button>
-
+          className={`${styles.subscribe} ${
+            following ? styles.subscribed : ""
+          }`}
+          onClick={toggleSubscribe}
+          disabled={loading}
+        >
+          {loading ? "..." : following ? "Subscribed" : "Subscribe"}
+        </button>
       </div>
     </div>
   );

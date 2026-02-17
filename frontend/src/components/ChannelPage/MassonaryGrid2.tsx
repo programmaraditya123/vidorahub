@@ -44,26 +44,7 @@ export default function MasonryGrid2({ uploads }: MasonryGridProps) {
     router.push(`/video/${encoded}`);
   };
 
-//   const handleDelete = async () => {
-//     if (!confirmVideoId) return;
 
-//     try {
-//       setLoading(true);
-//       const res = await creatorDeleteVideo(confirmVideoId);
-
-//       if (res.data?.success) {
-//         success("Video deleted successfully");
-//         window.location.reload(); // or refetch uploads
-//       } else {
-//         error(res.data?.message || "Failed to delete video");
-//       }
-//     } catch (err: any) {
-//       error(err?.response?.data?.message || "Failed to delete video");
-//     } finally {
-//       setLoading(false);
-//       setConfirmVideoId(null);
-//     }
-//   };
 
   return (
     <>
@@ -80,16 +61,7 @@ export default function MasonryGrid2({ uploads }: MasonryGridProps) {
               style={{ backgroundImage: `url(${item.thumbnailUrl})` }}
             />
 
-            {/* three dots */}
-            <div
-              className={styles.durationBadge1}
-              onClick={(e) => {
-                e.stopPropagation();
-                setOpenMenuId(openMenuId === item._id ? null : item._id);
-              }}
-            >
-              ⋮
-            </div>
+             
 
             {/* delete menu */}
             {openMenuId === item._id && (
@@ -128,32 +100,7 @@ export default function MasonryGrid2({ uploads }: MasonryGridProps) {
         ))}
       </div>
 
-      {/* ✅ CONFIRM MODAL */}
-      {/* {confirmVideoId && (
-        <div className={styles.modalOverlay}>
-          <div className={styles.modalBox}>
-            <h3>Delete Video?</h3>
-            <p>This action cannot be undone.</p>
-
-            <div className={styles.modalActions}>
-              <button
-                className={styles.cancelBtn}
-                onClick={() => setConfirmVideoId(null)}
-                disabled={loading}
-              >
-                Cancel
-              </button>
-              <button
-                className={styles.confirmBtn}
-                onClick={handleDelete}
-                disabled={loading}
-              >
-                {loading ? "Deleting..." : "Delete"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )} */}
+     
     </>
   );
 }

@@ -1,6 +1,6 @@
 .card {
   cursor: pointer;
-  border-radius: 26px;
+  border-radius: clamp(16px, 2vw, 26px);
   overflow: hidden;
   position: relative;
   transition: transform 0.35s ease, box-shadow 0.35s ease;
@@ -17,7 +17,7 @@
   position: relative;
   width: 100%;
   aspect-ratio: 16 / 9;
-  border-radius: 26px;
+  border-radius: inherit;
   overflow: hidden;
 }
 
@@ -30,129 +30,86 @@
   transform: scale(1.08);
 }
 
-/* LIVE Badge */
-.liveBadge {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  background: rgba(0, 0, 0, 0.75);
-  padding: 4px 10px;
-  border-radius: 14px;
-  color: var(--primary);
-  font-size: 0.7rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  border: 1px solid rgba(164, 19, 236, 0.5);
-  text-shadow: 0 0 10px rgba(164, 19, 236, 0.8);
-
-  @media (max-width: 480px) {
-    font-size: 0.6rem;
-    padding: 3px 8px;
-  }
-}
-
-/* Duration */
+/* Badge */
+.liveBadge,
 .duration {
   position: absolute;
-  top: 12px;
-  right: 12px;
-  background: rgba(0,0,0,0.70);
-  padding: 3px 8px;
-  font-size: 0.75rem;
-  border-radius: 6px;
+  top: clamp(6px, 1vw, 12px);
+  right: clamp(6px, 1vw, 12px);
+  background: rgba(0, 0, 0, 0.75);
+  padding: clamp(2px, 0.5vw, 4px) clamp(6px, 1vw, 10px);
+  border-radius: 10px;
+  font-size: clamp(0.6rem, 0.8vw, 0.75rem);
   color: #fff;
-
-  @media (max-width: 480px) {
-    font-size: 0.65rem;
-    bottom: 8px;
-    right: 8px;
-  }
 }
 
-/* Glass Info Box */
+/* Info overlay */
 .info {
   position: absolute;
-  inset: auto 18px 18px 18px;
-  padding: 16px;
-  border-radius: 22px;
+  inset: auto clamp(8px, 1.5vw, 18px)
+    clamp(8px, 1.5vw, 18px)
+    clamp(8px, 1.5vw, 18px);
+
+  padding: clamp(10px, 1.4vw, 16px);
+  border-radius: clamp(14px, 2vw, 22px);
+
   display: flex;
-  gap: 12px;
+  gap: clamp(6px, 1vw, 12px);
   align-items: center;
+
   transform: translateY(12px);
   transition: 0.4s ease;
 
   .card:hover & {
     transform: translateY(0);
   }
-
-  /* Mobile adjustments */
-  @media (max-width: 600px) {
-    inset: auto 12px 12px 12px;
-    padding: 12px;
-  }
-
-  @media (max-width: 400px) {
-    gap: 8px;
-  }
 }
 
-/* Avatar placeholder */
+/* Avatar */
 .avatar {
-  width: 36px;
-  height: 36px;
+  width: clamp(28px, 3vw, 36px);
+  height: clamp(28px, 3vw, 36px);
   border-radius: 50%;
+  flex-shrink: 0;
   background: linear-gradient(135deg, var(--primary), #6b21a8);
-
-  @media (max-width: 480px) {
-    width: 30px;
-    height: 30px;
-  }
 }
 
-/* Meta text */
+/* Meta */
 .meta {
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 2px;
+  min-width: 0;
 }
 
+/* Title */
 .title {
-  font-size: 1rem;
+  font-size: clamp(0.85rem, 1vw, 1rem);
   font-weight: 600;
-  line-height: 1.25;
+  line-height: 1.3;
   color: #fff;
+
   display: -webkit-box;
-  -webkit-line-clamp: 1;
+  -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
-
-  @media (max-width: 480px) {
-    font-size: 0.9rem;
-  }
 }
 
+/* Creator */
 .creator {
-  font-size: 0.8rem;
+  font-size: clamp(0.7rem, 0.85vw, 0.8rem);
   color: #d1d5db;
-  @media (max-width: 480px) {
-    font-size: 0.7rem;
-  }
 }
 
+/* Views */
 .views {
-  font-size: 0.75rem;
+  font-size: clamp(0.65rem, 0.8vw, 0.75rem);
   color: #9ca3af;
-  @media (max-width: 480px) {
-    font-size: 0.65rem;
-  }
 }
 
+/* Live text */
 .liveText {
   color: #ff4d4d;
-  font-size: 0.78rem;
+  font-size: clamp(0.7rem, 0.85vw, 0.78rem);
   font-weight: 600;
-  @media (max-width: 480px) {
-    font-size: 0.7rem;
-  }
 }
