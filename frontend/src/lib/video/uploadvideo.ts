@@ -45,11 +45,12 @@ export async function getVideos({ page = 1, limit = 20 }: GetVideosParams = {}) 
 
 
 
-export async function getUploadUrl(file: File, type: "video" | "thumbnail") {
+export async function getUploadUrl(file: File, type: "video" | "thumbnail",contentCategory: "video" | "vibe") {
   const { data } = await http.post("/api/v1/get-upload-url", {
     fileName: file.name,
     contentType: file.type,
     type,  
+    contentCategory,
   });
 
   return data; 
@@ -84,6 +85,7 @@ export async function saveVideoMetadata(payload: {
   duration: number;
   videoUrl: string;
   thumbnailUrl?: string | null;
+  contentType: "video" | "vibe";
 }) {
   const { data } = await http.post("/api/v1/uploadvideo", payload, {
     timeout: 1000 * 60 * 2, // 2 minutes is enough
@@ -101,6 +103,7 @@ export async function uploadVideoFlow({
   tags,
   category,
   visibility,
+   contentType,
   onProgress,
 }: {
   videoFile: File;
@@ -110,13 +113,14 @@ export async function uploadVideoFlow({
   tags: string[];
   category?: string;
   visibility?: string;
+  contentType: "video" | "vibe";
   onProgress?: (percent: number) => void;
 }) {
   // 1. duration
   const duration = await getVideoDuration(videoFile);
 
   // 2. signed url for video
-  const videoSigned = await getUploadUrl(videoFile, "video");
+  const videoSigned = await getUploadUrl(videoFile, "video",contentType);
 
   // 3. upload video
   await uploadFileToGCS(videoSigned.uploadUrl, videoFile, onProgress);
@@ -124,7 +128,7 @@ export async function uploadVideoFlow({
   // 4. signed url for thumbnail (optional)
   let thumbnailUrl: string | null = null;
   if (thumbnailFile) {
-    const thumbSigned = await getUploadUrl(thumbnailFile, "thumbnail");
+    const thumbSigned = await getUploadUrl(thumbnailFile, "thumbnail",contentType);
     await uploadFileToGCS(thumbSigned.uploadUrl, thumbnailFile);
     thumbnailUrl = thumbSigned.publicUrl;
   }
@@ -139,6 +143,7 @@ export async function uploadVideoFlow({
     duration,
     videoUrl: videoSigned.publicUrl,
     thumbnailUrl,
+    contentType,
   });
 }
 

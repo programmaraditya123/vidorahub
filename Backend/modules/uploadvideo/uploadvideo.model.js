@@ -42,6 +42,12 @@ const videoSchema = new mongoose.Schema(
       enum: ["public", "private", "unlisted"],
       default: "public",
     },
+    contentType : {
+      type : String,
+      enum : ["video","vibe"],
+      default : "video"
+
+    },
 
     category: {
       type: String,

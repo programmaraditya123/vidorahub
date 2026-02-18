@@ -4,6 +4,7 @@ import Sidebar from "@/src/components/HomePage/Sidebar/Sidebar";
 import UnderDevelopment from "@/src/components/UnderDevelopment/UnderDevelopment";
 import { useState } from "react";
 import styles from './vibes.module.scss'
+import VibesFeed from "@/src/components/uploadVibe/vibesFeed/VibesFeed";
 
 
 export default function VibesPage() {
@@ -17,7 +18,7 @@ export default function VibesPage() {
       ) : (
         <>
         <div className={styles.divCenter}>
-            <h1>Hello</h1>
+            <VibesFeed />
         </div>
           
         </>

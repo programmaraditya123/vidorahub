@@ -12,12 +12,13 @@ const ALLOWED_VIDEO_TYPES = [
     "video/x-msvideo"
 ]
 type Props = {
-  onFileReady?: (file: File) => void
+  onFileReady?: (file: File) => void;
+  variant?: "vibe"
 }
 
 const MAX_SIZE_MB = 2048;
 
-export default function UploadVideo({onFileReady} : Props){
+export default function UploadVideo({onFileReady,variant} : Props){
     const [dragActive,setDragActive] = useState<boolean>(false);
     const [file,setFile] = useState<File | null>(null);
     const [error,setError] = useState<string | null>(null);
@@ -104,7 +105,7 @@ export default function UploadVideo({onFileReady} : Props){
             <div className={styles.innercontainer}>
             {/* // <div className={`${styles.upload} ${dragActive ? styles.dragActive : ""}`} > */}
 
-                <h1 className={styles.toptext}>{loading ? "Video is Uploading" : "Upload Your Video"}</h1>
+                <h1 className={styles.toptext}>{variant === "vibe" ? "Upload Your Vibe" : "Upload Your Video"}</h1>
            
             <div className={styles.upload}
             onDragOver={onDragOver}

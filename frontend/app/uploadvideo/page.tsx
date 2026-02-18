@@ -59,6 +59,7 @@ export default function UploadPage() {
         category: "general",
         visibility: "public",
         onProgress: (p: number) => setProgress(p),
+        contentType : "video",
       });
 
       setIsUploading(false);

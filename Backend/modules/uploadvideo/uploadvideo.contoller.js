@@ -19,30 +19,54 @@ const getUploadUrlController = async (req, res) => {
       return res.status(401).json({ ok: false, message: "Unauthorized" });
     }
 
-    const { fileName, contentType, type } = req.body;
+    const { fileName, contentType, type, contentCategory } = req.body;
 
-    if (!fileName || !contentType || !type) {
+    if (!fileName || !contentType || !type || !contentCategory) {
       return res.status(400).json({
         ok: false,
-        message: "fileName, contentType and type are required",
+        message: "fileName, contentType, contentCategory and type are required",
       });
     }
 
-    const folder = type === "thumbnail" ? "thumbnails" : "videos";
-    const filePath = `users/${req.user._id}/-${fileName}`;
+    if (!["video", "vibe"].includes(contentCategory)) {
+      return res.status(400).json({
+        ok: false,
+        message: "Invalid contentCategory",
+      });
+    }
+
+    if (!["video", "thumbnail"].includes(type)) {
+      return res.status(400).json({
+        ok: false,
+        message: "Invalid type",
+      });
+    }
+
+    const userId = req.user._id.toString();
+    const uniqueFileName = `${Date.now()}-${userId}-${fileName}`;
+
+    let filePath;
+
+    if (type === "thumbnail") {
+      filePath = `thumbnails/${contentCategory}s/${uniqueFileName}`;
+    } else {
+      filePath = `${contentCategory}s/${uniqueFileName}`;
+    }
 
     const file = bucket.file(filePath);
 
     const [uploadUrl] = await file.getSignedUrl({
       version: "v4",
       action: "write",
-      expires: Date.now() + 15 * 60 * 1000, // 15 minutes
+      expires: Date.now() + 15 * 60 * 1000,
       contentType,
     });
 
     return res.json({
+      ok: true,
       uploadUrl,
       publicUrl: `https://storage.googleapis.com/${bucket.name}/${filePath}`,
+      filePath,
     });
 
   } catch (err) {
@@ -71,6 +95,7 @@ const UploadVideoController = async (req, res) => {
       duration,
       videoUrl,
       thumbnailUrl = null,
+      contentType = "video"
     } = req.body;
 
     if (!title || !description || !tags || !videoUrl || !duration) {
@@ -104,6 +129,7 @@ const UploadVideoController = async (req, res) => {
           thumbnailUrl,
           uploader: req.user._id,
           videoUrl,
+          contentType,
           videoSerialNumber : await getNextNumber("video")
         }],
         { session }
@@ -138,42 +164,84 @@ const UploadVideoController = async (req, res) => {
 
 
 const getAllVideosController = async (req, res) => {
-    try {
-        const page = Math.max(parseInt(req.query.page) || 1, 1);
-        const limit = Math.min(Math.max(parseInt(req.query.limit) || 20, 1), 100);
-        const skip = (page - 1) * limit;
+  try {
+    const page = Math.max(parseInt(req.query.page) || 1, 1);
+    const limit = Math.min(Math.max(parseInt(req.query.limit) || 20, 1), 100);
+    const skip = (page - 1) * limit;
 
-        const filter = { isDeleted: { $ne: true } };
+    const filter = {
+      isDeleted: { $ne: true },
+      contentType: "video",
+    };
+
+    const [items, total] = await Promise.all([
+      Video.find(filter)
+        .select("-description -tags -visibility -category -updatedAt -__v -stats.comments -stats.dislikes")
+        .populate({ path: "uploader", select: "name _id" })
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .lean(),
+      Video.countDocuments(filter),
+    ]);
+
+    const totalPages = Math.max(Math.ceil(total / limit), 1);
+
+    res.json({
+      ok: true,
+      page,
+      limit,
+      total,
+      totalPages,
+      hasNextPage: page < totalPages,
+      hasPrevPage: page > 1,
+      items,
+    });
+  } catch (err) {
+    console.error("getAllVideos error:", err);
+    res.status(500).json({ ok: false, message: "Failed to load videos" });
+  }
+};
+
+const getVibesController = async (req, res) => {
+  try {
+    const page = Math.max(parseInt(req.query.page) || 1, 1);
+    const limit = Math.min(Math.max(parseInt(req.query.limit) || 20, 1), 100);
+    const skip = (page - 1) * limit;
+
+    const filter = {
+      isDeleted: { $ne: true },
+      contentType: "vibe",
+    };
+
+    const [items, total] = await Promise.all([
+      Video.find(filter)
+        .select("-description -tags -visibility -category -updatedAt -__v -stats.comments -stats.dislikes")
+        .populate({ path: "uploader", select: "name _id" })
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .lean(),
+      Video.countDocuments(filter),
+    ]);
+
+    const totalPages = Math.max(Math.ceil(total / limit), 1);
+
+    res.json({
+      ok: true,
+      page,
+      limit,
+      total,
+      totalPages,
+      hasNextPage: page < totalPages,
+      hasPrevPage: page > 1,
+      items,
+    });
+  } catch (err) {
+    console.error("getVibes error:", err);
+    res.status(500).json({ ok: false, message: "Failed to load vibes" });
+  }
+};
 
 
-        const [items, total] = await Promise.all([
-            Video.find(filter)
-                .select("-description -tags -visibility -category -updatedAt -__v -stats.comments -stats.dislikes")
-                .populate({path : "uploader" , select : "name _id"})
-                .sort({ createdAt: -1 })    
-                .skip(skip)
-                .limit(limit)
-                .lean(),
-            Video.countDocuments(filter)
-        ]);
-
-        const totalPages = Math.max(Math.ceil(total / limit), 1);
-
-        res.json({
-            ok: true,
-            page,
-            limit,
-            total,
-            totalPages,
-            hasNextPage: page < totalPages,
-            hasPrevPage: page > 1,
-            items,
-        });
-    } catch (err) {
-        console.error('getAllVideos error:', err);
-        res.status(500).json({ ok: false, message: 'Failed to load videos' });
-
-    }
-}
-
-module.exports = { UploadVideoController,getAllVideosController,getUploadUrlController}
+module.exports = { UploadVideoController,getAllVideosController,getUploadUrlController,getVibesController}

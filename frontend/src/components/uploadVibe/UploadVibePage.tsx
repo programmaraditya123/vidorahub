@@ -59,6 +59,7 @@ export default function UploadVibePage() {
         category: "general",
         visibility: "public",
         onProgress: (p: number) => setProgress(p),
+        contentType : "vibe",
       });
 
       setIsUploading(false);
@@ -116,6 +117,7 @@ export default function UploadVibePage() {
                 const extracted = await extractThreeFramesAsItems(f);
                 setFrames(extracted);
               }}
+              variant = "vibe"
             />
           </div>
         )}
