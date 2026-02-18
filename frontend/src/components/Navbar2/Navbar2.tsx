@@ -16,10 +16,10 @@ export default function Navbar2() {
       </div>
 
       {/* CENTER — Search */}
-      <div className={styles.searchWrapper}>
+      {/* <div className={styles.searchWrapper}>
         <span className="material-symbols-outlined">search</span>
         <input type="text" placeholder="Search the Hub..." />
-      </div>
+      </div> */}
 
       {/* RIGHT — Actions */}
       <div className={styles.actions}>

@@ -31,7 +31,7 @@ export default function Header() {
           <span className={styles.dot}></span>
         </button>
         
-        <Link href={userValidates() ? 'uploadvideo' : 'login'}>
+        <Link href={userValidates() ? 'upload' : 'login'}>
         <button className={`${styles.uploadBtn} glass-dark`}>
           {/* Upload */}
           {userValidates() ? "Upload" : "Login"}

@@ -1,0 +1,93 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(14px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+//   z-index: 200;
+}
+
+.modal {
+  width: 520px;
+  max-width: 92%;
+  border-radius: 24px;
+  padding: 2rem;
+  text-align: center;
+}
+
+.title {
+  font-size: 1.4rem;
+  margin-bottom: 1.5rem;
+  font-weight: 600;
+}
+
+.options {
+  display: flex;
+  gap: 1.2rem;
+}
+
+.card {
+  flex: 1;
+  border-radius: 18px;
+  padding: 1.6rem 1rem;
+  cursor: pointer;
+  transition: 0.25s ease;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  color: inherit;
+}
+.card a {
+    flex: 1;
+  
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  color: inherit;
+
+}
+
+.card:hover {
+  transform: translateY(-6px) scale(1.03);
+  border-color: var(--primary);
+}
+
+.card span {
+  font-size: 40px;
+  margin-bottom: 0.6rem;
+  color: var(--primary);
+}
+
+.card h3 {
+  font-size: 1.1rem;
+  margin-bottom: 0.3rem;
+}
+
+.card p {
+  font-size: 0.85rem;
+  opacity: 0.7;
+}
+
+@media (max-width: 640px) {
+  .options {
+    flex-direction: column;
+  }
+}
+
+.note {
+  margin-top: 1.2rem;
+  font-size: 0.85rem;
+  opacity: 0.7;
+  line-height: 1.4;
+  text-align: center;
+}

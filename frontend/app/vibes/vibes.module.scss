@@ -1,0 +1,13 @@
+.divCenter{
+    max-width: 480px;
+    margin: auto;
+    border: 2px solid white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 1rem;
+    margin-bottom: 2rem;
+    min-height: calc(100vh - 5rem);
+    overflow-y: hidden;
+    
+}

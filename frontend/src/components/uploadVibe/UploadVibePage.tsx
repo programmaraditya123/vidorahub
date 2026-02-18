@@ -3,7 +3,7 @@
 import { useState } from "react";
 import KineticPlayerPreview from "@/src/components/upload/KineticPlayerPreview/KineticPlayerPreview";
 import VisualCarousel from "@/src/components/upload/VisualCarousel/VisualCarousel";
-import styles from "./UploadPage.module.scss";
+import styles from "../../../app/uploadvideo/UploadPage.module.scss";
 import DataSculptingForm from "@/src/components/upload/DataScluptingForm/DataSculptingForm";
 import UploadVideo from "@/src/components/uploadvideo/UploadVideo";
 import { extractThreeFramesAsItems } from "@/src/utils/extractFrames";
@@ -15,7 +15,7 @@ import Sidebar from "@/src/components/HomePage/Sidebar/Sidebar";
 
 
 
-export default function UploadPage() {
+export default function UploadVibePage() {
   const [file, setFile] = useState<File | null>(null);
   const [videoPreview, setVideoPreview] = useState<string | null>(null);
   const [frames, setFrames] = useState<any[]>([]);
@@ -28,7 +28,7 @@ export default function UploadPage() {
 
   const { success, error, info } = useToast();
 
-
+    
   const startUpload = async (
     formData: { title: string; description: string; tags: string[] },
     isDraft: boolean
@@ -90,7 +90,7 @@ export default function UploadPage() {
       {isUploading && (
         <div className={styles.uploadOverlay}>
           <div className={styles.progressBox}>
-            <h3>Uploading Video...</h3>
+            <h3>Uploading Vibe...</h3>
             <div className={styles.progressBarOuter}>
               <div className={styles.progressBarInner} style={{ width: `${progress}%` }} />
             </div>

@@ -73,9 +73,9 @@ export default function ProfilePage() {
         <div className={styles.backdropImage} />
       </div>
        
-       <div className={styles.hiddenSideBar}>
+       {/* <div className={styles.hiddenSideBar}> */}
       <Sidebar1/>
-       </div>
+       {/* </div> */}
 
 
       <div className={styles.container}>

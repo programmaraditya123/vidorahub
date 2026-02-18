@@ -13,10 +13,10 @@ export default function Page() {
   const [development,setDevelopment] = useState(1)
   return (
     <>
-      <div className={styles.sidebarHiden}>
+      {/* <div className={styles.sidebarHiden}> */}
       <Sidebar2/>
 
-      </div>
+      {/* </div> */}
     
      <div className={styles.app}>
       <Sidebar />

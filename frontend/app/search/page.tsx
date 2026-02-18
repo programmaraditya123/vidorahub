@@ -77,9 +77,9 @@ export default function SearchPage() {
 
   return (
     <div className={styles.page}>
-      <div className={styles.hideSidebar}>
+      {/* <div className={styles.hideSidebar}> */}
         <Sidebar />
-      </div>
+      {/* </div> */}
 
       {/* Navbar */}
       <header className={styles.navbar}>
