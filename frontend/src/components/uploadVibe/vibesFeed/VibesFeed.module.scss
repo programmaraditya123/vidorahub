@@ -1,3 +1,7 @@
+/* ============================= */
+/* PAGE */
+/* ============================= */
+
 .page {
   display: flex;
   background: #000;
@@ -5,39 +9,110 @@
   overflow: hidden;
 }
 
+/* ============================= */
+/* FEED */
+/* ============================= */
+
 .feed {
   flex: 1;
   overflow-y: scroll;
   scroll-snap-type: y mandatory;
+  scrollbar-width: none;
 }
+
+.feed::-webkit-scrollbar {
+  display: none;
+}
+
+/* ============================= */
+/* VIBE CARD */
+/* ============================= */
 
 .vibeCard {
   height: 100vh;
   width: 100%;
   position: relative;
   scroll-snap-align: start;
+
   display: flex;
   justify-content: center;
   align-items: center;
+
   background: black;
 }
 
+/* ============================= */
+/* VIDEO */
+/* ============================= */
+
 .video {
   height: 100%;
-  width: auto;
-  max-width: 100%;
-  object-fit: cover;
+  width: 100%;
+  object-fit: contain;
+  background: black;
 }
+
+/* ============================= */
+/* OVERLAY */
+/* ============================= */
 
 .overlay {
   position: absolute;
-  bottom: 0;
+  bottom: 20;
   left: 0;
   right: 0;
-  padding: 24px;
-  background: linear-gradient(to top, rgba(0,0,0,0.6), transparent);
+
+  padding: 20px;
+  padding-bottom: calc(20px + env(safe-area-inset-bottom));
+
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.85),
+    rgba(0, 0, 0, 0.5),
+    transparent
+  );
 }
+
+/* ============================= */
+/* META TEXT */
+/* ============================= */
 
 .meta {
   color: white;
+  max-width: 85%;
+}
+
+.title {
+  font-size: 16px;
+  font-weight: 600;
+  margin-top: 8px;
+}
+
+.description {
+  font-size: 14px;
+  opacity: 0.85;
+  margin-top: 6px;
+  line-height: 1.5;
+}
+
+/* ============================= */
+/* RESPONSIVE IMPROVEMENTS */
+/* ============================= */
+
+/* Tablet */
+@media (min-width: 768px) {
+  .overlay {
+    padding: 28px;
+  }
+
+  .title {
+    font-size: 18px;
+  }
+}
+
+/* Desktop */
+@media (min-width: 1024px) {
+  .overlay {
+    padding: 32px 40px;
+  }
 }

@@ -1,13 +1,74 @@
-.divCenter{
-    max-width: 480px;
-    margin: auto;
-    border: 2px solid white;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-top: 1rem;
-    margin-bottom: 2rem;
-    min-height: calc(100vh - 5rem);
-    overflow-y: hidden;
+// .divCenter{
+//     max-width: 480px;
+//     margin: auto;
+//     border: 2px solid white;
+//     display: flex;
+//     justify-content: center;
+//     align-items: center;
+//     margin-top: 1rem;
+//     margin-bottom: 2rem;
+//     min-height: calc(100vh - 5rem);
+//     overflow-y: hidden;
     
+// }
+
+/* ============================= */
+/* MAIN WRAPPER */
+/* ============================= */
+
+.divCenter {
+  flex: 1;
+  width: 100%;
+  min-height: 100vh;
+
+  display: flex;
+  justify-content: center;
+
+  padding: 0; /* mobile no padding */
+}
+
+/* ============================= */
+/* CONTENT WRAPPER */
+/* ============================= */
+
+.divCenter > * {
+  width: 100%;
+}
+
+/* ============================= */
+/* TABLET */
+/* ============================= */
+
+@media (min-width: 768px) {
+  .divCenter {
+    padding: 0 24px;
+  }
+
+  .divCenter > * {
+    max-width: 600px;
+  }
+}
+
+/* ============================= */
+/* LAPTOP */
+/* ============================= */
+
+@media (min-width: 1024px) {
+  .divCenter {
+    padding: 0 40px;
+  }
+
+  .divCenter > * {
+    max-width: 720px;
+  }
+}
+
+/* ============================= */
+/* LARGE DESKTOP */
+/* ============================= */
+
+@media (min-width: 1440px) {
+  .divCenter > * {
+    max-width: 820px;
+  }
 }

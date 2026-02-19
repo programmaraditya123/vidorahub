@@ -7,22 +7,20 @@ import styles from './vibes.module.scss'
 import VibesFeed from "@/src/components/uploadVibe/vibesFeed/VibesFeed";
 
 
+ 
+
 export default function VibesPage() {
   const [development, setDevelopment] = useState(0);
 
   return (
     <>
       <Sidebar />
-      {development ? (
-        <UnderDevelopment />
-      ) : (
-        <>
+      
+        
         <div className={styles.divCenter}>
             <VibesFeed />
         </div>
           
-        </>
-      )}
     </>
   );
 }
