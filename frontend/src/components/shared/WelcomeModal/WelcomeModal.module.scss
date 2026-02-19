@@ -1,0 +1,192 @@
+/* ===============================
+   Overlay
+================================= */
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
+
+  animation: fadeIn 0.4s ease forwards;
+}
+
+/* ===============================
+   Modal Container
+================================= */
+.modal {
+  position: relative;
+  width: 92%;
+  max-width: 480px;
+
+  padding: 2.5rem 2rem;
+
+  border-radius: 24px;
+
+  background: linear-gradient(
+    145deg,
+    rgba(20, 20, 25, 0.95),
+    rgba(15, 15, 20, 0.95)
+  );
+
+  border: 1px solid rgba(255, 255, 255, 0.06);
+
+  box-shadow:
+    0 20px 60px rgba(0, 0, 0, 0.6),
+    0 0 40px rgba(99, 102, 241, 0.08);
+
+  color: #ffffff;
+
+  animation: scaleIn 0.4s ease forwards;
+}
+
+/* ===============================
+   Close Button
+================================= */
+.closeBtn {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+
+  font-size: 18px;
+  color: rgba(255, 255, 255, 0.6);
+
+  background: transparent;
+  border: none;
+  cursor: pointer;
+
+  transition: all 0.2s ease;
+
+  &:hover {
+    color: #ffffff;
+    transform: scale(1.1);
+  }
+}
+
+/* ===============================
+   Title
+================================= */
+.title {
+  font-size: 1.6rem;
+  font-weight: 600;
+  text-align: center;
+  margin-bottom: 0.6rem;
+
+  span {
+    color: #6366f1;
+    font-weight: 700;
+  }
+}
+
+/* ===============================
+   Subtitle
+================================= */
+.subtitle {
+  font-size: 0.95rem;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.65);
+  line-height: 1.6;
+  margin-bottom: 2rem;
+}
+
+/* ===============================
+   Button Container
+================================= */
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+/* ===============================
+   Primary Button
+================================= */
+.primaryBtn {
+  padding: 0.85rem 1rem;
+  border-radius: 14px;
+
+  background: linear-gradient(135deg, #6366f1, #4f46e5);
+  color: #ffffff;
+
+  font-weight: 500;
+  text-align: center;
+
+  border: none;
+  cursor: pointer;
+
+  transition: all 0.25s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
+  }
+}
+
+/* ===============================
+   Secondary Button
+================================= */
+.secondaryBtn {
+  padding: 0.85rem 1rem;
+  border-radius: 14px;
+
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+
+  color: #ffffff;
+  font-weight: 500;
+  text-align: center;
+
+  cursor: pointer;
+
+  transition: all 0.25s ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.08);
+    transform: translateY(-2px);
+  }
+}
+
+/* ===============================
+   Animations
+================================= */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* ===============================
+   Responsive Tweaks
+================================= */
+@media (max-width: 480px) {
+  .modal {
+    padding: 2rem 1.5rem;
+  }
+
+  .title {
+    font-size: 1.4rem;
+  }
+
+  .subtitle {
+    font-size: 0.9rem;
+  }
+}

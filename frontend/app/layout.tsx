@@ -3,6 +3,7 @@ import "./globals.css";
 import ToastProvider from "@/src/hooks/ui/ToastProvider/ToastProvider";
 import ReduxProvider from "@/src/redux/provider";
 import SpeedInsightsClient from "./SpeedInsightsClient";
+import WelcomeModal from "@/src/components/shared/WelcomeModal/WelcomeModal";
 
 
 export const metadata: Metadata = {
@@ -42,6 +43,7 @@ export default function RootLayout({
       <body>
         <ReduxProvider>
         <ToastProvider>
+          <WelcomeModal/>
           {children}
           <SpeedInsightsClient/>
           </ToastProvider>
