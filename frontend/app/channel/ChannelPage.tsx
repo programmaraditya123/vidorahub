@@ -76,9 +76,9 @@ export default function ChannelPage({ id }: ChannelPageProps) {
         <div className={styles.backdropImage} />
       </div>
 
-      <div className={styles.hiddenSideBar}>
+      {/* <div className={styles.hiddenSideBar}> */}
         <Sidebar1 />
-      </div>
+      {/* </div> */}
 
       <Navbar2 />
 

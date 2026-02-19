@@ -1,7 +1,3 @@
-/* ============================= */
-/* PAGE */
-/* ============================= */
-
 .page {
   display: flex;
   background: #000;
@@ -9,9 +5,6 @@
   overflow: hidden;
 }
 
-/* ============================= */
-/* FEED */
-/* ============================= */
 
 .feed {
   flex: 1;
@@ -24,9 +17,6 @@
   display: none;
 }
 
-/* ============================= */
-/* VIBE CARD */
-/* ============================= */
 
 .vibeCard {
   height: 100vh;
@@ -41,9 +31,6 @@
   background: black;
 }
 
-/* ============================= */
-/* VIDEO */
-/* ============================= */
 
 .video {
   height: 100%;
@@ -52,13 +39,10 @@
   background: black;
 }
 
-/* ============================= */
-/* OVERLAY */
-/* ============================= */
 
 .overlay {
   position: absolute;
-  bottom: 20;
+  bottom: 60;
   left: 0;
   right: 0;
 
@@ -73,19 +57,19 @@
   );
 }
 
-/* ============================= */
-/* META TEXT */
-/* ============================= */
+ 
 
 .meta {
   color: white;
   max-width: 85%;
+ 
 }
 
 .title {
   font-size: 16px;
   font-weight: 600;
   margin-top: 8px;
+  margin-left: 0.5rem;
 }
 
 .description {
@@ -94,12 +78,7 @@
   margin-top: 6px;
   line-height: 1.5;
 }
-
-/* ============================= */
-/* RESPONSIVE IMPROVEMENTS */
-/* ============================= */
-
-/* Tablet */
+ 
 @media (min-width: 768px) {
   .overlay {
     padding: 28px;
@@ -110,7 +89,6 @@
   }
 }
 
-/* Desktop */
 @media (min-width: 1024px) {
   .overlay {
     padding: 32px 40px;
