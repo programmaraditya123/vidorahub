@@ -35,8 +35,9 @@ interface VibeItem {
 export default function VibesFeed() {
   const [vibes, setVibes] = useState<VibeItem[]>([]);
   const watchStartRef = useRef<Map<string, number>>(new Map());
-const viewedRef = useRef<Set<string>>(new Set());
-const sessionIdRef = useRef<string>("");
+  const viewedRef = useRef<Set<string>>(new Set());
+  const sessionIdRef = useRef<string>("");
+  const videoRefs = useRef<Map<string, HTMLVideoElement>>(new Map());
 
   useEffect(() => {
     loadVibes();
@@ -99,6 +100,51 @@ const sessionIdRef = useRef<string>("");
     };
   }, [vibes]);
 
+ useEffect(() => {
+  if (!vibes.length) return;
+
+  let activeVideoId: string | null = null;
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        const video = entry.target as HTMLVideoElement;
+        const id = video.dataset.id as string;
+
+        if (entry.isIntersecting && entry.intersectionRatio > 0.6) {
+          // If this video is already active → do nothing
+          if (activeVideoId === id) return;
+
+          // Pause previous active video
+          if (activeVideoId) {
+            const prev = videoRefs.current.get(activeVideoId);
+            if (prev) {
+              prev.pause();
+              sendView(activeVideoId);
+            }
+          }
+
+          // Play new active video
+          video.play().catch(() => {});
+          watchStartRef.current.set(id, Date.now());
+          activeVideoId = id;
+        }
+      });
+    },
+    {
+      threshold: 0.6,
+    }
+  );
+
+  videoRefs.current.forEach((video) => {
+    observer.observe(video);
+  });
+
+  return () => {
+    observer.disconnect();
+  };
+}, [vibes]);
+
   return (
     <div className={styles.page}>
       <Sidebar />
@@ -110,9 +156,10 @@ const sessionIdRef = useRef<string>("");
               className={styles.video}
               src={vibe.videoUrl}
               poster={vibe.thumbnailUrl}
-              autoPlay
+              // muted
               loop
               playsInline
+              data-id={vibe._id}
               onLoadedMetadata={(e) => {
                   const video = e.currentTarget;
 
@@ -131,6 +178,13 @@ const sessionIdRef = useRef<string>("");
               onPause={() => {
                 sendView(vibe._id);
               }}
+              ref={(el) => {
+                  if (el) {
+                    videoRefs.current.set(vibe._id, el);
+                  } else {
+                    videoRefs.current.delete(vibe._id);
+                  }
+                }}
             />
 
             <VibeActions
