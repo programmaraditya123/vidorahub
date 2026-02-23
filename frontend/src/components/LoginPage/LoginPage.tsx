@@ -55,8 +55,8 @@ export default function LoginPage() {
           </Link>
         </div>
         <div className={styles.links}>
-          <a href="#">About</a>
-          <a href="#">Terms</a>
+          <a href="https://about.vidorahub.com/aboutus" target="_blank">About</a>
+          <a href="https://about.vidorahub.com/privacypolicy" target="_blank">Terms</a>
         </div>
       </header>
 
@@ -118,7 +118,7 @@ export default function LoginPage() {
             <div className={styles.footer}>
               <p>
                 New to the stream?
-                <Link href="/signup"> Join the Hub</Link>
+                <Link href="/signup">Join the Hub</Link>
               </p>
             </div>
           </div>

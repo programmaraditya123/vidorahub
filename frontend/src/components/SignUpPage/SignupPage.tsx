@@ -80,7 +80,7 @@ export default function SignupPage() {
           </Link>
         </div>
         <p className={styles.loginText}>
-          Already have an identity?
+          {/* Already have an identity? */}
           <Link href="/login"> Log In</Link>
         </p>
       </header>
