@@ -111,7 +111,6 @@ const sessionIdRef = useRef<string>("");
               src={vibe.videoUrl}
               poster={vibe.thumbnailUrl}
               autoPlay
-              muted
               loop
               playsInline
               onLoadedMetadata={(e) => {
