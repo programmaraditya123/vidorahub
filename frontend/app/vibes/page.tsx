@@ -14,11 +14,13 @@ export default function VibesPage() {
 
   return (
     <>
-      <Sidebar />
       
+      <Sidebar />
         
         <div className={styles.divCenter}>
+          
             <VibesFeed />
+            
         </div>
           
     </>
