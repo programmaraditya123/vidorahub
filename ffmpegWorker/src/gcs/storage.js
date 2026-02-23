@@ -1,4 +1,5 @@
 const { Storage } = require("@google-cloud/storage");
+require("dotenv").config();
 
 const storage = new Storage({
   projectId: process.env.GOOGLE_PROJECT_ID,

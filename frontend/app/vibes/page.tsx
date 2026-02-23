@@ -1,28 +1,21 @@
 "use client";
 
 import Sidebar from "@/src/components/HomePage/Sidebar/Sidebar";
-import UnderDevelopment from "@/src/components/UnderDevelopment/UnderDevelopment";
+// import UnderDevelopment from "@/src/components/UnderDevelopment/UnderDevelopment";
 import { useState } from "react";
-import styles from './vibes.module.scss'
+import styles from "./vibes.module.scss";
 import VibesFeed from "@/src/components/uploadVibe/vibesFeed/VibesFeed";
-
-
- 
 
 export default function VibesPage() {
   const [development, setDevelopment] = useState(0);
 
   return (
     <>
-      
       <Sidebar />
-        
-        <div className={styles.divCenter}>
-          
-            <VibesFeed />
-            
-        </div>
-          
+
+      <div className={styles.divCenter}>
+        <VibesFeed />
+      </div>
     </>
   );
 }
