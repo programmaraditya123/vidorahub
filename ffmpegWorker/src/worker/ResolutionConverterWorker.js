@@ -36,17 +36,17 @@ const { createTempDir, cleanup } = require("../ffmpeg/tempManager");
           await downloadVideo(inputUrl, inputFile);
 
           console.log("🎬 Encoding...");
-          for (const res of resolutions) {
-            await encodeVideo(inputFile, tmpDir, res);
-          }
+          // for (const res of resolutions) {
+            await encodeVideo(inputFile, tmpDir, resolutions);
+          // }
 
           console.log("☁️ Uploading...");
           await uploadDirectory(tmpDir, outputPath);
 
           console.log("🗄 Updating DB...");
           await Video.updateOne(
-            { videoId },
-            { status: "ready", hlsUl: outputPath }
+            { _id: videoId },
+            { Status: "ready", hlsUl: outputPath }
           );
 
           console.log("✅ Done:", videoId);

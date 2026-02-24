@@ -3,6 +3,7 @@
 import { useRef, useState, useEffect } from "react";
 import styles from "./VideoPlayer.module.scss";
 import { postView } from "@/src/lib/video/videodata";
+import Hls from "hls.js";
 
 interface Props {
   src: string;
@@ -31,10 +32,17 @@ export default function VideoPlayer({ src, videoId }: Props) {
 
   const lastVolumeRef = useRef(1);
 
+  const [hlsInstance, setHlsInstance] = useState<Hls | null>(null);
+  const [qualities, setQualities] = useState<any[]>([]);
+  const [selectedQuality, setSelectedQuality] = useState<number>(-1); // -1 = auto
+  const [showQuality, setShowQuality] = useState(false);
+
   const formatTime = (time: number) => {
     if (!time) return "0:00";
     const m = Math.floor(time / 60);
-    const s = Math.floor(time % 60).toString().padStart(2, "0");
+    const s = Math.floor(time % 60)
+      .toString()
+      .padStart(2, "0");
     return `${m}:${s}`;
   };
 
@@ -53,23 +61,21 @@ export default function VideoPlayer({ src, videoId }: Props) {
   };
 
   const toggleMute = () => {
-  const v = videoRef.current;
-  if (!v) return;
+    const v = videoRef.current;
+    if (!v) return;
 
-  if (v.muted) {
-    v.muted = false;
-    v.volume = lastVolumeRef.current || 0.5;
-    setVolume(v.volume);
-  } else {
-    lastVolumeRef.current = v.volume;
-    v.muted = true;
-    setVolume(0);
-  }
+    if (v.muted) {
+      v.muted = false;
+      v.volume = lastVolumeRef.current || 0.5;
+      setVolume(v.volume);
+    } else {
+      lastVolumeRef.current = v.volume;
+      v.muted = true;
+      setVolume(0);
+    }
 
-  setMuted(v.muted);
-};
-
-
+    setMuted(v.muted);
+  };
 
   const toggleFullScreen = () => {
     const container = videoRef.current?.parentElement!;
@@ -77,18 +83,16 @@ export default function VideoPlayer({ src, videoId }: Props) {
     else document.exitFullscreen();
   };
 
-// const toggleFullScreen = async () => {
-//   const container = videoRef.current?.parentElement;
-//   if (!container) return;
+  // const toggleFullScreen = async () => {
+  //   const container = videoRef.current?.parentElement;
+  //   if (!container) return;
 
-//   if (!document.fullscreenElement) {
-//     await container.requestFullscreen();
-//   } else {
-//     await document.exitFullscreen();
-//   }
-// };
-
-
+  //   if (!document.fullscreenElement) {
+  //     await container.requestFullscreen();
+  //   } else {
+  //     await document.exitFullscreen();
+  //   }
+  // };
 
   const handleTimeUpdate = () => {
     const now = Date.now();
@@ -141,20 +145,19 @@ export default function VideoPlayer({ src, videoId }: Props) {
   };
 
   const handleVolumeChange = (e: any) => {
-  const v = videoRef.current;
-  if (!v) return;
+    const v = videoRef.current;
+    if (!v) return;
 
-  const vol = Number(e.target.value);
+    const vol = Number(e.target.value);
 
-  if (vol > 0) lastVolumeRef.current = vol;
+    if (vol > 0) lastVolumeRef.current = vol;
 
-  v.volume = vol;
-  v.muted = vol === 0;
+    v.volume = vol;
+    v.muted = vol === 0;
 
-  setVolume(vol);
-  setMuted(v.muted);
-};
-
+    setVolume(vol);
+    setMuted(v.muted);
+  };
 
   let hideTimeout: any;
 
@@ -170,9 +173,7 @@ export default function VideoPlayer({ src, videoId }: Props) {
   const sendView = async () => {
     if (!watchStartRef.current) return;
 
-    const watchTime = Math.floor(
-      (Date.now() - watchStartRef.current) / 1000
-    );
+    const watchTime = Math.floor((Date.now() - watchStartRef.current) / 1000);
 
     if (watchTime < 3) return;
 
@@ -187,7 +188,6 @@ export default function VideoPlayer({ src, videoId }: Props) {
     }
   };
 
-
   useEffect(() => {
     let sid = sessionStorage.getItem("video_session_id");
     if (!sid) {
@@ -198,13 +198,12 @@ export default function VideoPlayer({ src, videoId }: Props) {
   }, []);
 
   useEffect(() => {
-  watchStartRef.current = Date.now();
+    watchStartRef.current = Date.now();
 
-  return () => {
-    sendView();  
-  };
-}, [src]);
-
+    return () => {
+      sendView();
+    };
+  }, [src]);
 
   useEffect(() => {
     const v = videoRef.current;
@@ -244,14 +243,85 @@ export default function VideoPlayer({ src, videoId }: Props) {
       if (videoRef.current)
         localStorage.setItem(
           `video-${videoId}`,
-          String(videoRef.current.currentTime)
+          String(videoRef.current.currentTime),
         );
     }, 2000);
 
     return () => clearInterval(interval);
   }, []);
 
-  
+  //   useEffect(() => {
+  //   const video = videoRef.current;
+  //   if (!video || !src) return;
+
+  //   // If HLS stream
+  //   if (src.endsWith(".m3u8")) {
+  //     // Safari (native HLS support)
+  //     if (video.canPlayType("application/vnd.apple.mpegurl")) {
+  //       video.src = src;
+  //     }
+  //     // Chrome, Edge, etc.
+  //     else if (Hls.isSupported()) {
+  //       const hls = new Hls({
+  //         enableWorker: true,
+  //         lowLatencyMode: true,
+  //       });
+
+  //       hls.loadSource(src);
+  //       hls.attachMedia(video);
+
+  //       return () => {
+  //         hls.destroy();
+  //       };
+  //     }
+  //   } else {
+  //     // Normal MP4 fallback
+  //     video.src = src;
+  //   }
+  // }, [src]);
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video || !src) return;
+
+    // If HLS stream
+    if (src.endsWith(".m3u8")) {
+      // 🔥 ALWAYS use HLS.js (even if Safari)
+      if (Hls.isSupported()) {
+        const hls = new Hls({
+          enableWorker: true,
+          lowLatencyMode: true,
+        });
+
+        hls.loadSource(src);
+        hls.attachMedia(video);
+
+        hls.on(Hls.Events.MANIFEST_PARSED, (_, data) => {
+          console.log("HLS Levels:", data.levels);
+          setQualities(data.levels);
+        });
+
+        setHlsInstance(hls);
+
+        return () => {
+          hls.destroy();
+        };
+      }
+
+      // fallback only if HLS.js not supported
+      video.src = src;
+    } else {
+      video.src = src;
+    }
+  }, [src]);
+
+  const changeQuality = (levelIndex: number) => {
+    if (!hlsInstance) return;
+
+    hlsInstance.currentLevel = levelIndex;
+    setSelectedQuality(levelIndex);
+  };
+
+  // console.log("VIDEO SRC:", src);
 
   return (
     <div className={styles.playerWrapper}>
@@ -260,11 +330,11 @@ export default function VideoPlayer({ src, videoId }: Props) {
       <div className={styles.inner} onClick={togglePlay} onMouseMove={showUI}>
         <video
           ref={videoRef}
-          src={src}
+          // src={src}
           autoPlay
           playsInline
           preload="metadata"
-          poster="/thumb.jpg"
+          // poster="/thumb.jpg"
           className={styles.video}
           onTimeUpdate={handleTimeUpdate}
           onWaiting={() => setLoading(true)}
@@ -283,8 +353,9 @@ export default function VideoPlayer({ src, videoId }: Props) {
           </div>
         )}
 
-
-        <div className={`${styles.overlay} ${showControls ? styles.visible : ""}`}>
+        <div
+          className={`${styles.overlay} ${showControls ? styles.visible : ""}`}
+        >
           <div className={styles.controls} onClick={(e) => e.stopPropagation()}>
             {/* <span className="material-symbols-outlined" onClick={toggleMute}>
               {muted ? "volume_off" : "volume_up"}
@@ -297,11 +368,11 @@ export default function VideoPlayer({ src, videoId }: Props) {
               onMouseUp={handleSeekEnd}
               onMouseLeave={handleSeekEnd}
             >
-              <div className={styles.progress} style={{ width: `${progress}%` }} />
+              <div
+                className={styles.progress}
+                style={{ width: `${progress}%` }}
+              />
             </div>
-
-
-
           </div>
 
           <div className={styles.bottomControls}>
@@ -313,7 +384,7 @@ export default function VideoPlayer({ src, videoId }: Props) {
                 className="material-symbols-outlined"
                 onClick={(e) => {
                   e.stopPropagation();
-                  toggleMute()
+                  toggleMute();
                 }}
               >
                 {muted ? "volume_off" : "volume_up"}
@@ -329,15 +400,78 @@ export default function VideoPlayer({ src, videoId }: Props) {
                 onChange={handleVolumeChange}
                 className={styles.volumeSliderInline}
               />
-              <span className="material-symbols-outlined" onClick={toggleFullScreen}>
+           {qualities.length > 0 && (
+  <div
+    className={styles.qualityContainer}
+    onClick={(e) => e.stopPropagation()}
+  >
+    <button
+      className={styles.qualityButton}
+      onClick={() => setShowQuality((prev) => !prev)}
+    >
+      {selectedQuality === -1
+        ? "Auto"
+        : `${qualities[selectedQuality]?.height}p`}
+    </button>
+
+    {showQuality && (
+      <div className={styles.qualityMenu}>
+        <div
+          className={`${styles.qualityItem} ${
+            selectedQuality === -1 ? styles.active : ""
+          }`}
+          onClick={() => {
+            changeQuality(-1);
+            setShowQuality(false);
+          }}
+        >
+          Auto
+          {selectedQuality === -1 && <span>✓</span>}
+        </div>
+
+        {qualities.map((level, index) => (
+          <div
+            key={index}
+            className={`${styles.qualityItem} ${
+              selectedQuality === index ? styles.active : ""
+            }`}
+            onClick={() => {
+              changeQuality(index);
+              setShowQuality(false);
+            }}
+          >
+            {level.height}p
+            {selectedQuality === index && <span>✓</span>}
+          </div>
+        ))}
+      </div>
+    )}
+  </div>
+)}
+              <span
+                className="material-symbols-outlined"
+                onClick={toggleFullScreen}
+              >
                 fullscreen
               </span>
             </div>
-
+            {/* {qualities.length > 0 && (
+              <select
+                value={selectedQuality}
+                onChange={(e) => changeQuality(Number(e.target.value))}
+                onClick={(e) => e.stopPropagation()}
+                className={styles.qualitySelector}
+              >
+                <option value={-1}>Auto</option>
+                {qualities.map((level, index) => (
+                  <option key={index} value={index}>
+                    {level.height}p
+                  </option>
+                ))}
+              </select>
+            )} */}
           </div>
         </div>
-
-
       </div>
     </div>
   );

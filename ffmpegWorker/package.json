@@ -9,7 +9,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "concurrently \"nodemon server.js\" \"nodemon src/worker/ResolutionConverterWorker.js\"",
-    "start": "node server.js"
+    "start": "node server.js",
+    "build": "echo \"No build step required\""
   },
   "dependencies": {
     "@bull-board/api": "^6.18.2",
