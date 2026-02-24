@@ -8,6 +8,19 @@ const { createBullBoard } = require("@bull-board/api");
 const { BullMQAdapter } = require("@bull-board/api/bullMQAdapter");
 const { ExpressAdapter } = require("@bull-board/express");
 const { connectdb } = require("./db/mongo");
+const cors = require("cors");
+
+app.use(
+  cors({
+    origin: [
+      "http://localhost:3000", 
+      "https://vidorahub.com" ,
+      "https://www.vidorahub.com/"
+    ],
+    credentials: true,
+  })
+);
+
 
 const app = express();
 app.use(express.json());
