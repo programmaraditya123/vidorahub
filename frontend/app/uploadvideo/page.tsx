@@ -34,7 +34,12 @@ export default function UploadPage() {
     isDraft: boolean
   ) => {
     if (!file) return info("No video selected!");
+    if(!formData?.title.trim() || !formData?.description.trim() || formData?.tags.length === 0){
+      info("All fields must be filled to continue");
+      return
 
+    }
+     
     const selectedThumb = frames.find((f) => f.isCurrent);
     if (!selectedThumb) return info("Select a thumbnail!");
 
@@ -155,7 +160,7 @@ export default function UploadPage() {
         <div className={styles.right}>
           <DataSculptingForm
             onPublish={handlePublish}
-            onSaveDraft={() => handleSaveDraft}
+            // onSaveDraft={() => handleSaveDraft}
           />
         </div>
       )}

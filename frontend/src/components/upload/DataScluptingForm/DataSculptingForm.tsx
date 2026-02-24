@@ -96,9 +96,9 @@ export default function DataSculptingForm({
       </div>
 
       <div className={styles.buttonsRow}>
-        <button onClick={onSaveDraft} className={styles.btnDraft}>
+        {/* <button onClick={onSaveDraft} className={styles.btnDraft}>
           SAVE DRAFT
-        </button>
+        </button> */}
 
         <button
           onClick={() => onPublish?.({ title, description, tags })}
