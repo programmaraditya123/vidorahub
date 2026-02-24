@@ -7,6 +7,31 @@ export type UploadResponse = {
     message ?: string
 }
 
+export async function addTranscodeJob(payload: {
+  videoId: string;
+  inputUrl: string;
+  outputPath: string;
+  resolutions: string[];
+}) {
+  const response = await fetch(
+    "https://about-vidorahub-ffmpeg-worker.onrender.com/addJobToQueue",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    }
+  );
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error("Failed to add transcode job: " + errorText);
+  }
+
+  return await response.json();
+}
+
 
 export function getVideoDuration(file: File): Promise<number> {
   return new Promise((resolve, reject) => {
@@ -95,6 +120,19 @@ export async function saveVideoMetadata(payload: {
 
 
 
+function buildHlsOutputPath(publicUrl: string): string {
+  const marker = "vidorahub/";
+  const index = publicUrl.indexOf(marker);
+
+  if (index === -1) {
+    throw new Error("Invalid GCS URL format");
+  }
+
+  const fullPath = publicUrl.substring(index + marker.length);
+
+  return `hlsvideos/${fullPath}`;
+}
+
 export async function uploadVideoFlow({
   videoFile,
   thumbnailFile,
@@ -134,7 +172,7 @@ export async function uploadVideoFlow({
   }
 
   // 5. save metadata
-  return await saveVideoMetadata({
+  const saved = await saveVideoMetadata({
     title,
     description,
     tags,
@@ -145,5 +183,11 @@ export async function uploadVideoFlow({
     thumbnailUrl,
     contentType,
   });
+  await addTranscodeJob({
+  videoId: saved.data._id,
+  inputUrl: videoSigned.publicUrl,
+  outputPath: buildHlsOutputPath(videoSigned.publicUrl),
+  resolutions: ["360p", "480p", "720p", "1080p"],
+});
 }
 
