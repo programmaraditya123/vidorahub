@@ -135,6 +135,8 @@ const UploadVideoController = async (req, res) => {
         { session }
       );
 
+      createdVideo = videoDoc;
+
       await userProfile.findByIdAndUpdate(
         req.user._id,
         {
@@ -149,6 +151,7 @@ const UploadVideoController = async (req, res) => {
     return res.status(201).json({
       ok: true,
       message: "Video uploaded successfully",
+      videoId: createdVideo._id,
     });
 
   } catch (error) {
