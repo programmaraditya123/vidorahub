@@ -184,7 +184,7 @@ export async function uploadVideoFlow({
     contentType,
   });
   await addTranscodeJob({
-  videoId: saved.data._id,
+  videoId: saved._id,
   inputUrl: videoSigned.publicUrl,
   outputPath: buildHlsOutputPath(videoSigned.publicUrl),
   resolutions: ["360p", "480p", "720p", "1080p"],

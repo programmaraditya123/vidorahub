@@ -10,20 +10,39 @@ const { ExpressAdapter } = require("@bull-board/express");
 const { connectdb } = require("./db/mongo");
 const cors = require("cors");
 
-app.use(
-  cors({
-    origin: [
-      "http://localhost:3000", 
-      "https://vidorahub.com" ,
-      "https://www.vidorahub.com/"
-    ],
-    credentials: true,
-  })
-);
 
 
 const app = express();
+
 app.use(express.json());
+const allowed_origins = [
+    "http://localhost:3000",
+    "https://vidorahub-v6qk.vercel.app",
+    "https://www.vidorahub.com"
+]
+
+const corsOptions = {
+  origin: function (origin, callback) {
+    if (!origin || allowed_origins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: [
+    "Content-Type",
+    "Authorization",
+    "Accept",
+    "Origin",
+    "X-Requested-With"
+  ],
+  credentials: true,  
+  optionsSuccessStatus: 200
+};
+
+app.use(cors(corsOptions))
+
 
 
 connectdb();
