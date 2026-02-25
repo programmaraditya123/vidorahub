@@ -37,7 +37,7 @@ export default function ProfileCard({ data }: ProfileCardProps) {
 
             <div className={styles.stats}>
               <div className={styles.stat}>
-                <span>Followers</span>
+                <span>SUBSCRIBERS</span>
                 <b>{data.subscriber}</b>
               </div>
 
@@ -54,10 +54,10 @@ export default function ProfileCard({ data }: ProfileCardProps) {
           </div>
         </div>
 
-        <div className={styles.joinBox}>
+        {/* <div className={styles.joinBox}>
           <button className={styles.joinBtn}>+</button>
           <span className={styles.joinLabel}>Join Universe</span>
-        </div>
+        </div> */}
       </div>
     </div>
   );

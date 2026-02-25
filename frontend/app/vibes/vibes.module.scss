@@ -17,7 +17,7 @@
 .divCenter {
   flex: 1;
   width: 100%;
-  min-height: 100vh;
+  min-height: 99vh;
   // min-height: calc(100vh - 8rem);
   // border: 2px solid red;
 
@@ -26,6 +26,7 @@
 
   padding: 0; /* mobile no padding */
   // margin-bottom: 10rem;
+  margin-top: 0.5rem;
 }
 
  
