@@ -16,6 +16,7 @@ interface Props {
   profilePicture?: string;
   subscriber: number;
   userSerialNumber: number;
+   
 };
 }
 
@@ -109,7 +110,7 @@ export default function VibeMeta({ uploader }: Props) {
 
         <div className={styles.info}>
           <Link href={`/channel/${uploader._id}`}>
-            <h4>@{uploader.name}</h4>
+            <h4>{uploader.name}</h4>
           </Link>
           <span>{subscriberCount} subscribers</span>
         </div>

@@ -1,6 +1,6 @@
 import VideoPageClient from "./VideoPageClient";
-import { decodeFilename } from "@/src/functions";
-import { getVideoMetadataExceptCommentsDocs } from "@/src/lib/video/videodata";
+// import { decodeFilename } from "@/src/functions";
+// import { getVideoMetadataExceptCommentsDocs } from "@/src/lib/video/videodata";
 
 // export async function generateMetadata({
 //   params,

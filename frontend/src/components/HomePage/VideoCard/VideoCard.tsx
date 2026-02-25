@@ -36,7 +36,7 @@ export default function VideoCard({ video }: { video: Video }) {
    
 
     const lastPart = video.videoUrl.split("vidorahub/")[1];
-    const encoded = encodeFilename(lastPart!);
+    const encoded = encodeFilename(lastPart!+`${video?._id}`);
 
     router.push(`/video/${encoded}`);
   }, [router, video.videoUrl]);

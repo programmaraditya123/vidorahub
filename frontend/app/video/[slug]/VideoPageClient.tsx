@@ -21,10 +21,18 @@ export default function VideoPageClient() {
   const slug = params?.slug;
   const encoded = Array.isArray(slug) ? slug[0] : slug;
 
-  const videoId = getVideoId();
+  
 
   const decoded = encoded ? decodeFilename(encoded) : "";
-  const fallbackVideoUrl = `https://storage.googleapis.com/vidorahub/${decoded}`;
+  const id = decoded.slice(-24);
+  const filePath = decoded.slice(0, -24);
+  const fallbackVideoUrl = `https://storage.googleapis.com/vidorahub/${filePath}`;
+  // console.log("decoded",decoded)
+  // console.log("url",fallbackVideoUrl)
+  // console.log("id",id)
+  // console.log("file Path",filePath)
+  const videoId = getVideoId() || id;
+  const item = localStorage.setItem("currentVideoId",id)
 
   const [videoMeta, setVideoMeta] = useState<any>(null);
   const [loading, setLoading] = useState(true);

@@ -220,7 +220,7 @@ const getVibesController = async (req, res) => {
     const [items, total] = await Promise.all([
       Video.find(filter)
         .select("-description -tags -visibility -category -updatedAt -__v -stats.comments -stats.dislikes")
-        .populate({ path: "uploader", select: "name _id" })
+        .populate({ path: "uploader", select: "name _id userSerialNumber subscriber"})
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit)

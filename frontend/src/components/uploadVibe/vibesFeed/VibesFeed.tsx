@@ -196,7 +196,10 @@ export default function VibesFeed() {
 
             <div className={styles.overlay}>
               <div className={styles.meta}>
+                
                 <VibeMeta uploader={vibe.uploader}/>
+
+
                 {/* <div className={styles.userRow}>
                   <img
                     src={
