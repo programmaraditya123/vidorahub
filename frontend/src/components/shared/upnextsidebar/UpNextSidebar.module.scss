@@ -45,7 +45,7 @@
 .thumbWrapper {
   position: relative;
   min-width: 140px;
-  height: 80px;
+  height: 140px;
   border-radius: 1rem;
   overflow: hidden;
   @extend .glass !optional;
@@ -83,7 +83,7 @@
   line-height: 1.2;
   color: white;
   transition: 0.25s ease;
-  max-width: 190px;
+  // max-width: 190px;
 }
 
 .sub {

@@ -12,7 +12,7 @@ import VideoActions from "@/src/components/VideoPage/VideoActions/VedioActions";
 import VideoDescription from "@/src/components/VideoPage/VedioDescription/VideoDescription";
 import CommentsSection from "@/src/components/ui/CommentSection/CommentSection";
 import { getVideoMetadataExceptCommentsDocs } from "@/src/lib/video/videodata";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { getVideoId } from "@/src/utils/videoStorage";
 import Sidebar from "@/src/components/HomePage/Sidebar/Sidebar";
 
@@ -20,8 +20,6 @@ export default function VideoPageClient() {
   const params = useParams();
   const slug = params?.slug;
   const encoded = Array.isArray(slug) ? slug[0] : slug;
-
-  
 
   const decoded = encoded ? decodeFilename(encoded) : "";
   const id = decoded.slice(-24);
@@ -32,10 +30,20 @@ export default function VideoPageClient() {
   // console.log("id",id)
   // console.log("file Path",filePath)
   const videoId = getVideoId() || id;
-  const item = localStorage.setItem("currentVideoId",id)
+  const item = localStorage.setItem("currentVideoId", id);
 
   const [videoMeta, setVideoMeta] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+
+  const [isMobile, setIsMobile] = useState(false);
+  const [activeTab, setActiveTab] = useState(0);
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 1000);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
 
   useEffect(() => {
     if (!videoId) return;
@@ -69,6 +77,24 @@ export default function VideoPageClient() {
     return videoMeta?.videoUrl || fallbackVideoUrl;
   })();
 
+  const touchStartX = useRef(0);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    const diff = e.changedTouches[0].clientX - touchStartX.current;
+
+    if (diff > 50 && activeTab > 0) {
+      setActiveTab(activeTab - 1);
+    }
+
+    if (diff < -50 && activeTab < 2) {
+      setActiveTab(activeTab + 1);
+    }
+  };
+
   return (
     <div className={styles.page}>
       <BackgroundLayers />
@@ -79,54 +105,142 @@ export default function VideoPageClient() {
 
       <Navbar2 />
 
-      <div className={styles.layout}>
-        <div className={styles.leftSidebar}>
-          <UpNextSidebar />
-        </div>
+      {!isMobile ? (
+        <div className={styles.layout}>
+          <div className={styles.leftSidebar}>
+            <UpNextSidebar />
+          </div>
 
-        <main className={styles.center}>
-          {/* ✅ Adaptive source passed here */}
+          <main className={styles.center}>
+            <div className={styles.fixedPlayer}>
+              <VideoPlayer src={finalVideoSrc} videoId={videoId!} />
+            </div>
+            {/* ✅ Adaptive source passed here */}
+
+            <div className={styles.topMeta}>
+              {!loading && videoMeta && (
+                <>
+                  <VideoMeta
+                    title={videoMeta.title}
+                    category={videoMeta.tags?.[0] || "General"}
+                    published={new Date(videoMeta.createdAt).toDateString()}
+                    uploader={videoMeta.uploader}
+                  />
+
+                  <VideoActions
+                    videoSerialNumber={videoMeta.videoSerialNumber}
+                    thumbnailUrl={videoMeta.thumbnailUrl}
+                  />
+                </>
+              )}
+            </div>
+
+            <div className={styles.resourcesRow}>
+              {!loading && videoMeta && (
+                <VideoDescription
+                  views={videoMeta.stats?.views?.toLocaleString() || "0"}
+                  uploaded={new Date(videoMeta.createdAt).toDateString()}
+                  hashtags={videoMeta.tags}
+                  description={videoMeta.description}
+                />
+              )}
+            </div>
+          </main>
+
+          <div className={styles.rightSidebar}>
+            <CommentsSection />
+          </div>
+        </div>
+      ) : (
+          <div >
+        <div className={styles.mobileLayout}>
           <VideoPlayer src={finalVideoSrc} videoId={videoId!} />
 
-          <div className={styles.topMeta}>
-            {!loading && videoMeta && (
-              <>
-                <VideoMeta
-                  title={videoMeta.title}
-                  category={videoMeta.tags?.[0] || "General"}
-                  published={new Date(videoMeta.createdAt).toDateString()}
-                  uploader={videoMeta.uploader}
-                />
-
-                <VideoActions
-                  videoSerialNumber={videoMeta.videoSerialNumber}
-                  thumbnailUrl={videoMeta.thumbnailUrl}
-                />
-              </>
-            )}
+          {/* TABS */}
+          <div className={styles.mobileTabs}>
+            {["Info", "UpNext", "Comments"].map((tab, index) => (
+              <button
+                key={index}
+                className={`${styles.tab} ${activeTab === index ? styles.active : ""}`}
+                onClick={() => setActiveTab(index)}
+              >
+                {tab}
+              </button>
+            ))}
           </div>
 
-          <div className={styles.resourcesRow}>
-            {!loading && videoMeta && (
-              <VideoDescription
-                views={videoMeta.stats?.views?.toLocaleString() || "0"}
-                uploaded={new Date(videoMeta.createdAt).toDateString()}
-                hashtags={videoMeta.tags}
-                description={videoMeta.description}
-              />
-            )}
-          </div>
-        </main>
+          {/* SWIPE CONTAINER */}
+          <div
+            className={styles.mobileSwipe}
+            onTouchStart={handleTouchStart}
+            onTouchEnd={handleTouchEnd}
+            style={{ transform: `translateX(-${activeTab * 100}%)` }}
+          >
+            {/* INFO */}
+            <div
+              className={`${styles.mobileSection} ${
+                activeTab === 0 ? styles.active : ""
+              }`}
+            >
+              <main className={styles.center}>
+           
+            {/* ✅ Adaptive source passed here */}
 
-        <div className={styles.rightSidebar}>
-          <CommentsSection />
+            <div className={styles.topMeta}>
+              {!loading && videoMeta && (
+                <>
+                  <VideoMeta
+                    title={videoMeta.title}
+                    category={videoMeta.tags?.[0] || "General"}
+                    published={new Date(videoMeta.createdAt).toDateString()}
+                    uploader={videoMeta.uploader}
+                  />
+
+                  <VideoActions
+                    videoSerialNumber={videoMeta.videoSerialNumber}
+                    thumbnailUrl={videoMeta.thumbnailUrl}
+                  />
+                </>
+              )}
+            </div>
+
+            <div className={styles.resourcesRow}>
+              {!loading && videoMeta && (
+                <VideoDescription
+                  views={videoMeta.stats?.views?.toLocaleString() || "0"}
+                  uploaded={new Date(videoMeta.createdAt).toDateString()}
+                  hashtags={videoMeta.tags}
+                  description={videoMeta.description}
+                />
+              )}
+            </div>
+          </main>
+            </div>
+
+            {/* UP NEXT */}
+            <div
+              className={`${styles.mobileSection} ${
+                activeTab === 1 ? styles.active : ""
+              }`}
+            >
+              <UpNextSidebar />
+            </div>
+
+            {/* COMMENTS */}
+            <div
+              className={`${styles.mobileSection} ${
+                activeTab === 2 ? styles.active : ""
+              }`}
+            >
+              <CommentsSection />
+            </div>
+          </div>
         </div>
-      </div>
+        </div>
+      )}
     </div>
   );
 }
-
-
 
 // "use client";
 

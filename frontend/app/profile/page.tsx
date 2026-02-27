@@ -95,8 +95,8 @@ export default function ProfilePage() {
         </main>
 
         
-      </div>
       <Footer />
+      </div>
     </div>
   );
 }

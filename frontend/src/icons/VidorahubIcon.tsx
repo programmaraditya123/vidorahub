@@ -4,6 +4,12 @@ interface VidorahubIconProps extends SVGProps<SVGSVGElement> {
   className?: string;
 }
 
+type SendFilledProps = {
+  size?: number;
+  color?: string;
+  className?: string;
+};
+
 const VidorahubIcon: React.FC<VidorahubIconProps> = ({
   width = '48',
   height = '48',
@@ -444,9 +450,25 @@ const EyeIcon = () => (
   </svg>
 );
 
+const SendIcon = ({
+  size = 24,
+  color = "#a413ec",
+  className = "",
+}: SendFilledProps)  => (
+   <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill={color}
+      className={className}
+    >
+      <path d="M2 21L23 12L2 3L2 10L17 12L2 14L2 21Z" />
+    </svg>
+);
+
 
 
 export default {
   VidorahubIcon, HomeIcon, FollowingIcon, UploadIcon, FileIcon, ProfileCircleIcon, SettingsIcon, SunIcon, MoonIcon, BellAlertIcon, UserIcon,
-  SearchIcon, FilterIcon, LogoutIcon,BarIcon,EyeIcon
+  SearchIcon, FilterIcon, LogoutIcon,BarIcon,EyeIcon,SendIcon
 };

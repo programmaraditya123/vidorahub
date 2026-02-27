@@ -17,6 +17,10 @@ export default function Header() {
     router.replace("/");
   };
 
+  const handleUpload = () => {
+    router.replace('/upload')
+  }
+
   return (
     <header className={styles.header}>
       <div className={`${styles.logoBox} ${styles.glass}`}>
@@ -31,7 +35,7 @@ export default function Header() {
         <nav className={styles.nav}>
           <a>Universe</a>
           <a>Trending</a>
-          <a>Live</a>
+          <a onClick={handleUpload} >Upload</a>
           <a onClick={handleLogout}>Logout</a>
         </nav>
       </div>
@@ -41,7 +45,7 @@ export default function Header() {
           <input placeholder="Explore universes..." />
         </div> */}
 
-        <div className={`${styles.iconBtn} ${styles.glass}`}>🔔</div>
+        {/* <div className={`${styles.iconBtn} ${styles.glass}`}>🔔</div> */}
 
         {/* <div
           className={styles.avatarSmall}
@@ -65,7 +69,7 @@ export default function Header() {
         <div className={`${styles.mobileMenu} ${styles.glass}`}>
           <a>Universe</a>
           <a>Trending</a>
-          <a>Live</a>
+          <a onClick={handleUpload} className={styles.logoutMobile}>Upload</a>
           <a onClick={handleLogout} className={styles.logoutMobile}>
             Logout
           </a>

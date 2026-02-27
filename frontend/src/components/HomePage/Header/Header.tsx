@@ -26,10 +26,10 @@ export default function Header() {
 
       {/* Right Actions */}
       <div className={styles.actions}>
-        <button className={`${styles.iconBtn} glass-dark`}>
+        {/* <button className={`${styles.iconBtn} glass-dark`}>
           <span className="material-symbols-outlined">notifications</span>
           <span className={styles.dot}></span>
-        </button>
+        </button> */}
         
         <Link href={userValidates() ? 'upload' : 'login'}>
         <button className={`${styles.uploadBtn} glass-dark`}>

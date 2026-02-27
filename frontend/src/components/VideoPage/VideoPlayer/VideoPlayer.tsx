@@ -77,11 +77,37 @@ export default function VideoPlayer({ src, videoId }: Props) {
     setMuted(v.muted);
   };
 
-  const toggleFullScreen = () => {
-    const container = videoRef.current?.parentElement!;
-    if (!document.fullscreenElement) container.requestFullscreen();
-    else document.exitFullscreen();
-  };
+  // const toggleFullScreen = () => {
+  //   const container = videoRef.current?.parentElement!;
+  //   if (!document.fullscreenElement) container.requestFullscreen();
+  //   else document.exitFullscreen();
+  // };
+
+ const toggleFullScreen = async () => {
+  const container = videoRef.current?.parentElement;
+  if (!container) return;
+
+  try {
+    if (!document.fullscreenElement) {
+      await container.requestFullscreen();
+
+      const orientation = (screen as any).orientation;
+
+      if (orientation?.lock) {
+        await orientation.lock("landscape");
+      }
+    } else {
+      await document.exitFullscreen();
+
+      const orientation = (screen as any).orientation;
+      if (orientation?.unlock) {
+        orientation.unlock();
+      }
+    }
+  } catch (err) {
+    console.log("Fullscreen/Rotation error:", err);
+  }
+};
 
   // const toggleFullScreen = async () => {
   //   const container = videoRef.current?.parentElement;
@@ -250,35 +276,7 @@ export default function VideoPlayer({ src, videoId }: Props) {
     return () => clearInterval(interval);
   }, []);
 
-  //   useEffect(() => {
-  //   const video = videoRef.current;
-  //   if (!video || !src) return;
-
-  //   // If HLS stream
-  //   if (src.endsWith(".m3u8")) {
-  //     // Safari (native HLS support)
-  //     if (video.canPlayType("application/vnd.apple.mpegurl")) {
-  //       video.src = src;
-  //     }
-  //     // Chrome, Edge, etc.
-  //     else if (Hls.isSupported()) {
-  //       const hls = new Hls({
-  //         enableWorker: true,
-  //         lowLatencyMode: true,
-  //       });
-
-  //       hls.loadSource(src);
-  //       hls.attachMedia(video);
-
-  //       return () => {
-  //         hls.destroy();
-  //       };
-  //     }
-  //   } else {
-  //     // Normal MP4 fallback
-  //     video.src = src;
-  //   }
-  // }, [src]);
+ 
   useEffect(() => {
     const video = videoRef.current;
     if (!video || !src) return;
@@ -455,21 +453,7 @@ export default function VideoPlayer({ src, videoId }: Props) {
                 fullscreen
               </span>
             </div>
-            {/* {qualities.length > 0 && (
-              <select
-                value={selectedQuality}
-                onChange={(e) => changeQuality(Number(e.target.value))}
-                onClick={(e) => e.stopPropagation()}
-                className={styles.qualitySelector}
-              >
-                <option value={-1}>Auto</option>
-                {qualities.map((level, index) => (
-                  <option key={index} value={index}>
-                    {level.height}p
-                  </option>
-                ))}
-              </select>
-            )} */}
+             
           </div>
         </div>
       </div>

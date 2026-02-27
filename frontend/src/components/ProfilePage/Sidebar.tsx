@@ -41,14 +41,14 @@ export default function Sidebar() {
       </div>
 
       {/* PERKS (UNCHANGED) */}
-      <div className={`${styles.perks} ${styles.glass}`}>
+      {/* <div className={`${styles.perks} ${styles.glass}`}>
         <h4>Universe Perks</h4>
         <p>
           Join the inner circle for exclusive 8K downloads and BTS process
           videos.
         </p>
         <button>Upgrade Access</button>
-      </div>
+      </div> */}
     </aside>
   );
 }

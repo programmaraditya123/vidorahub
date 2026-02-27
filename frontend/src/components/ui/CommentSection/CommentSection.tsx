@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import styles from "./CommentSection.module.scss";
 import { http } from "@/src/lib/http";
 import { getVideoId } from "@/src/utils/videoStorage";
 import fallbackThumbnail from "../../../images/sample1.png";
+import VidorahubIcon from "@/src/icons/VidorahubIcon";
 
 interface User {
   _id: string;
@@ -40,9 +41,7 @@ export default function CommentsSection() {
       .then((res) => setComments(res.data.data));
   }, [videoId]);
 
-  // ======================
-  // OPTIMISTIC INSERT
-  // ======================
+ 
   const insertReply = (
     tree: Comment[],
     parentId: string,
@@ -112,9 +111,17 @@ export default function CommentsSection() {
     }
   };
 
-  // ======================
-  // RECURSIVE COMMENT
-  // ======================
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+
+const autoResize = () => {
+  const el = textareaRef.current;
+  if (!el) return;
+
+  el.style.height = "auto";                // reset first
+  el.style.height = el.scrollHeight + "px"; // grow to content
+};
+
+ 
   const CommentItem = ({
     comment,
     depth = 0,
@@ -150,16 +157,16 @@ export default function CommentsSection() {
 
         <p className={styles.text}>{comment.content}</p>
 
-        <div className={styles.actions}>
+        {/* <div className={styles.actions}>
           <span
             className="material-symbols-outlined"
             onClick={() => setReplyTo(comment._id)}
           >
             reply
           </span>
-        </div>
+        </div> */}
 
-        {replyTo === comment._id && (
+        {/* {replyTo === comment._id && (
           <div className={styles.replyBox}>
             <input
               className={styles.input}
@@ -176,7 +183,7 @@ export default function CommentsSection() {
               </span>
             </button>
           </div>
-        )}
+        )} */}
 
         {comment.replies?.map((r) => (
           <CommentItem
@@ -192,17 +199,22 @@ export default function CommentsSection() {
   return (
     <div className={styles.wrapper}>
       <div className={styles.inputWrapper}>
-        <input
-          className={styles.input}
-          placeholder="Share your thoughts…"
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-        />
+        <textarea
+  ref={textareaRef}
+  className={styles.input}
+  placeholder="Share your thoughts…"
+  value={text}
+  rows={1}
+  onChange={(e) => {
+    setText(e.target.value);
+    autoResize();
+  }}
+/>
         <button
           className={styles.sendBtn}
           onClick={() => handlePost()}
         >
-          <span className="material-symbols-outlined">send</span>
+          <span><VidorahubIcon.SendIcon size={24}/></span>
         </button>
       </div>
 

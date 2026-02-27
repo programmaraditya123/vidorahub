@@ -7,6 +7,7 @@ import VideoCard from "./VideoCard";
 import Link from "next/link";
 import Sidebar from "@/src/components/HomePage/Sidebar/Sidebar";
 import { getNextVideos } from "@/src/lib/video/videodata";
+import VidoraHubLoader from "@/src/components/ui/VidoraHubLoader/VidoraHubLoader";
 
 export default function SearchPage() {
   const [videos, setVideos] = useState<any[]>([]);
@@ -104,11 +105,11 @@ export default function SearchPage() {
             onChange={(e) => setSearch(e.target.value)}
             />
           </div>
-
+{/* 
           <div className={styles.userActions}>
             <button className={styles.bell}>🔔</button>
             <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCe..." />
-          </div>
+          </div> */}
         </div>
       </header>
 
@@ -129,7 +130,7 @@ export default function SearchPage() {
         {/* Infinite scroll trigger */}
         <div ref={loaderRef} style={{ height: 40 }} />
 
-        {loading && <p>Loading...</p>}
+        {loading && <p><VidoraHubLoader/></p>}
         {/* {!hasNext && <p>No more videos</p>} */}
       </main>
     </div>
