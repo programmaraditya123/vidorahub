@@ -81,13 +81,13 @@ export default function LoginPage() {
           <div className={styles.glassCard}>
             <div className={styles.header}>
               <p className={styles.portal}>PORTAL INTERFACE</p>
-              <h1>Access Portal</h1>
-              <span>Secure your session in the hub.</span>
+              <h1>Login</h1>
+              {/* <span>Secure your session in the hub.</span> */}
             </div>
 
             <form className={styles.form} onSubmit={onSignin}>
               <div className={styles.field}>
-                <label>Identity</label>
+                <label>Email</label>
                 <input
                   type="email"
                   placeholder="Email address"
@@ -99,7 +99,7 @@ export default function LoginPage() {
               </div>
 
               <div className={styles.field}>
-                <label>Credentials</label>
+                <label>Password</label>
                 <input
                   type="password"
                   placeholder="••••••••"
@@ -117,8 +117,8 @@ export default function LoginPage() {
 
             <div className={styles.footer}>
               <p>
-                New to the stream?
-                <Link href="/signup">Join the Hub</Link>
+                Don't have account?
+                <Link href="/signup">Signin the VidoraHub</Link>
               </p>
             </div>
           </div>
