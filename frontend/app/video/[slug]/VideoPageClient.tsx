@@ -30,7 +30,12 @@ export default function VideoPageClient() {
   // console.log("id",id)
   // console.log("file Path",filePath)
   const videoId = getVideoId() || id;
-  const item = localStorage.setItem("currentVideoId", id);
+  // const item = localStorage.setItem("currentVideoId", id);
+  useEffect(() => {
+  if (id) {
+    localStorage.setItem("currentVideoId", id);
+  }
+}, [id]);
 
   const [videoMeta, setVideoMeta] = useState<any>(null);
   const [loading, setLoading] = useState(true);
