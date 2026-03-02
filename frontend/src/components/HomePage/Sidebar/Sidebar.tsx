@@ -9,10 +9,11 @@ import { usePathname } from "next/navigation";
 export default function Sidebar() {
   const pathName = usePathname();
   const menu = [
-    { icon: "home", label: "Home" , link: '/'},
-    { icon: "search", label: "search" , link : '/search' },
-    { icon: "subscriptions", label: "Subscriptions" , link : '/vibes'},
-    { icon: "history", label: "History" , link : '/history'},
+    { icon: "home", label: "Home", link: "/" },
+    { icon: "search", label: "search", link: "/search" },
+    { icon: "animated_images", label: "Subscriptions", link: "/vibes" },
+    // { icon: "history", label: "History" , link : '/history'},
+    { icon: "currency_rupee", label: "earn", link: "/earn" },
   ];
 
   return (
@@ -27,23 +28,26 @@ export default function Sidebar() {
         {menu.map((item) => {
           const isActive = pathName === item.link;
           return (
-          <div key={item.label} className={`${styles.link} ${isActive ? 'neon-glow' : ''}`}>
-            <Link href={item.link}>
-            <span className="material-symbols-outlined">{item.icon}</span>
-            <span className={`${styles.tooltip} glass`}>{item.label}</span>
-            </Link>
-          </div>
-          )
+            <div
+              key={item.label}
+              className={`${styles.link} ${isActive ? "neon-glow" : ""}`}
+            >
+              <Link href={item.link}>
+                <span className="material-symbols-outlined">{item.icon}</span>
+                <span className={`${styles.tooltip} glass`}>{item.label}</span>
+              </Link>
+            </div>
+          );
         })}
 
         {/* Divider */}
         <div className={styles.divider} />
 
         {/* Profile */}
-        <Link href={userValidates() ? '/profile' : '/signup'}>
-        <div
-          className={styles.profile}
-        ><VidorahubIcon.UserIcon height={32} width={32}/></div>
+        <Link href={userValidates() ? "/profile" : "/signup"}>
+          <div className={styles.profile}>
+            <VidorahubIcon.UserIcon height={28} width={28} />
+          </div>
         </Link>
       </nav>
     </aside>

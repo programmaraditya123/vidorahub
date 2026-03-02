@@ -21,6 +21,11 @@ export default function Header() {
     router.replace('/upload')
   }
 
+
+  const handleEarn = () => {
+    router.replace('/earn')
+  }
+
   return (
     <header className={styles.header}>
       <div className={`${styles.logoBox} ${styles.glass}`}>
@@ -33,8 +38,8 @@ export default function Header() {
 
         {/* Desktop Nav */}
         <nav className={styles.nav}>
-          <a>Universe</a>
-          <a>Trending</a>
+          <a>Dashboard</a>
+          <a onClick={handleEarn}>Earning</a>
           <a onClick={handleUpload} >Upload</a>
           <a onClick={handleLogout}>Logout</a>
         </nav>
@@ -68,7 +73,7 @@ export default function Header() {
       {menuOpen && (
         <div className={`${styles.mobileMenu} ${styles.glass}`}>
           <a>Universe</a>
-          <a>Trending</a>
+          <a onClick={handleEarn} className={styles.logoutMobile}>Earning</a>
           <a onClick={handleUpload} className={styles.logoutMobile}>Upload</a>
           <a onClick={handleLogout} className={styles.logoutMobile}>
             Logout
