@@ -1,6 +1,6 @@
+"use client"
 export const dynamic = "force-static";
 
-"use client"
 
 import VideoPageClient from "./VideoPageClient";
 // import { decodeFilename } from "@/src/functions";
