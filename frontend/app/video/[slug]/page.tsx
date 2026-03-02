@@ -1,3 +1,5 @@
+"use client"
+
 import VideoPageClient from "./VideoPageClient";
 // import { decodeFilename } from "@/src/functions";
 // import { getVideoMetadataExceptCommentsDocs } from "@/src/lib/video/videodata";
