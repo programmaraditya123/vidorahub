@@ -14,6 +14,10 @@ const nextConfig: NextConfig = {
     ],
   },
 
+  output: "standalone",
+
+   
+
   // If you really need this custom field:
   allowedDevOrigins: ["local-origin.dev", "*.local-origin.dev"],
 };
