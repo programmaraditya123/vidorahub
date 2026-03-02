@@ -174,13 +174,25 @@ background: radial-gradient(
   a {
     cursor: pointer;
     transition: color 0.3s;
+    text-decoration: none;
+    
   }
   a:hover {
+    color: $primary;
+  }
+  p:hover {
     color: $primary;
   }
 
   @media (min-width: 768px) {
     display: flex;
+  }
+  p{
+    cursor: pointer;
+    transition: color 0.3s;
+    color: white;
+    text-decoration: none;
+
   }
 }
 
@@ -282,12 +294,19 @@ background: radial-gradient(
     cursor: pointer;
     font-size: 0.9rem;
     color: white;
+    text-decoration: none;
   }
 }
 
 .logoutMobile {
   color: #ff4d4d;
   font-weight: 600;
+  a{
+    text-decoration: none;
+  }
+  p{
+    text-decoration: none;
+  }
 }
 
 /* Make search responsive */

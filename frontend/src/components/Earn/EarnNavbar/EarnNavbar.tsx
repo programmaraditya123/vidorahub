@@ -12,7 +12,7 @@ export default function EarnNavbar() {
   const [open, setOpen] = useState(false);
 
   const navItems = [
-    { name: "Dashboard", href: "/dashboard" },
+    { name: "Dashboard", href: "https://studio.vidorahub.com/" },
     { name: "Earnings", href: "/earn" },
     { name: "Content", href: "/profile" },
   ];
@@ -22,7 +22,9 @@ export default function EarnNavbar() {
       <div className={styles.inner}>
         {/* LEFT */}
         <div className={styles.logoSection}>
-          <div className={styles.logoIcon}><VidorahubIcon.VidorahubIcon height={28} width={28}/></div>
+          <div className={styles.logoIcon}>
+            <VidorahubIcon.VidorahubIcon height={28} width={28} />
+          </div>
           <span className={styles.logoText}>VidoraHub</span>
         </div>
 
@@ -33,12 +35,13 @@ export default function EarnNavbar() {
 
             return (
               <Link
+                {...(item.name === "Dashboard"
+                  ? { target: "_blank", rel: "noopener noreferrer" }
+                  : {})}
                 key={item.name}
                 href={item.href}
                 onClick={() => setOpen(false)}
-                className={`${styles.link} ${
-                  isActive ? styles.active : ""
-                }`}
+                className={`${styles.link} ${isActive ? styles.active : ""}`}
               >
                 {item.name}
               </Link>
@@ -49,21 +52,22 @@ export default function EarnNavbar() {
         {/* RIGHT */}
         <div className={styles.actions}>
           <button className={styles.iconBtn}>
-            <VidorahubIcon.BellAlertIcon  />
+            <VidorahubIcon.BellAlertIcon />
           </button>
 
           <button className={styles.iconBtn}>
-            <VidorahubIcon.SettingsIcon  />
+            <VidorahubIcon.SettingsIcon />
           </button>
 
           <div className={styles.avatar}>A</div>
 
           {/* Hamburger */}
-          <button
-            className={styles.menuBtn}
-            onClick={() => setOpen(!open)}
-          >
-            {open ? <VidorahubIcon.CrossIcon size={20} color="#fff"/> : <VidorahubIcon.HamburgerIcon size={20} color="#fff"/>}
+          <button className={styles.menuBtn} onClick={() => setOpen(!open)}>
+            {open ? (
+              <VidorahubIcon.CrossIcon size={20} color="#fff" />
+            ) : (
+              <VidorahubIcon.HamburgerIcon size={20} color="#fff" />
+            )}
           </button>
         </div>
       </div>

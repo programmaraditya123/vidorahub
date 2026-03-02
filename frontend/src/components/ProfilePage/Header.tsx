@@ -38,7 +38,9 @@ export default function Header() {
 
         {/* Desktop Nav */}
         <nav className={styles.nav}>
-          <a>Dashboard</a>
+          <Link href={'https://studio.vidorahub.com/'} target="_blank">
+          <p>Dashboard</p>
+          </Link>
           <a onClick={handleEarn}>Earning</a>
           <a onClick={handleUpload} >Upload</a>
           <a onClick={handleLogout}>Logout</a>
@@ -72,7 +74,9 @@ export default function Header() {
       {/* Mobile Dropdown */}
       {menuOpen && (
         <div className={`${styles.mobileMenu} ${styles.glass}`}>
-          <a>Universe</a>
+          <Link href={'https://studio.vidorahub.com/'} target="_blank" className={styles.logoutMobile}>
+          <p>Dashboard</p>
+          </Link>
           <a onClick={handleEarn} className={styles.logoutMobile}>Earning</a>
           <a onClick={handleUpload} className={styles.logoutMobile}>Upload</a>
           <a onClick={handleLogout} className={styles.logoutMobile}>
