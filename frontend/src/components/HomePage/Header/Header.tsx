@@ -30,6 +30,13 @@ export default function Header() {
           <span className="material-symbols-outlined">notifications</span>
           <span className={styles.dot}></span>
         </button> */}
+
+         <Link href={'https://about.vidorahub.com/'} target="_blank">
+        <button className={`${styles.uploadBtn} glass-dark`}>
+          {/* Upload */}
+          {"About"}
+        </button>
+        </Link>
         
         <Link href={userValidates() ? 'upload' : 'login'}>
         <button className={`${styles.uploadBtn} glass-dark`}>
