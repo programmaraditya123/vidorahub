@@ -6,7 +6,7 @@ require("dotenv").config();
 
 const userRegister = async(req,res) => {
     try {
-        const {name,email,password} = req.body;
+        const {name,email,password,role} = req.body;
         if(!name){
             return res.send({message:'Name is required'})
         }
@@ -26,10 +26,19 @@ const userRegister = async(req,res) => {
         }
 
         const hashedPassword = await hashPassword(password);
+
+        const userData = {
+            name,
+            email,
+            password:hashedPassword,
+            userSerialNumber : await getNextNumber("user")
+        }
+
+        if(role !== undefined){
+            userData.role = role;
+        }
         //save to db
-        const user =  await new userProfile({name,email,password:hashedPassword,
-             userSerialNumber : await getNextNumber("user")
-        }).save()
+        const user =  await new userProfile(userData).save()
 
         res.status(200).json({
             success:true,

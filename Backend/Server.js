@@ -4,6 +4,7 @@ const {connectdb} = require('./config/db')
 const authRoute = require('./modules/auth/auth.route')
 const uploadRoute = require('./modules/uploadvideo/uploadvideo.route')
 const videoDataRoute = require('./modules/videodata/videodata.route')
+const studioRoute = require('./modules/studio/studio.route')
 const db = require('./config/db2')
 const viewsRoute = require('./modules/videoviews/videoviews.route')
 // const { deleteOldUploadFiles } = require('./modules/videodata/videodata.helper')
@@ -57,22 +58,7 @@ app.get('/health',(req,res) => {
 })
 
 
-// async function createCollection() {
-//   const collections = await db.listCollections();
-
-//   const exists = collections.some(
-//     (c) => c.name === "video_views_collection"
-//   );
-
-//   if (!exists) {
-//     await db.createCollection("video_views_collection");
-//     console.log("✅ Collection created: video_views_collection");
-//   } else {
-//     console.log("ℹ️ Collection already exists");
-//   }
-// }
-
-// createCollection();
+ 
 
 
 
@@ -88,6 +74,9 @@ app.use('/api/v1',videoDataRoute)
 
 //this routes are for cassandra post views
 app.use('/api/v1',viewsRoute)
+
+//this route handles all studio routes
+app.use('/api/v1',studioRoute)
 
 const PORT = process.env.PORT || 8000;
 

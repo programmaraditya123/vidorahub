@@ -6,6 +6,10 @@ const userProfileSchema = new mongoose.Schema({
         required:true,
         trim:true
     },
+    profilePicUrl : {
+        type :String,
+        trim : true
+    },
     email:{
         type:String,
         required:true,
@@ -48,7 +52,7 @@ const userProfileSchema = new mongoose.Schema({
     ],
      role: {
       type: Number,
-      enum: [0, 1, 2], //0 = user, 1 = creator, 2 = admin
+      enum: [0, 1, 2 , 3], //0 = user, 1 = creator, 2 = admin , 3 = brand
       default: 0,
     },
     userSerialNumber : {

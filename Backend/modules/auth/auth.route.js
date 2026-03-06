@@ -10,7 +10,7 @@ Router.post('/register',userRegister)
 
 Router.post('/userlogin',userLoginController)
 
-Router.post('/signin',requireSignIn,(req,res) => {
+Router.get('/check-session',requireSignIn,(req,res) => {
     res.status(200).json({ok:true,user:req.user})
 })
 
