@@ -19,7 +19,8 @@ db;
 const allowed_origins = [
     "http://localhost:3000",
     "https://vidorahub-v6qk.vercel.app",
-    "https://www.vidorahub.com"
+    "https://www.vidorahub.com",
+    "https://studio.vidorahub.com"
 ]
 
 const corsOptions = {
