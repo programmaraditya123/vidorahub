@@ -21,7 +21,7 @@ const requireSignIn = async (req,res,next) => {
         // console.log("1111111111",decode)
 
          
-        const user = await userProfile.findById(decode._id).select("-password");  
+        const user = await userProfile.findById(decode._id).select("name email role profilePicUrl");  
         // console.log("+++++++++++",user)
          
 
@@ -34,6 +34,7 @@ const requireSignIn = async (req,res,next) => {
         next();
         
     } catch (error) {
+        // console.log("JWT ERROR:", error);
         return res.status(401).json({ message: "Invalid or expired token" });
         
     }

@@ -16,7 +16,7 @@ const bucket = storage.bucket("vidorahub");
 
 async function uploadToGCS(file) {
   return new Promise((resolve, reject) => {
-    const blob = bucket.file(Date.now() + "-" + file.originalname);
+    const blob = bucket.file("profileimages/" + Date.now() + "-" + file.originalname);
 
     const blobStream = blob.createWriteStream({
       resumable: true,
