@@ -1,9 +1,74 @@
 const userProfile = require("../auth/auth.model");
 const { uploadToGCS } = require("../uploadvideo/uploadvideo.helper");
 
-const addBrand = (req, res) => {
+const addBrand = async (req, res) => {
   try {
-  } catch (error) {}
+    const { id } = req.user;
+    const { name, category, established, bio } = req.body;
+
+    const updatedBrand = {
+      name,
+      category,
+      established,
+      bio,
+    };
+
+    const updatedUser = await userProfile.findByIdAndUpdate(
+      id,
+      updatedBrand,
+      { new: true }
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
+
+    return res.status(200).json({
+      message: "Brand information updated successfully",
+      user: updatedUser,
+    });
+
+  } catch (error) {
+    // console.error("Error updating brand info:", error);
+
+    return res.status(500).json({
+      message: "Internal server error for brand info",
+    });
+  }
+};
+
+const getAllBrands = async (req, res) => {
+  try {
+    const brands = await userProfile
+      .find({ role: 3 })
+      .select("name profilePicUrl category location bio")
+      .lean();
+
+    res.status(200).json({ brands });
+  } catch (error) {
+    console.error("Error fetching all brands:", error);
+    res.status(500).json({ message: "Internal server error for fetching brands" });
+  }
+};
+
+const getBrand = async (req, res) => {
+  const { brandId } = req.params;
+  try {
+    const brand = await userProfile
+      .findById(brandId)
+      .select(
+        "name profilePicUrl category location bio",
+      );
+    if (!brand) {
+      return res.status(404).json({ message: "Brand not found" });
+    }
+    res.status(200).json({ brand });
+  } catch (error) {
+    console.error("Error fetching brand:", error);
+    res.status(500).json({ message: "Internal server error for fetching brand" });
+  }
 };
 
 const addProfilePicture = async (req, res) => {
@@ -220,7 +285,7 @@ const addExperience = async (req, res) => {
 const deleteExperience = async (req, res) => {
   try {
     const { id } = req.user;
-    const { experienceId } = req.params;  
+    const { experienceId } = req.params;
     const creator = await userProfile.findById(id);
 
     if (!creator) {
@@ -247,6 +312,85 @@ const deleteExperience = async (req, res) => {
   }
 };
 
+const getAllCreators = async (req, res) => {
+  try {
+    const { name, niche, location, page = 1, limit = 10 } = req.query;
+
+    const pageNum = parseInt(page);
+    const limitNum = parseInt(limit);
+
+    const skip = (pageNum - 1) * limitNum;
+
+    /* BASE QUERY */
+
+    const query = {
+      role: 1,
+      location: { $exists: true, $ne: "" },
+    };
+
+    /* NAME SEARCH */
+
+    if (name) {
+      query.name = { $regex: name, $options: "i" };
+    }
+
+    /* NICHE FILTER */
+
+    if (niche && niche !== "All Niches") {
+      query.tags = { $regex: niche, $options: "i" };
+    }
+
+    /* LOCATION FILTER */
+
+    if (location) {
+      query.location = { $regex: location, $options: "i" };
+    }
+
+    const creators = await userProfile
+      .find(query)
+      .select("name profilePicUrl location tags platforms bio")
+      .skip(skip)
+      .limit(limitNum)
+      .lean();
+
+    const totalCreators = await userProfile.countDocuments(query);
+
+    const totalPages = Math.ceil(totalCreators / limitNum);
+
+    res.status(200).json({
+      creators,
+      pagination: {
+        total: totalCreators,
+        page: pageNum,
+        limit: limitNum,
+        totalPages,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Internal server error for getting creators",
+    });
+  }
+};
+
+const getOneCreator = async (req, res) => {
+  const { creatorId } = req.params;
+  try {
+    const creator = await userProfile
+      .findById(creatorId)
+      .select(
+        "-password -email -createdAt -role -updatedAt -__v -subscriber -totalviews -totalvideos -uploads -userSerialNumber -channelname",
+      );
+    if (!creator) {
+      return res.status(404).json({ message: "Creator not found" });
+    }
+    res.status(200).json({ creator });
+  } catch (error) {
+    console.error("Error fetching creator:", error);
+    res.status(500).json({ message: "Internal server error for fetching creator" });
+  }
+};
+
 module.exports = {
   addBrand,
   addProfilePicture,
@@ -257,4 +401,9 @@ module.exports = {
   deleteShowcaseContent,
   addExperience,
   deleteExperience,
+  getAllCreators,
+  getAllBrands,
+  getBrand,
+  getOneCreator
+
 };
