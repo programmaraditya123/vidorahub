@@ -16,6 +16,10 @@
 # next.js
 /.next/
 /out/
+/android/
+./android/
+/.idea/
+.android/
 
 # production
 /build
@@ -23,6 +27,7 @@
 # misc
 .DS_Store
 *.pem
+*.xml
 
 # debug
 npm-debug.log*
