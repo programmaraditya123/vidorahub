@@ -16,6 +16,7 @@
     "@google-cloud/storage": "^7.18.0",
     "bcrypt": "^6.0.0",
     "cors": "^2.8.5",
+    "cross-env": "^10.1.0",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
     "geoip-lite": "^1.4.10",

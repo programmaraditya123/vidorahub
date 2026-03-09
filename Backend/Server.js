@@ -10,6 +10,9 @@ const viewsRoute = require('./modules/videoviews/videoviews.route')
 // const { deleteOldUploadFiles } = require('./modules/videodata/videodata.helper')
 // const fs = require("fs");
 // const path = require("path");
+const dns = require("dns");
+
+dns.setDefaultResultOrder("ipv4first");
 
 const app = express()
 

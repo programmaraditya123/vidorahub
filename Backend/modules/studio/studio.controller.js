@@ -1,7 +1,7 @@
 const userProfile = require("../auth/auth.model");
 const { uploadToGCS } = require("../uploadvideo/uploadvideo.helper");
 
-const addBrand = async (req, res) => {
+const addBrand = async (req, res) => { 
   try {
     const { id } = req.user;
     const { name, category, established, bio } = req.body;
