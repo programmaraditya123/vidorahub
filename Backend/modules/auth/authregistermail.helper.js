@@ -57,7 +57,7 @@ const sendWelcomeEmail = async (email, name = "Creator") => {
           <!-- Header -->
           <tr>
             <td align="center" style="padding-bottom:20px;">
-              <h2 style="margin:0; color:#111;">VidoraHub 🚀</h2>
+              <h2 style="margin:0; color:#111;">VidoraHub</h2>
               <p style="margin:5px 0 0; color:#777; font-size:13px;">Built for Creators</p>
             </td>
           </tr>
@@ -65,7 +65,7 @@ const sendWelcomeEmail = async (email, name = "Creator") => {
           <!-- Title -->
           <tr>
             <td>
-              <h3 style="margin:0; color:#111;">Welcome aboard 🙌</h3>
+              <h3 style="margin:0; color:#111;">Welcome aboard</h3>
               <p style="color:#555; font-size:14px;">Hi ${name},</p>
             </td>
           </tr>
@@ -83,7 +83,7 @@ const sendWelcomeEmail = async (email, name = "Creator") => {
               </p>
 
               <p style="color:#555; font-size:14px;">
-                Start exploring, uploading, and growing today 🚀
+                Start exploring, uploading, and growing today
               </p>
             </td>
           </tr>
@@ -143,7 +143,7 @@ const sendWelcomeEmail = async (email, name = "Creator") => {
           <tr>
             <td style="padding-top:20px;">
               <p style="font-size:12px; color:#999; text-align:center;">
-                Let’s build, grow, and create something impactful together 🚀
+                Let’s build, grow, and create something impactful together
               </p>
               <p style="font-size:12px; color:#bbb; text-align:center;">
                 — VidoraHub Team
@@ -163,7 +163,7 @@ const sendWelcomeEmail = async (email, name = "Creator") => {
 
   return sendEmail({
     to: email,
-    subject: "Welcome to VidoraHub 🚀",
+    subject: "Welcome to VidoraHub",
     html,
   });
 };
@@ -197,7 +197,7 @@ const sendLoginEmail = async (email, name = "Sir/Madam") => {
           <!-- Title -->
           <tr>
             <td>
-              <h3 style="margin:0; color:#111;">You're logged in ✅</h3>
+              <h3 style="margin:0; color:#111;">You're logged in</h3>
               <p style="color:#555; font-size:14px;">Hi ${name},</p>
             </td>
           </tr>
@@ -210,7 +210,7 @@ const sendLoginEmail = async (email, name = "Sir/Madam") => {
               </p>
 
               <p style="color:#555; font-size:14px;">
-                If this was you, you're all set 👍
+                If this was you, you're all set
               </p>
 
               <p style="color:#d9534f; font-size:13px;">
@@ -230,7 +230,7 @@ const sendLoginEmail = async (email, name = "Sir/Madam") => {
           <tr>
             <td>
               <p style="font-size:14px; color:#111; margin:0;">
-                We’d love your feedback 🙌
+                We’d love your feedback
               </p>
 
               <p style="font-size:13px; color:#666; line-height:1.6;">
@@ -270,7 +270,7 @@ const sendLoginEmail = async (email, name = "Sir/Madam") => {
           <tr>
             <td style="padding-top:20px;">
               <p style="font-size:12px; color:#999; text-align:center;">
-                Thanks for being part of VidoraHub 🚀
+                Thanks for being part of VidoraHub
               </p>
             </td>
           </tr>
