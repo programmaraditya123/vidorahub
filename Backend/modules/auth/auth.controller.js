@@ -3,6 +3,7 @@ const {hashPassword,comparePassword} = require('./auth.helper')
 const jwt = require('jsonwebtoken');
 const { getNextNumber } = require('../counter/counter.controller');
 require("dotenv").config();
+const {sendLoginEmail,sendWelcomeEmail} = require('./authregistermail.helper')
 
 const userRegister = async(req,res) => {
     try {
@@ -39,6 +40,8 @@ const userRegister = async(req,res) => {
         }
         //save to db
         const user =  await new userProfile(userData).save()
+
+        await sendWelcomeEmail(email,name)
 
         res.status(200).json({
             success:true,
@@ -86,6 +89,9 @@ const userLoginController = async (req,res) => {
         }
 
         const token = await jwt.sign({_id:user._id},process.env.JWT_SECRET,{expiresIn:"7d"})
+
+        await sendLoginEmail(email,user.name)
+
 
         return res.status(200).send({
             success:true,
