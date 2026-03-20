@@ -36,6 +36,8 @@ const sendEmail = async ({ to, subject, html }) => {
   }
 };
 
+
+
 const sendWelcomeEmail = async (email, name = "Creator") => {
   const html = `
 <!DOCTYPE html>
