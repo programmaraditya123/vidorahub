@@ -2,7 +2,7 @@
 
 import Sidebar from "@/src/components/HomePage/Sidebar/Sidebar";
 // import UnderDevelopment from "@/src/components/UnderDevelopment/UnderDevelopment";
-import styles from "./vibes.module.scss";
+import styles from "../vibes.module.scss";
 import VibesFeed from "@/src/components/uploadVibe/vibesFeed/VibesFeed";
 
 export default function VibesPage() {

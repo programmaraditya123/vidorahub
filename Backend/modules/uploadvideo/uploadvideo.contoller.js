@@ -206,39 +206,80 @@ const getAllVideosController = async (req, res) => {
   }
 };
 
+// const getVibesController = async (req, res) => {
+//   try {
+//     const page = Math.max(parseInt(req.query.page) || 1, 1);
+//     const limit = Math.min(Math.max(parseInt(req.query.limit) || 20, 1), 100);
+//     const skip = (page - 1) * limit;
+
+//     const filter = {
+//       isDeleted: { $ne: true },
+//       contentType: "vibe",
+//     };
+
+//     const [items, total] = await Promise.all([
+//       Video.find(filter)
+//         .select("-description -tags -visibility -category -updatedAt -__v -stats.comments -stats.dislikes")
+//         .populate({ path: "uploader", select: "name _id userSerialNumber subscriber"})
+//         .sort({ createdAt: -1 })
+//         .skip(skip)
+//         .limit(limit)
+//         .lean(),
+//       Video.countDocuments(filter),
+//     ]);
+
+//     const totalPages = Math.max(Math.ceil(total / limit), 1);
+
+//     res.json({
+//       ok: true,
+//       page,
+//       limit,
+//       total,
+//       totalPages,
+//       hasNextPage: page < totalPages,
+//       hasPrevPage: page > 1,
+//       items,
+//     });
+//   } catch (err) {
+//     console.error("getVibes error:", err);
+//     res.status(500).json({ ok: false, message: "Failed to load vibes" });
+//   }
+// };
+
+
 const getVibesController = async (req, res) => {
   try {
-    const page = Math.max(parseInt(req.query.page) || 1, 1);
-    const limit = Math.min(Math.max(parseInt(req.query.limit) || 20, 1), 100);
-    const skip = (page - 1) * limit;
+    const limit = Math.min(Math.max(parseInt(req.query.limit) || 2, 1), 10);
+    const cursor = req.query.cursor; // last video _id
 
     const filter = {
       isDeleted: { $ne: true },
       contentType: "vibe",
     };
 
-    const [items, total] = await Promise.all([
-      Video.find(filter)
-        .select("-description -tags -visibility -category -updatedAt -__v -stats.comments -stats.dislikes")
-        .populate({ path: "uploader", select: "name _id userSerialNumber subscriber"})
-        .sort({ createdAt: -1 })
-        .skip(skip)
-        .limit(limit)
-        .lean(),
-      Video.countDocuments(filter),
-    ]);
+    // 👉 Cursor logic (IMPORTANT)
+    if (cursor) {
+      filter._id = { $lt: cursor }; // fetch older videos
+    }
 
-    const totalPages = Math.max(Math.ceil(total / limit), 1);
+    const items = await Video.find(filter)
+      .select("-description -tags -visibility -category -updatedAt -__v -stats.comments -stats.dislikes")
+      .populate({
+        path: "uploader",
+        select: "name _id userSerialNumber subscriber",
+      })
+      .sort({ _id: -1 }) // IMPORTANT: use _id for cursor
+      .limit(limit)
+      .lean();
+
+    const nextCursor =
+      items.length > 0 ? items[items.length - 1]._id : null;
 
     res.json({
       ok: true,
-      page,
-      limit,
-      total,
-      totalPages,
-      hasNextPage: page < totalPages,
-      hasPrevPage: page > 1,
       items,
+      nextCursor,
+      hasMore: items.length === limit,
     });
   } catch (err) {
     console.error("getVibes error:", err);
