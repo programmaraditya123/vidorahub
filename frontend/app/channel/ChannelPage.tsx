@@ -27,6 +27,13 @@ type UploadVideo = {
   stats: VideoStats;
 };
 
+type Platform = {
+  _id?: string;
+  platform: string;
+  url: string;
+  audience: number;
+};
+
 type ProfileData = {
   _id: string;
   name: string;
@@ -38,6 +45,9 @@ type ProfileData = {
   role: number;
   createdAt: string;
   updatedAt: string;
+  bio?:string;
+  profilePicUrl?:string;
+  platforms?:Platform[];
 };
 
 type CreatorProfileResponse = {
@@ -94,7 +104,7 @@ export default function ChannelPage({ id }: ChannelPageProps) {
               <MasonryGrid2 uploads={uploads} />
             </section>
 
-            <Sidebar />
+           <Sidebar bio={profileData?.bio} platforms={profileData?.platforms} />
           </main>
 
           <Footer />
