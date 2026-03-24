@@ -11,6 +11,7 @@ import Footer from "@/src/components/ProfilePage/Footer";
 import { getCreatorProfileData } from "@/src/lib/video/videodata";
 import Sidebar1 from "@/src/components/HomePage/Sidebar/Sidebar";
 import VidoraHubLoader from "@/src/components/ui/VidoraHubLoader/VidoraHubLoader";
+import { platform } from "os";
 
 type VideoStats = {
   views: number;
@@ -27,6 +28,13 @@ type UploadVideo = {
   stats: VideoStats;
 };
 
+type Platform = {
+  _id?: string;
+  platform: string;
+  url: string;
+  audience: number;
+};
+
 type ProfileData = {
   _id: string;
   name: string;
@@ -38,6 +46,9 @@ type ProfileData = {
   role: number;
   createdAt: string;
   updatedAt: string;
+  bio?:string;
+  profilePicUrl?:string;
+  platforms?:Platform[];
 };
 
 type CreatorProfileResponse = {
@@ -89,7 +100,7 @@ export default function ProfilePage() {
           </section>)}
           
           <div>
-            <Sidebar />
+            <Sidebar bio={profileData?.bio} platforms={profileData?.platforms} />
           </div>
           
         </main>

@@ -391,6 +391,18 @@ const getOneCreator = async (req, res) => {
   }
 };
 
+
+// const getCreatorBasicInfo = async (req,res) => {
+//   try {
+//     const {id} = req.user;
+//     const creator = await userProfile.findById(id).select("")
+    
+//   } catch (error) {
+//     return res.status(500).json({message : "unable to fetch creator basic info"})
+    
+//   }
+// }
+
 module.exports = {
   addBrand,
   addProfilePicture,

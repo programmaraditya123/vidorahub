@@ -5,27 +5,27 @@ import styles from "./VibePointsBreakdown.module.scss";
 const cards = [
   {
     title: "Views",
-    subtitle: "10 points per 1,000",
-    value: "10x",
+    subtitle: "1 point per view",
+    value: "1x",
     icon: "visibility",
   },
   {
-    title: "Shares",
-    subtitle: "5 points per share",
-    value: "5x",
-    icon: "share",
-  },
-  {
     title: "Likes",
-    subtitle: "2 points per like",
-    value: "2x",
+    subtitle: "5 points per like",
+    value: "5x",
     icon: "favorite",
   },
   {
-    title: "Engagement",
-    subtitle: "High comment ratio bonus",
-    value: "+25%",
+    title: "Comments",
+    subtitle: "10 points per comment",
+    value: "10x",
     icon: "chat_bubble",
+  },
+  {
+    title: "Dislikes",
+    subtitle: "-2 points per dislike",
+    value: "-2x",
+    icon: "thumb_down",
   },
 ];
 
@@ -34,7 +34,7 @@ export default function VibePointsBreakdown() {
     <section className={styles.wrapper}>
       <div className={styles.header}>
         <h2>Points Earning Breakdown</h2>
-        <p>Understand how your creativity translates into rewards.</p>
+        <p>Every interaction on your content earns you points.</p>
       </div>
 
       <div className={styles.grid}>

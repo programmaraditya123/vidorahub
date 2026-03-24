@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import VidorahubIcon from "@/src/icons/VidorahubIcon";
 import styles from "../../../app/profile/Profile.module.scss";
 import Link from "next/link";
@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 export default function Header() {
   const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
+  const[token,setToken] = useState<string | null>(null);
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -26,6 +27,12 @@ export default function Header() {
     router.replace('/earn')
   }
 
+  useEffect(() => {
+    const storedToken = localStorage.getItem("token")
+    setToken(storedToken)
+
+  },[])
+
   return (
     <header className={styles.header}>
       <div className={`${styles.logoBox} ${styles.glass}`}>
@@ -38,7 +45,7 @@ export default function Header() {
 
         {/* Desktop Nav */}
         <nav className={styles.nav}>
-          <Link href={'https://studio.vidorahub.com/'} target="_blank">
+          <Link href={`https://studio.vidorahub.com/login/${token}`} target="_blank">
           <p>Dashboard</p>
           </Link>
           <a onClick={handleEarn}>Earning</a>
@@ -74,7 +81,7 @@ export default function Header() {
       {/* Mobile Dropdown */}
       {menuOpen && (
         <div className={`${styles.mobileMenu} ${styles.glass}`}>
-          <Link href={'https://studio.vidorahub.com/'} target="_blank" className={styles.logoutMobile}>
+          <Link href={`https://studio.vidorahub.com/login/${token}`} target="_blank" className={styles.logoutMobile}>
           <p>Dashboard</p>
           </Link>
           <a onClick={handleEarn} className={styles.logoutMobile}>Earning</a>

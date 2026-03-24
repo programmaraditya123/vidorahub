@@ -33,6 +33,7 @@ function encodeVideo(input, outputDir, resolutions) {
         if (!config) {
           throw new Error(`Unsupported resolution: ${resolution}`);
         }
+        const [width, height] = config.size.split("x");
 
         const resDir = path.join(outputDir, resolution);
         fs.mkdirSync(resDir, { recursive: true });
@@ -46,7 +47,10 @@ function encodeVideo(input, outputDir, resolutions) {
           ffmpeg(input)
             .videoCodec("libx264")
             .audioCodec("aac")
-            .size(config.size)
+            // .size(config.size)
+            .videoFilters(
+              `scale='if(gt(iw,ih),${width},-2)':'if(gt(iw,ih),-2,${height})'`,
+            )
             .addOptions([
               "-preset veryfast",
               "-profile:v main",
@@ -72,7 +76,7 @@ function encodeVideo(input, outputDir, resolutions) {
 
         // Add entry to master playlist
         masterContent += `
-#EXT-X-STREAM-INF:BANDWIDTH=${config.bandwidth},RESOLUTION=${config.size}
+#EXT-X-STREAM-INF:BANDWIDTH=${config.bandwidth},RESOLUTION=${width}x${height}
 ${resolution}/index.m3u8
 `;
       }
@@ -89,11 +93,6 @@ ${resolution}/index.m3u8
 }
 
 module.exports = encodeVideo;
-
-
-
-
-
 
 // const ffmpeg = require("fluent-ffmpeg");
 // const ffmpegPath = require("ffmpeg-static");

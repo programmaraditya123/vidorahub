@@ -894,6 +894,32 @@ background: radial-gradient(
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
+  a{
+    text-decoration: none;
+    font-size: 1.2rem;
+  }
+}
+
+.headerRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.editBtn {
+  font-size: 0.7rem;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(164, 19, 236, 0.15);
+  border: 1px solid rgba(164, 19, 236, 0.4);
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.25s ease;
+
+  &:hover {
+    background: rgba(164, 19, 236, 0.3);
+    transform: translateY(-1px);
+  }
 }
 
 .connectItem {
@@ -910,6 +936,9 @@ background: radial-gradient(
   font-size: 0.8rem;
   cursor: pointer;
   transition: all 0.25s ease;
+  a{
+    text-decoration: none;
+  }
 }
 
 .connectItem:hover {

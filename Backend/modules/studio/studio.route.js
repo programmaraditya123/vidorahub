@@ -42,6 +42,8 @@ router.delete('/deleteExperience/:experienceId',requireSignIn,deleteExperience)
 
 router.get('/getAllCreators',getAllCreators)
 
+// router.get('/creatorBasicInfo',requireSignIn,getCreatorBasicInfo)
+
 
  
 

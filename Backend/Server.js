@@ -7,6 +7,7 @@ const videoDataRoute = require('./modules/videodata/videodata.route')
 const studioRoute = require('./modules/studio/studio.route')
 const db = require('./config/db2')
 const viewsRoute = require('./modules/videoviews/videoviews.route')
+const earningRoute = require('./modules/earning/earning.route')
 // const { deleteOldUploadFiles } = require('./modules/videodata/videodata.helper')
 // const fs = require("fs");
 // const path = require("path");
@@ -81,6 +82,9 @@ app.use('/api/v1',viewsRoute)
 
 //this route handles all studio routes
 app.use('/api/v1',studioRoute)
+
+//this is the earning route
+app.use('/api/v1',earningRoute)
 
 const PORT = process.env.PORT || 8000;
 

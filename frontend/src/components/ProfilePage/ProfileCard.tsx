@@ -7,6 +7,7 @@ type ProfileData = {
   creator: boolean;
   totalviews: number;
   totalvideos: number;
+  profilePicUrl?:string;
 };
 
 type ProfileCardProps = {
@@ -22,7 +23,7 @@ export default function ProfileCard({ data }: ProfileCardProps) {
             <div
               className={styles.avatarLarge}
               style={{
-                backgroundImage:
+                backgroundImage: data?.profilePicUrl ? `url(${encodeURI(data.profilePicUrl)})` : 
                   "url('https://lh3.googleusercontent.com/aida-public/AB6AXuDk4A2vp9K-OQ3Cv_NhDpq9r3E-ub-S3nBqylu_cCRNbPfjMonkPp-XlgKn_IXVHh9eWl-DS8MM4O2GuK7FgnW4OLNg0cBPLYzHDGOFOQsnLg7M5l5AC40w9ywI_oaaQzgT7NuToZpDo8xR0ZgYgeNEJ1594zx9Z1vYVI6KMLj5kWSphOJQfx9GK-nPWWNaMERreWYajFRaKUtUG5oILZKwMO2LRtun3R3Re_fBFjFrf3_rLei3ATVq3CBj1DSsNotoVtzG-e40xDNf')",
               }}
             />
@@ -54,10 +55,7 @@ export default function ProfileCard({ data }: ProfileCardProps) {
           </div>
         </div>
 
-        {/* <div className={styles.joinBox}>
-          <button className={styles.joinBtn}>+</button>
-          <span className={styles.joinLabel}>Join Universe</span>
-        </div> */}
+        
       </div>
     </div>
   );

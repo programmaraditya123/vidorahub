@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import styles from "./EanrNavbar.module.scss";
@@ -10,12 +10,21 @@ import VidorahubIcon from "@/src/icons/VidorahubIcon";
 export default function EarnNavbar() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const [token,setToken] = useState<string | null>(null);
+
+  
 
   const navItems = [
-    { name: "Dashboard", href: "https://studio.vidorahub.com/" },
+    { name: "Dashboard", href: `https://studio.vidorahub.com/login/${token}` },
     { name: "Earnings", href: "/earn" },
     { name: "Content", href: "/profile" },
   ];
+
+  useEffect(() => {
+    const Storedtoken = localStorage.getItem("token");
+    setToken(Storedtoken)
+
+  },[])
 
   return (
     <nav className={styles.navbar}>
