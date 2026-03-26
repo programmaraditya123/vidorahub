@@ -10,11 +10,13 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "concurrently \"nodemon server.js\" \"nodemon src/worker/ResolutionConverterWorker.js\"",
     "start": "node server.js",
-    "build": "echo \"No build step required\""
+    "build": "echo \"No build step required\"",
+    "aditya": "nodemon server.js"
   },
   "dependencies": {
     "@bull-board/api": "^6.18.2",
     "@bull-board/express": "^6.18.2",
+    "@datastax/astra-db-ts": "^2.2.1",
     "@google-cloud/storage": "^7.19.0",
     "axios": "^1.13.5",
     "bullmq": "^5.69.3",

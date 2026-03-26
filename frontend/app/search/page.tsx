@@ -8,6 +8,7 @@ import Link from "next/link";
 import Sidebar from "@/src/components/HomePage/Sidebar/Sidebar";
 import { getNextVideos } from "@/src/lib/video/videodata";
 import VidoraHubLoader from "@/src/components/ui/VidoraHubLoader/VidoraHubLoader";
+import { useUserActivity } from "@/src/hooks/ui/Shared/useUserActivity";
 
 export default function SearchPage() {
   const [videos, setVideos] = useState<any[]>([]);
@@ -19,6 +20,8 @@ export default function SearchPage() {
   const [debouncedSearch, setDebouncedSearch] = useState("");
 
   const loaderRef = useRef<HTMLDivElement | null>(null);
+
+  useUserActivity()
 
   const fetchVideos = async (pageNumber: number, searchValue: string) => {
   if (loading) return;
