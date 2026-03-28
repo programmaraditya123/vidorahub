@@ -1,5 +1,6 @@
 import React, { SVGProps } from 'react';
 
+
 interface VidorahubIconProps extends SVGProps<SVGSVGElement> {
   className?: string;
 }
@@ -557,8 +558,59 @@ const HamburgerIcon: React.FC<IconProps> = ({
 };
 
 
+ 
+
+interface MutedIconProps {
+  size?: number;
+}
+
+const MutedIcon = ({ size = 28 }: MutedIconProps) => {
+  return (
+  <svg
+    fill="#000000"
+    width="80px"
+    height="80px"
+    viewBox="0 0 24 24"
+    id="mute"
+    data-name="Line Color"
+    xmlns="http://www.w3.org/2000/svg"
+    className="icon line-color"
+   
+  >
+    <path
+      id="primary"
+      d="M17,3,10.16,8H6A1,1,0,0,0,5,9v6a1,1,0,0,0,1,1h4.16L17,21Z"
+      style={{
+        fill: "none",
+        stroke: "rgb(0, 0, 0)",
+        strokeLinecap: "round",
+        strokeLinejoin: "round",
+        strokeWidth: 2,
+      }}
+    />
+    <line
+      id="secondary"
+      x1={21}
+      y1={18.63}
+      x2={3}
+      y2={5.37}
+      style={{
+        fill: "none",
+        stroke: "rgb(44, 169, 188)",
+        strokeLinecap: "round",
+        strokeLinejoin: "round",
+        strokeWidth: 2,
+      }}
+    />
+  </svg>
+  );
+};
+
+
+ 
+
 
 
 export default {
   VidorahubIcon, HomeIcon, FollowingIcon, UploadIcon, FileIcon, ProfileCircleIcon, SettingsIcon, SunIcon, MoonIcon, BellAlertIcon, UserIcon,
-  SearchIcon, FilterIcon, LogoutIcon,BarIcon,EyeIcon,SendIcon,CrossIcon,HamburgerIcon}
+  SearchIcon, FilterIcon, LogoutIcon,BarIcon,EyeIcon,SendIcon,CrossIcon,HamburgerIcon,MutedIcon}

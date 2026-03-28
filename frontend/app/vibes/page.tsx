@@ -3,7 +3,8 @@
 import Sidebar from "@/src/components/HomePage/Sidebar/Sidebar";
 // import UnderDevelopment from "@/src/components/UnderDevelopment/UnderDevelopment";
 import styles from "./vibes.module.scss";
-import VibesFeed from "@/src/components/uploadVibe/vibesFeed/VibesFeed";
+// import VibesFeed from "@/src/components/uploadVibe/vibesFeed/VibesFeed";
+import ThreeVibesFeed from "@/src/components/uploadVibe/vibesFeed/ThreeVibesFeed/ThreeVibesFeed";
 
 export default function VibesPage() {
 
@@ -12,7 +13,8 @@ export default function VibesPage() {
       <Sidebar />
 
       <div className={styles.divCenter}>
-        <VibesFeed />
+        {/* <VibesFeed /> */}
+        <ThreeVibesFeed/>
       </div>
     </>
   );

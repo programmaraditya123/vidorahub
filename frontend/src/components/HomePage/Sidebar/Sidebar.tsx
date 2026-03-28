@@ -11,7 +11,7 @@ export default function Sidebar() {
   const menu = [
     { icon: "home", label: "Home", link: "/" },
     { icon: "search", label: "search", link: "/search" },
-    { icon: "animated_images", label: "Subscriptions", link: "/vibes" },
+    { icon: "animated_images", label: "Subscriptions", link: "/vibes/?v=" },
     // { icon: "history", label: "History" , link : '/history'},
     { icon: "currency_rupee", label: "earn", link: "/earn" },
   ];

@@ -1,0 +1,105 @@
+.page {
+  display: flex;
+  background: #000;
+  height: calc(100vh - 8rem);
+  overflow: hidden;
+}
+
+
+.feed {
+  flex: 1;
+  overflow-y: scroll;
+  scroll-snap-type: y mandatory;
+  scrollbar-width: none;
+}
+
+.feed::-webkit-scrollbar {
+  display: none;
+}
+
+
+.vibeCard {
+  height: calc(100vh - 4rem);
+  width: 100%;
+  position: relative;
+  scroll-snap-align: start;
+  // border: 2px solid red;
+
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  background: black;
+}
+
+
+.video {
+  height: 100%;
+  width: 100%;
+  object-fit: contain;
+  background: black;
+}
+
+
+.overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+
+  padding: 20px;
+  padding-bottom: calc(20px + env(safe-area-inset-bottom));
+
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.85),
+    rgba(0, 0, 0, 0.5),
+    transparent
+  );
+}
+
+ 
+
+.meta {
+  color: white;
+  max-width: 85%;
+ 
+}
+
+.title {
+  font-size: 16px;
+  font-weight: 600;
+  margin-top: 8px;
+  margin-left: 0.5rem;
+}
+
+.description {
+  font-size: 14px;
+  opacity: 0.85;
+  margin-top: 6px;
+  line-height: 1.5;
+  margin-bottom: 4rem;
+}
+ 
+@media (min-width: 768px) {
+  .overlay {
+    padding: 28px;
+  }
+
+  .title {
+    font-size: 18px;
+  }
+   
+}
+
+@media (min-width: 1024px) {
+  .overlay {
+    padding: 32px 40px;
+  }
+}
+
+.soundIcon{
+    position: absolute;
+    font-size: 2rem;
+}
