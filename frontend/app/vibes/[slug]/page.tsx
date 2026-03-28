@@ -5,6 +5,7 @@ import Sidebar from "@/src/components/HomePage/Sidebar/Sidebar";
 import styles from "../vibes.module.scss";
 // import VibesFeed from "@/src/components/uploadVibe/vibesFeed/VibesFeed";
 import ThreeVibesFeed from "@/src/components/uploadVibe/vibesFeed/ThreeVibesFeed/ThreeVibesFeed";
+import { Suspense } from "react";
 
 export default function VibesPage() {
 
@@ -14,7 +15,9 @@ export default function VibesPage() {
 
       <div className={styles.divCenter}>
         {/* <VibesFeed /> */}
-        <ThreeVibesFeed/>
+          <Suspense fallback={null}>
+          <ThreeVibesFeed />
+        </Suspense>
       </div>
     </>
   );
