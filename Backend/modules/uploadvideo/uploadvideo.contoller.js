@@ -43,7 +43,7 @@ const getUploadUrlController = async (req, res) => {
     }
 
     const userId = req.user._id.toString();
-    const uniqueFileName = `${Date.now()}-${userId}-${fileName}`;
+    const uniqueFileName = `${Date.now()}-${userId}`;
 
     let filePath;
 
