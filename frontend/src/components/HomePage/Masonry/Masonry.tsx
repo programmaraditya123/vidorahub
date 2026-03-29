@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { getVideos } from "@/src/lib/video/uploadvideo";
 
 import styles from "./Masonry.module.scss";
@@ -32,8 +32,8 @@ export default function Masonry() {
   const [hasNextPage, setHasNextPage] = useState(true);
 
   const loaderRef = useRef<HTMLDivElement | null>(null);
-  const fetchingRef = useRef(false);  
-  const loadedPagesRef = useRef(new Set<number>()); 
+  const fetchingRef = useRef(false);
+  const loadedPagesRef = useRef(new Set<number>());
 
   const loadVideos = async (pageToLoad: number) => {
     if (fetchingRef.current) return;
@@ -78,7 +78,7 @@ export default function Masonry() {
           setPage((prev) => prev + 1);
         }
       },
-      { rootMargin: "200px" }  
+      { rootMargin: "200px" },
     );
 
     observer.observe(loaderRef.current);
@@ -91,28 +91,33 @@ export default function Masonry() {
     loadVideos(page);
   }, [page]);
 
+  const renderedVideos = useMemo(() => {
+    return videos.map((video) => ({
+      _id: video._id,
+      title: video.title,
+      creatorName: video.uploader?.name,
+      thumbnailUrl: video.thumbnailUrl as string,
+      duration: formatDuration(Number(video.duration)),
+      views: video.stats?.views ?? 0,
+      videoUrl: video.videoUrl,
+    }));
+  }, [videos]);
+
   return (
     <>
       <div className={`${styles.masonry} masonry-grid`}>
-        {videos.map((video) => (
+        {renderedVideos.map((video) => (
           <div key={video._id} className={`${styles.item} masonry-item`}>
-            <VideoCard
-              video={{
-                _id: video._id,
-                title: video.title,
-                creatorName: video.uploader?.name,
-                thumbnailUrl: video.thumbnailUrl as string,
-                duration: formatDuration(Number(video.duration)),
-                views: video.stats?.views ?? 0,
-                videoUrl: video.videoUrl,
-              }}
-            />
+            <VideoCard video={video} />
           </div>
         ))}
 
         {loading &&
           Array.from({ length: SKELETON_COUNT }).map((_, i) => (
-            <div key={`skeleton-${i}`} className={`${styles.item} masonry-item`}>
+            <div
+              key={`skeleton-${i}`}
+              className={`${styles.item} masonry-item`}
+            >
               <VideoCardSkeleton />
             </div>
           ))}

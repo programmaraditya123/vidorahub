@@ -40,6 +40,9 @@ export default function VideoPageClient() {
   const [videoMeta, setVideoMeta] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
+  // console.log("res ",videoMeta?.thumbnailUrl)
+ 
+
   const [isMobile, setIsMobile] = useState(false);
   const [activeTab, setActiveTab] = useState(0);
 
@@ -58,6 +61,7 @@ export default function VideoPageClient() {
         setLoading(true);
         const res = await getVideoMetadataExceptCommentsDocs(videoId);
         setVideoMeta(res.data?.data); // ✅ CORRECT FIX
+        
       } catch (error) {
         console.error("Failed to fetch video metadata", error);
       } finally {
@@ -118,7 +122,7 @@ export default function VideoPageClient() {
 
           <main className={styles.center}>
             <div className={styles.fixedPlayer}>
-              <VideoPlayer src={finalVideoSrc} videoId={videoId!} />
+              <VideoPlayer src={finalVideoSrc} videoId={videoId!}  />
             </div>
             {/* ✅ Adaptive source passed here */}
 
@@ -159,7 +163,7 @@ export default function VideoPageClient() {
       ) : (
           <div >
         <div className={styles.mobileLayout}>
-          <VideoPlayer src={finalVideoSrc} videoId={videoId!} />
+          <VideoPlayer src={finalVideoSrc} videoId={videoId!}  />
 
           {/* TABS */}
           <div className={styles.mobileTabs}>

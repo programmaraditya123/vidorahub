@@ -32,6 +32,7 @@ export default function VideoCard({ video }: { video: Video }) {
     if(video?._id){
     // dispatch(setVideoId(video?._id))
     setVideoId(video?._id)
+    localStorage.setItem("thubnailUrl",video?.thumbnailUrl!)
   }
    
 

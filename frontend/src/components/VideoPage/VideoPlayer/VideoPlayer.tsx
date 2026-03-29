@@ -8,6 +8,7 @@ import Hls from "hls.js";
 interface Props {
   src: string;
   videoId: string;
+  
 }
 
 export default function VideoPlayer({ src, videoId }: Props) {
@@ -36,6 +37,7 @@ export default function VideoPlayer({ src, videoId }: Props) {
   const [qualities, setQualities] = useState<any[]>([]);
   const [selectedQuality, setSelectedQuality] = useState<number>(-1); // -1 = auto
   const [showQuality, setShowQuality] = useState(false);
+  const [thumbnail,setThumbnail] = useState("");
 
   const formatTime = (time: number) => {
     if (!time) return "0:00";
@@ -294,7 +296,7 @@ export default function VideoPlayer({ src, videoId }: Props) {
         hls.attachMedia(video);
 
         hls.on(Hls.Events.MANIFEST_PARSED, (_, data) => {
-          console.log("HLS Levels:", data.levels);
+          // console.log("HLS Levels:", data.levels);
           setQualities(data.levels);
         });
 
@@ -319,7 +321,15 @@ export default function VideoPlayer({ src, videoId }: Props) {
     setSelectedQuality(levelIndex);
   };
 
-  // console.log("VIDEO SRC:", src);
+  // console.log("VIDEO SRC:", thumbnail);
+  useEffect(() => {
+    const url = localStorage.getItem("thubnailUrl")
+    if(url){
+      setThumbnail(url)
+    }
+
+
+  },[])
 
   return (
     <div className={styles.playerWrapper}>
@@ -332,7 +342,7 @@ export default function VideoPlayer({ src, videoId }: Props) {
           autoPlay
           playsInline
           preload="metadata"
-          // poster="/thumb.jpg"
+          poster={thumbnail}
           className={styles.video}
           onTimeUpdate={handleTimeUpdate}
           onWaiting={() => setLoading(true)}
