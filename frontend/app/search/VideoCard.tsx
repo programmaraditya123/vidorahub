@@ -9,7 +9,7 @@ interface VideoCardProps {
   creator: string;
   time: string;
   videoUrl : string;
-  id : string
+  id : string;
 }
 
 export default function VideoCard({
@@ -18,7 +18,8 @@ export default function VideoCard({
   creator,
   time,
   videoUrl,
-  id
+  id,
+
 
 }: VideoCardProps) {
     const router = useRouter()
@@ -27,6 +28,8 @@ export default function VideoCard({
       if (!videoUrl) return;
   
       setVideoId(id);
+
+      localStorage.setItem("thubnailUrl",image!)
   
       const lastPart = videoUrl.split("vidorahub/")[1];
       const encoded = encodeFilename(lastPart!+`${id}`);

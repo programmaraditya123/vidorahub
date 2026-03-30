@@ -11,7 +11,6 @@ import Footer from "@/src/components/ProfilePage/Footer";
 import { getCreatorProfileData } from "@/src/lib/video/videodata";
 import Sidebar1 from "@/src/components/HomePage/Sidebar/Sidebar";
 import VidoraHubLoader from "@/src/components/ui/VidoraHubLoader/VidoraHubLoader";
-import { platform } from "os";
 
 type VideoStats = {
   views: number;
