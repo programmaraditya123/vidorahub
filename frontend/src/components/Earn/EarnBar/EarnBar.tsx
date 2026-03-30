@@ -12,7 +12,7 @@ export default function EarnBar({ totalPoints }: EarningsBarProps) {
 
   return (
     <>
-      {/* 🔥 TOP BAR */}
+      {/* TOP BAR */}
       <div className={styles.bar}>
         <div className={styles.left}>
           <p className={styles.label}>Total Points Earned</p>
@@ -24,32 +24,36 @@ export default function EarnBar({ totalPoints }: EarningsBarProps) {
         </button>
       </div>
 
-      {/* 🚧 MODAL */}
+      {/* MODAL */}
       {open && (
         <div className={styles.modalOverlay} onClick={() => setOpen(false)}>
-          <div
-            className={styles.modal}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h3>Withdraw Coming Soon 🚀</h3>
+          <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
 
-            <p>
-              We're currently building a sustainable earning system for creators.
-              Withdrawals will be enabled once VidoraHub secures funding and
-              establishes revenue streams.
+            {/* <div className={styles.modalIcon}>🇮🇳</div> */}
+
+            <h3 className={styles.modalTitle}>Withdrawals aren't open yet</h3>
+
+            <p className={styles.modalBody}>
+              VidoraHub is still growing. Your points are{" "}
+              <strong>safe and recorded</strong> — they'll convert to real money
+              once our platform is fully funded.
             </p>
 
-            <p>
-              Your points are सुरक्षित (safe) and will be fully redeemable in the
-              future. Keep creating and growing 🚀
+            <div className={styles.modalPledge}>
+              {/* <span>🔒</span> */}
+              <p>
+                Every point you earn today <strong>will be paid out</strong>. We promise.
+              </p>
+            </div>
+
+            <p className={styles.modalFooter}>
+              Keep creating — early creators like you will be rewarded first.
             </p>
 
-            <button
-              className={styles.closeBtn}
-              onClick={() => setOpen(false)}
-            >
-              Got it
+            <button className={styles.closeBtn} onClick={() => setOpen(false)}>
+              Got it, I'll keep going
             </button>
+
           </div>
         </div>
       )}

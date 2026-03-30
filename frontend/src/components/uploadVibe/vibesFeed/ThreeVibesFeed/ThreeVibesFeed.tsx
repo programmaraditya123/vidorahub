@@ -1,7 +1,7 @@
 "use client";
 
 import { http } from "@/src/lib/http";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Hls from "hls.js";
 import styles from "./ThreeVibesFeed.module.scss";
 import VibeActions from "../../VibeActionsSidebar/VibeActions";
@@ -27,239 +27,282 @@ interface VibeItem {
   videoSerialNumber: number;
 }
 
+const SCROLL_COOLDOWN_MS = 500;
+const TOUCH_THRESHOLD_PX = 60;
+const WHEEL_THRESHOLD = 100;
+const FETCH_AHEAD_THRESHOLD = 2;
+const PRELOAD_COUNT = 2;
+
 const ThreeVibesFeed = () => {
   const [vibes, setVibes] = useState<VibeItem[]>([]);
   const [cursor, setCursor] = useState("");
   const [hasMore, setHasMore] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const scrollAccumulator = useRef(0);
   const [isMuted, setIsMuted] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
+  const [showMuteHint, setShowMuteHint] = useState(false);
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const hlsRef = useRef<Hls | null>(null);
-  const router = useRouter();
-const searchParams = useSearchParams();
-
-  // 🔥 control refs
-  //   const isScrolling = useRef(false);
+  const scrollAccumulator = useRef(0);
   const lastScrollTime = useRef(0);
+  const isFetchingRef = useRef(false);
+  const initialVideoIdRef = useRef<string | null>(null);
+  const hasInitializedRef = useRef(false);
+  const vibesRef = useRef<VibeItem[]>([]);
+  const hasMoreRef = useRef(true);
 
-  // 🔥 LOAD DATA
-  const loadVibes = async () => {
-    if (!hasMore) return;
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  // Keep refs in sync for use inside event listeners
+  useEffect(() => {
+    vibesRef.current = vibes;
+  }, [vibes]);
+
+  useEffect(() => {
+    hasMoreRef.current = hasMore;
+  }, [hasMore]);
+
+  // ─── FETCH ────────────────────────────────────────────────────────────────
+
+  const loadVibes = useCallback(async (cursorOverride?: string) => {
+    if (isFetchingRef.current || !hasMoreRef.current) return;
+
+    isFetchingRef.current = true;
+    setIsLoading(true);
 
     try {
       const res = await http.get("/api/v1/allvibes", {
-        params: { limit: 3, cursor },
+        params: { limit: 5, cursor: cursorOverride ?? cursor },
       });
 
       setVibes((prev) => [...prev, ...res.data.items]);
-
       setHasMore(res.data.hasMore);
 
       if (res.data.nextCursor) {
         setCursor(res.data.nextCursor);
       }
     } catch (err) {
-      console.log("load error", err);
+      console.error("Vibe load error:", err);
+    } finally {
+      isFetchingRef.current = false;
+      setIsLoading(false);
     }
-  };
+  }, [cursor]);
 
-  // 🔥 SET VIDEO SOURCE
-  const setVideoSource = (vibe: VibeItem) => {
-    const video = videoRef.current;
-    if (!video) return;
+  // ─── HLS / VIDEO SOURCE ───────────────────────────────────────────────────
 
-    // reset
-    video.pause();
-    video.currentTime = 0;
-
+  const destroyHls = useCallback(() => {
     if (hlsRef.current) {
       hlsRef.current.destroy();
       hlsRef.current = null;
     }
+  }, []);
+
+  const setVideoSource = useCallback((vibe: VibeItem) => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    video.pause();
+    video.currentTime = 0;
+    destroyHls();
+
+    const playWhenReady = () => video.play().catch(() => {});
 
     if (vibe.hlsUl && Hls.isSupported()) {
       const hls = new Hls({
-        maxBufferLength: 8,
-        maxMaxBufferLength: 15,
+        maxBufferLength: 10,
+        maxMaxBufferLength: 20,
+        startFragPrefetch: true,
       });
-
-      const src = `https://storage.googleapis.com/vidorahub/${vibe.hlsUl}/master.m3u8`;
-
-      hls.loadSource(src);
+      hls.loadSource(
+        `https://storage.googleapis.com/vidorahub/${vibe.hlsUl}/master.m3u8`
+      );
       hls.attachMedia(video);
-
-      hls.on(Hls.Events.MANIFEST_PARSED, () => {
-        video.play().catch(() => {});
-      });
-
+      hls.on(Hls.Events.MANIFEST_PARSED, playWhenReady);
       hlsRef.current = hls;
     } else {
+      video.removeAttribute("src");
+      video.load();
       video.src = vibe.videoUrl;
-
-      video.onloadeddata = () => {
-        video.play().catch(() => {});
-      };
+      video.preload = "auto";
+      video.onloadedmetadata = playWhenReady;
+      video.onerror = (e) => console.error("Video error:", e);
     }
-  };
+  }, [destroyHls]);
 
-  // 🔥 INITIAL LOAD
-  useEffect(() => {
-    loadVibes();
+  // Preload upcoming videos into hidden <video> elements so the browser
+  // warms its cache before the user actually navigates to them.
+  const preloadUpcoming = useCallback((fromIndex: number) => {
+    for (let i = 1; i <= PRELOAD_COUNT; i++) {
+      const v = vibesRef.current[fromIndex + i];
+      if (!v) break;
+      const el = document.createElement("video");
+      el.src = v.videoUrl;
+      el.preload = "auto";
+      el.muted = true;
+    }
   }, []);
 
-  // 🔥 PLAY VIDEO
+  // ─── INIT ─────────────────────────────────────────────────────────────────
+
+  useEffect(() => {
+    if (hasInitializedRef.current) return;
+    hasInitializedRef.current = true;
+
+    const idFromUrl = searchParams.get("v");
+    if (idFromUrl) initialVideoIdRef.current = idFromUrl;
+
+    loadVibes("");
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Jump to the URL-specified video once vibes are loaded
+  useEffect(() => {
+    if (!initialVideoIdRef.current || vibes.length === 0) return;
+
+    const index = vibes.findIndex((v) => v._id === initialVideoIdRef.current);
+
+    if (index !== -1) {
+      setCurrentIndex(index);
+      initialVideoIdRef.current = null;
+    } else if (hasMore) {
+      loadVibes();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [vibes]);
+
+  // ─── PLAY CURRENT + PRELOAD NEXT ──────────────────────────────────────────
+
   useEffect(() => {
     if (!vibes[currentIndex]) return;
 
     setVideoSource(vibes[currentIndex]);
+    preloadUpcoming(currentIndex);
 
-    // preload next
-    if (vibes[currentIndex + 1]) {
-      const next = document.createElement("video");
-      next.src = vibes[currentIndex + 1].videoUrl;
-      next.preload = "auto";
-    }
+    // Sync URL
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("v", vibes[currentIndex]._id);
+    router.replace(`?${params.toString()}`);
 
-    // fetch more
-    if (currentIndex >= vibes.length - 2 && hasMore) {
+    // Fetch more when approaching the end
+    if (currentIndex >= vibes.length - FETCH_AHEAD_THRESHOLD && hasMore) {
       loadVibes();
     }
-  }, [currentIndex, vibes]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentIndex, vibes.length]);
 
-  // 🔥 SCROLL HANDLER WITH CONTROL
-  const handleScroll = (direction: "up" | "down") => {
+  // ─── NAVIGATION ───────────────────────────────────────────────────────────
+
+  const navigate = useCallback((direction: "up" | "down") => {
     const now = Date.now();
-
-    // smooth but responsive
-    if (now - lastScrollTime.current < 500) return;
-
+    if (now - lastScrollTime.current < SCROLL_COOLDOWN_MS) return;
     lastScrollTime.current = now;
 
     setCurrentIndex((prev) => {
-      if (direction === "down") {
-        return Math.min(prev + 1, vibes.length - 1);
-      } else {
-        return Math.max(prev - 1, 0);
-      }
+      const total = vibesRef.current.length;
+      if (direction === "down") return Math.min(prev + 1, total - 1);
+      return Math.max(prev - 1, 0);
     });
-  };
+  }, []);
 
-  // 🔥 WHEEL
+  // Wheel
   useEffect(() => {
     const onWheel = (e: WheelEvent) => {
       scrollAccumulator.current += e.deltaY;
-
-      if (Math.abs(scrollAccumulator.current) < 100) return;
-
-      handleScroll(scrollAccumulator.current > 0 ? "down" : "up");
-
-      scrollAccumulator.current = 0; // reset
+      if (Math.abs(scrollAccumulator.current) < WHEEL_THRESHOLD) return;
+      navigate(scrollAccumulator.current > 0 ? "down" : "up");
+      scrollAccumulator.current = 0;
     };
-
     window.addEventListener("wheel", onWheel, { passive: true });
-
     return () => window.removeEventListener("wheel", onWheel);
-  }, [vibes]);
+  }, [navigate]);
 
-  // 🔥 TOUCH
+  // Touch
   useEffect(() => {
     let touchStartY = 0;
-
     const onTouchStart = (e: TouchEvent) => {
       touchStartY = e.touches[0].clientY;
     };
-
     const onTouchEnd = (e: TouchEvent) => {
       const diff = touchStartY - e.changedTouches[0].clientY;
-
-      if (Math.abs(diff) < 60) return;
-
-      handleScroll(diff > 0 ? "down" : "up");
+      if (Math.abs(diff) < TOUCH_THRESHOLD_PX) return;
+      navigate(diff > 0 ? "down" : "up");
     };
-
     window.addEventListener("touchstart", onTouchStart, { passive: true });
     window.addEventListener("touchend", onTouchEnd, { passive: true });
-
     return () => {
       window.removeEventListener("touchstart", onTouchStart);
       window.removeEventListener("touchend", onTouchEnd);
     };
-  }, [vibes]);
+  }, [navigate]);
 
-  const currentVibe = vibes[currentIndex];
+  // Keyboard
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "ArrowDown" || e.key === "j") navigate("down");
+      if (e.key === "ArrowUp" || e.key === "k") navigate("up");
+      if (e.key === " " || e.key === "m") toggleMute();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [navigate]);
 
-  const handleVideoClick = () => {
+  // Cleanup HLS on unmount
+  useEffect(() => () => destroyHls(), [destroyHls]);
+
+  // ─── MUTE TOGGLE ─────────────────────────────────────────────────────────
+
+  const toggleMute = useCallback(() => {
     const video = videoRef.current;
     if (!video) return;
 
-    if (isMuted) {
-      video.muted = false;
-      video.volume = 1;
-      setIsMuted(false);
-    } else {
-      video.muted = true;
-      setIsMuted(true);
-    }
-  };
+    const next = !isMuted;
+    video.muted = next;
+    if (!next) video.volume = 1;
+    setIsMuted(next);
 
+    // Briefly flash the hint icon
+    setShowMuteHint(true);
+    setTimeout(() => setShowMuteHint(false), 1200);
+  }, [isMuted]);
 
+  // ─── RENDER ───────────────────────────────────────────────────────────────
 
-  useEffect(() => {
-  if (!vibes[currentIndex]) return;
-
-  const id = vibes[currentIndex]._id;
-
-  const params = new URLSearchParams(searchParams.toString());
-  params.set("v", id);
-
-  router.replace(`?${params.toString()}`);
-}, [currentIndex, vibes]);
-
-const initialVideoIdRef = useRef<string | null>(null);
-
-useEffect(() => {
-  const idFromUrl = searchParams.get("v");
-
-  if (idFromUrl) {
-    initialVideoIdRef.current = idFromUrl;
-  }
-
-  loadVibes(); // normal load
-}, []);
-
-useEffect(() => {
-  if (!initialVideoIdRef.current || vibes.length === 0) return;
-
-  const index = vibes.findIndex(
-    (v) => v._id === initialVideoIdRef.current
-  );
-
-  if (index !== -1) {
-    setCurrentIndex(index);
-    initialVideoIdRef.current = null; // prevent re-run
-  } else {
-    // 🔥 NOT FOUND → LOAD MORE UNTIL FOUND
-    if (hasMore) {
-      loadVibes();
-    }
-  }
-}, [vibes]);
+  const currentVibe = vibes[currentIndex];
 
   return (
     <div className={styles.feed}>
       <div className={styles.vibeCard}>
+        {/* Loading skeleton shown before first vibe loads */}
+        {!currentVibe && isLoading && (
+          <div className={styles.skeleton} aria-label="Loading…" />
+        )}
+
         <video
           ref={videoRef}
           className={styles.video}
           poster={currentVibe?.thumbnailUrl}
-          onClick={handleVideoClick}
+          onClick={toggleMute}
           playsInline
           muted={isMuted}
           loop
           autoPlay
         />
+
+        {/* Animated mute/unmute feedback */}
+        <div
+          className={`${styles.muteOverlay} ${showMuteHint ? styles.muteVisible : ""}`}
+          aria-hidden="true"
+        >
+          {isMuted ? (
+            <VidorahubIcon.MutedIcon />
+          ) : (
+            ''
+          )}
+        </div>
 
         {currentVibe && (
           <>
@@ -271,13 +314,29 @@ useEffect(() => {
 
             <div className={styles.overlay}>
               <VibeMeta uploader={currentVibe.uploader} />
-              <p>{currentVibe.title}</p>
 
-              {currentVibe.description && <p>{currentVibe.description}</p>}
+              <p className={styles.title}>{currentVibe.title}</p>
+
+              {currentVibe.description && (
+                <p className={styles.description}>{currentVibe.description}</p>
+              )}
             </div>
           </>
         )}
-        <div className={styles.soundIcon}>{isMuted ? <VidorahubIcon.MutedIcon/> : ""}</div>
+
+        {/* Navigation dots for spatial awareness */}
+        {vibes.length > 1 && (
+          <div className={styles.dotTrack} aria-label="Video progress">
+            {vibes.map((_, i) => (
+              <button
+                key={i}
+                className={`${styles.dot} ${i === currentIndex ? styles.dotActive : ""}`}
+                onClick={() => setCurrentIndex(i)}
+                aria-label={`Go to video ${i + 1}`}
+              />
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

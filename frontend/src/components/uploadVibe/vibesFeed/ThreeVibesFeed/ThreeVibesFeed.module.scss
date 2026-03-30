@@ -1,105 +1,217 @@
+// ─── Variables ────────────────────────────────────────────────────────────────
+$overlay-gradient: linear-gradient(
+  to top,
+  rgba(0, 0, 0, 0.92) 0%,
+  rgba(0, 0, 0, 0.55) 40%,
+  transparent 100%
+);
+
+// ─── Layout ───────────────────────────────────────────────────────────────────
 .page {
   display: flex;
   background: #000;
-  height: calc(100vh - 8rem);
+  height: calc(100dvh - 8rem); // dvh: better mobile support than vh
   overflow: hidden;
 }
-
 
 .feed {
   flex: 1;
   overflow-y: scroll;
   scroll-snap-type: y mandatory;
   scrollbar-width: none;
+  overscroll-behavior: contain; // prevents scroll bleed into parent page
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
 
-.feed::-webkit-scrollbar {
-  display: none;
-}
-
-
+// ─── Card ─────────────────────────────────────────────────────────────────────
 .vibeCard {
-  height: calc(100vh - 4rem);
-  width: 100%;
   position: relative;
+  width: 100%;
+  height: calc(100dvh - 4rem);
   scroll-snap-align: start;
-  // border: 2px solid red;
-
-
   display: flex;
   justify-content: center;
   align-items: center;
-
-  background: black;
+  background: #000;
+  overflow: hidden;
 }
 
-
+// ─── Video ────────────────────────────────────────────────────────────────────
 .video {
-  height: 100%;
+  position: absolute;
+  inset: 0;
   width: 100%;
+  height: 100%;
   object-fit: contain;
-  background: black;
+  background: #000;
+  cursor: pointer;
 }
 
+// ─── Skeleton loader ──────────────────────────────────────────────────────────
+.skeleton {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    110deg,
+    #111 25%,
+    #1c1c1c 50%,
+    #111 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.6s infinite linear;
+  z-index: 1;
+}
 
+@keyframes shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+// ─── Overlay ──────────────────────────────────────────────────────────────────
 .overlay {
   position: absolute;
   bottom: 0;
   left: 0;
   right: 0;
-
   padding: 20px;
-  padding-bottom: calc(20px + env(safe-area-inset-bottom));
+  padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+  background: $overlay-gradient;
+  pointer-events: none; // let clicks through to video; children opt back in
+  z-index: 2;
+  pointer-events: all;
 
-  background: linear-gradient(
-    to top,
-    rgba(0, 0, 0, 0.85),
-    rgba(0, 0, 0, 0.5),
-    transparent
-  );
+  // Animate in when a new vibe loads
+  animation: overlayFadeIn 0.35s ease forwards;
 }
 
- 
-
-.meta {
-  color: white;
-  max-width: 85%;
- 
+@keyframes overlayFadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 .title {
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 600;
-  margin-top: 8px;
-  margin-left: 0.5rem;
+  color: #fff;
+  margin: 8px 0 0 0;
+  line-height: 1.4;
+  letter-spacing: 0.01em;
+  text-shadow: 0 1px 6px rgba(0,0,0,0.5);
+  pointer-events: auto;
 }
 
 .description {
-  font-size: 14px;
-  opacity: 0.85;
-  margin-top: 6px;
-  line-height: 1.5;
-  margin-bottom: 4rem;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.82);
+  margin: 6px 0 0 0;
+  line-height: 1.55;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  pointer-events: auto;
 }
- 
+
+// ─── Mute overlay (tap feedback) ──────────────────────────────────────────────
+.muteOverlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3rem;
+  pointer-events: none;
+  z-index: 10;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+
+  svg, span {
+    background: rgba(0, 0, 0, 0.55);
+    border-radius: 50%;
+    padding: 0.6rem;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+  }
+}
+
+.muteVisible {
+  opacity: 1;
+  animation: mutePop 1.2s ease forwards;
+}
+
+@keyframes mutePop {
+  0%   { opacity: 0;    transform: scale(0.7); }
+  15%  { opacity: 1;    transform: scale(1.1); }
+  30%  { transform: scale(1); }
+  70%  { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+// ─── Navigation dots ──────────────────────────────────────────────────────────
+.dotTrack {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  z-index: 5;
+  max-height: 60vh;
+  overflow: hidden;
+}
+
+.dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.35);
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease, height 0.2s ease;
+  flex-shrink: 0;
+}
+
+.dotActive {
+  background: #fff;
+  height: 16px;
+  border-radius: 2px;
+  transform: none;
+}
+
+// ─── Responsive ───────────────────────────────────────────────────────────────
 @media (min-width: 768px) {
   .overlay {
-    padding: 28px;
+    padding: 28px 28px calc(28px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .title {
+    font-size: 17px;
+  }
+
+  .description {
+    font-size: 14px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .overlay {
+    padding: 32px 40px calc(32px + env(safe-area-inset-bottom, 0px));
   }
 
   .title {
     font-size: 18px;
   }
-   
 }
 
-@media (min-width: 1024px) {
-  .overlay {
-    padding: 32px 40px;
-  }
-}
-
-.soundIcon{
-    position: absolute;
-    font-size: 2rem;
+// ─── Reduced motion ───────────────────────────────────────────────────────────
+@media (prefers-reduced-motion: reduce) {
+  .skeleton         { animation: none; background: #1c1c1c; }
+  .overlay          { animation: none; }
+  .muteOverlay,
+  .muteVisible      { animation: none; transition: none; }
 }
