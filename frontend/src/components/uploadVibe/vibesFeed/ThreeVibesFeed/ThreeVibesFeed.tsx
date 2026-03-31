@@ -313,7 +313,7 @@ const ThreeVibesFeed = () => {
             />
 
             <div className={styles.overlay}>
-              <VibeMeta uploader={currentVibe.uploader} />
+              <VibeMeta uploader={currentVibe.uploader} key={currentVibe.uploader._id} />
 
               <p className={styles.title}>{currentVibe.title}</p>
 

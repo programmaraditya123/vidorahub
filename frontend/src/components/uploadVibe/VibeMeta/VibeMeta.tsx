@@ -27,6 +27,8 @@ export default function VibeMeta({ uploader }: Props) {
   );
   const [loading, setLoading] = useState(false);
 
+  console.log("following",uploader)
+
   const creatorId = uploader._id;
   const creatorSerialNumber = uploader.userSerialNumber;
 
