@@ -80,7 +80,7 @@ $overlay-gradient: linear-gradient(
   padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px));
   background: $overlay-gradient;
   pointer-events: none; // let clicks through to video; children opt back in
-  z-index: 2;
+  z-index: 20;
   pointer-events: all;
 
   // Animate in when a new vibe loads

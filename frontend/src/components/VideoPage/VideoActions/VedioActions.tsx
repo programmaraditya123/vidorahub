@@ -10,14 +10,17 @@ import {
   getVideoReactions,
 } from "@/src/lib/video/likesDislikes";
 import ShareBlade from "../../ui/ShareBlade/ShareBlade";
+import AuthModal from "../../shared/AuthModal/AuthModal";
 
 interface Props {
   videoSerialNumber: number;
-  thumbnailUrl : string;
-
+  thumbnailUrl: string;
 }
 
-export default function VideoActions({ videoSerialNumber ,thumbnailUrl}: Props) {
+export default function VideoActions({
+  videoSerialNumber,
+  thumbnailUrl,
+}: Props) {
   const [likeCount, setLikeCount] = useState(0);
   const [dislikeCount, setDislikeCount] = useState(0);
   const [liked, setLiked] = useState(false);
@@ -27,8 +30,9 @@ export default function VideoActions({ videoSerialNumber ,thumbnailUrl}: Props) 
 
   const [userSerialNumber, setUserSerialNumber] = useState<number | null>(null);
   const [authChecked, setAuthChecked] = useState(false);
-  const [fullUrl,setFullUrl] = useState('')
-
+  const [fullUrl, setFullUrl] = useState("");
+  const [showModal,setShowModal] = useState(false);
+  const [modalMessage, setModalMessage] = useState("");
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -48,7 +52,7 @@ export default function VideoActions({ videoSerialNumber ,thumbnailUrl}: Props) 
       try {
         const res = await getVideoReactions(
           videoSerialNumber,
-          userSerialNumber ?? undefined
+          userSerialNumber ?? undefined,
         );
 
         setLiked(res.liked);
@@ -63,8 +67,13 @@ export default function VideoActions({ videoSerialNumber ,thumbnailUrl}: Props) 
     loadReactions();
   }, [authChecked, videoSerialNumber]);
 
-
   const handleLike = async () => {
+    
+      if (!userSerialNumber) {
+      setModalMessage("Sign in to like this video.");
+      setShowModal(true);
+      return;
+    }
     if (loading || !userSerialNumber) return;
 
     setLoading(true);
@@ -83,8 +92,12 @@ export default function VideoActions({ videoSerialNumber ,thumbnailUrl}: Props) 
     }
   };
 
-
   const handleDislike = async () => {
+      if (!userSerialNumber) {
+      setModalMessage("Sign in to dislike this video.");
+      setShowModal(true);
+      return;
+    }
     if (loading || !userSerialNumber) return;
 
     setLoading(true);
@@ -104,47 +117,52 @@ export default function VideoActions({ videoSerialNumber ,thumbnailUrl}: Props) 
   };
 
   useEffect(() => {
-      setFullUrl(window.location.href)
-  },[])
+    setFullUrl(window.location.href);
+  }, []);
 
   return (
-    <div className={styles.actionsWrapper}>
-      <div className={styles.likeBar}>
-        <button
-          className={`${styles.likeBtn} ${liked ? styles.activeLike : ""}`}
-          onClick={handleLike}
-          disabled={loading || !userSerialNumber}
-        >
-          <span className="material-symbols-outlined">thumb_up</span>
-          <span className={styles.likeCount}>{likeCount}</span>
-        </button>
+    <>
+      <div className={styles.actionsWrapper}>
+        <div className={styles.likeBar}>
+          <button
+            className={`${styles.likeBtn} ${liked ? styles.activeLike : ""}`}
+            onClick={handleLike}
+            disabled={loading}
+          >
+            <span className="material-symbols-outlined">thumb_up</span>
+            <span className={styles.likeCount}>{likeCount}</span>
+          </button>
 
-        <div className={styles.divider}></div>
+          <div className={styles.divider}></div>
 
-        <button
-          className={`${styles.dislikeBtn} ${disliked ? styles.activeDislike : ""
+          <button
+            className={`${styles.dislikeBtn} ${
+              disliked ? styles.activeDislike : ""
             }`}
-          onClick={handleDislike}
-          disabled={loading || !userSerialNumber}
-        >
-          <span className="material-symbols-outlined">thumb_down</span>
-          <span className={styles.likeCount}>{dislikeCount}</span>
-        </button>
-      </div>
+            onClick={handleDislike}
+            disabled={loading }
+          >
+            <span className="material-symbols-outlined">thumb_down</span>
+            <span className={styles.likeCount}>{dislikeCount}</span>
+          </button>
+        </div>
 
-      <button
-        className={styles.shareBtn}
-        onClick={() => setShareOpen(true)}
-      >
-        <span className="material-symbols-outlined">share</span>
-        <span>Share</span>
-      </button>
-      <ShareBlade
-        isOpen={shareOpen}
-        onClose={() => setShareOpen(false)}
-        thumbnailUrl={thumbnailUrl}
-        link={fullUrl}
+        <button className={styles.shareBtn} onClick={() => setShareOpen(true)}>
+          <span className="material-symbols-outlined">share</span>
+          <span>Share</span>
+        </button>
+        <ShareBlade
+          isOpen={shareOpen}
+          onClose={() => setShareOpen(false)}
+          thumbnailUrl={thumbnailUrl}
+          link={fullUrl}
+        />
+      </div>
+      <AuthModal
+        isOpen={showModal}
+        onClose={() => setShowModal(false)}
+        message={modalMessage}
       />
-    </div>
+    </>
   );
 }

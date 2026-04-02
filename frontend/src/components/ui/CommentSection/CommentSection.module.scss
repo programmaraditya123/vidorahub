@@ -1,12 +1,18 @@
+// ─── CommentSection.module.scss ──────────────────────────────────────────────
+
 .wrapper {
-  // margin-top: 2rem;
-  padding: 0.5rem;
+  padding: 0.5rem 0.5rem;
   display: flex;
   flex-direction: column;
   gap: 1.4rem;
+
+  @media (max-width: 480px) {
+    gap: 1rem;
+  }
 }
 
-/* HEADER */
+// ─── HEADER ───────────────────────────────────────────────────────────────────
+
 .header {
   display: flex;
   align-items: center;
@@ -14,34 +20,310 @@
 }
 
 .title {
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   font-weight: 700;
+
+  @media (max-width: 480px) {
+    font-size: 1rem;
+  }
 }
 
 .count {
-  font-size: 0.7rem;
+  font-size: 0.68rem;
   color: var(--primary);
   text-transform: uppercase;
   letter-spacing: 0.12em;
   font-weight: 700;
 }
 
-/* INPUT */
+// ─── INPUT ────────────────────────────────────────────────────────────────────
+
 .inputWrapper {
   position: relative;
-  min-height: fit-content;
 }
+
+.input {
+  width: 100%;
+  min-height: 44px;
+  max-height: 140px;
+  resize: none;
+  overflow-y: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+
+  // Right padding reserves space for the send button
+  padding: 12px 48px 12px 16px;
+  box-sizing: border-box;
+
+  border-radius: 1.2rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  outline: none;
+  color: white;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  font-family: inherit;
+  transition: border-color 0.2s ease;
+
+  &::placeholder {
+    color: rgba(255, 255, 255, 0.35);
+  }
+
+  &:focus {
+    border-color: var(--primary);
+    background: rgba(255, 255, 255, 0.07);
+  }
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 0.85rem;
+    padding: 11px 44px 11px 14px;
+    border-radius: 1rem;
+  }
+}
+
+.sendBtn {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  padding: 6px;
+  cursor: pointer;
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background 0.2s ease, opacity 0.2s ease;
+
+  &:hover {
+    background: rgba(164, 19, 236, 0.12);
+    opacity: 0.85;
+  }
+
+  svg {
+    display: block;
+    width: 22px;
+    height: 22px;
+
+    @media (max-width: 480px) {
+      width: 20px;
+      height: 20px;
+    }
+  }
+}
+
+// ─── COMMENT LIST ─────────────────────────────────────────────────────────────
+
+.commentList {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+
+  @media (max-width: 480px) {
+    gap: 1rem;
+  }
+}
+
+// ─── COMMENT ROW ──────────────────────────────────────────────────────────────
+
+.commentRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+
+  @media (max-width: 480px) {
+    gap: 0.5rem;
+  }
+}
+
+// ─── AVATAR ───────────────────────────────────────────────────────────────────
+
+.avatar {
+  border-radius: 50%;
+  flex-shrink: 0; // never squish on narrow screens
+  object-fit: cover;
+}
+
+// ─── BUBBLE ───────────────────────────────────────────────────────────────────
+
+.bubble {
+  flex: 1;
+  min-width: 0; // allows text to truncate/wrap inside flex child
+  padding: 0.85rem 1rem;
+  border-radius: 1.2rem;
+  border-top-left-radius: 0.4rem;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.03);
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+
+  &:hover {
+    border-color: rgba(164, 19, 236, 0.3);
+    box-shadow: 0 0 18px -6px rgba(164, 19, 236, 0.35);
+  }
+
+  @media (max-width: 480px) {
+    padding: 0.75rem 0.85rem;
+    border-radius: 1rem;
+    border-top-left-radius: 0.35rem;
+  }
+}
+
+.optimistic {
+  opacity: 0.55;
+}
+
+// ─── META ROW ─────────────────────────────────────────────────────────────────
+
+.meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 5px;
+}
+
+.username {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.creator {
+  text-shadow: 0 0 10px rgba(164, 19, 236, 0.7);
+}
+
+.time {
+  font-size: 0.62rem;
+  color: rgba(255, 255, 255, 0.38);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+// ─── COMMENT TEXT ─────────────────────────────────────────────────────────────
+
+.text {
+  font-size: 0.88rem;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.88);
+  word-break: break-word; // prevents long URLs / words from overflowing
+  overflow-wrap: anywhere;
+
+  @media (max-width: 480px) {
+    font-size: 0.84rem;
+  }
+}
+
+// ─── ACTIONS ──────────────────────────────────────────────────────────────────
+
+.actions {
+  margin-top: 0.55rem;
+  display: flex;
+  gap: 1rem;
+
+  span {
+    font-size: 16px;
+    cursor: pointer;
+    color: rgba(255, 255, 255, 0.45);
+    transition: color 0.2s ease;
+    user-select: none;
+
+    &:hover {
+      color: var(--primary);
+    }
+  }
+
+  @media (max-width: 480px) {
+    gap: 0.8rem;
+
+    span {
+      font-size: 15px;
+    }
+  }
+}
+
+
+// .wrapper {
+//   // margin-top: 2rem;
+//   padding: 0.5rem;
+//   display: flex;
+//   flex-direction: column;
+//   gap: 1.4rem;
+// }
+
+// /* HEADER */
+// .header {
+//   display: flex;
+//   align-items: center;
+//   justify-content: space-between;
+// }
+
+// .title {
+//   font-size: 1.2rem;
+//   font-weight: 700;
+// }
+
+// .count {
+//   font-size: 0.7rem;
+//   color: var(--primary);
+//   text-transform: uppercase;
+//   letter-spacing: 0.12em;
+//   font-weight: 700;
+// }
+
+// /* INPUT */
+// .inputWrapper {
+//   position: relative;
+//   min-height: fit-content;
+// }
+
+// // .input {
+// //   width: 100%;
+// //   padding: 14px 18px;
+// //   border-radius: 1.2rem;
+// //   background: rgba(255,255,255,0.05);
+// //   border: 1px solid rgba(255,255,255,0.1);
+// //   outline: none;
+// //   color: white;
+// //   font-size: 0.88rem;
+// //   padding-right: 34px;
+
+// //   &::placeholder {
+// //     color: rgba(255,255,255,0.4);
+// //   }
+
+// //   &:focus {
+// //     border-color: var(--primary);
+// //   }
+// // }
+
 
 // .input {
 //   width: 100%;
-//   padding: 14px 18px;
+//   min-height: 44px;
+//   max-height: 140px;      
+//   resize: none;           
+//   overflow-y: auto;  
+//   scrollbar-width: none;    
+//    -ms-overflow-style: none;
+
+//   padding: 12px 44px 12px 16px;   
+
 //   border-radius: 1.2rem;
 //   background: rgba(255,255,255,0.05);
 //   border: 1px solid rgba(255,255,255,0.1);
 //   outline: none;
 //   color: white;
-//   font-size: 0.88rem;
-//   padding-right: 34px;
+//   font-size: 0.9rem;
+//   line-height: 1.4;
 
 //   &::placeholder {
 //     color: rgba(255,255,255,0.4);
@@ -50,141 +332,112 @@
 //   &:focus {
 //     border-color: var(--primary);
 //   }
+//    &::-webkit-scrollbar {
+//     display: none;             
+//   }
 // }
 
+// .sendBtn {
+//   position: absolute;
+//   right: 12px;
+//   top: 50%;
+//   transform: translateY(-50%);
+//   color: var(--primary);
+//   cursor: pointer;
+//    background: transparent;    
+//   border: none; 
 
-.input {
-  width: 100%;
-  min-height: 44px;
-  max-height: 140px;      
-  resize: none;           
-  overflow-y: auto;  
-  scrollbar-width: none;    
-   -ms-overflow-style: none;
+//   span {
+//     font-size: 24px;
+//     // background: red;
+//     border: none;
+//   }
+//   svg {
+//     display: block;          // removes inline spacing
+//   }
+// }
 
-  padding: 12px 44px 12px 16px;   
+// /* COMMENT LIST */
+// .commentList {
+//   display: flex;
+//   flex-direction: column;
+//   gap: 1.6rem;
+// }
 
-  border-radius: 1.2rem;
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.1);
-  outline: none;
-  color: white;
-  font-size: 0.9rem;
-  line-height: 1.4;
+// /* EACH COMMENT */
+// .commentRow {
+//   display: flex;
+//   align-items: flex-start;
+//   gap: 0.3rem;
+// }
 
-  &::placeholder {
-    color: rgba(255,255,255,0.4);
-  }
+// /* Avatar */
+// .avatar {
+//   border-radius: 50%;
+// }
 
-  &:focus {
-    border-color: var(--primary);
-  }
-   &::-webkit-scrollbar {
-    display: none;             
-  }
-}
+// /* Bubble */
+// .bubble {
+//   padding: 1rem;
+//   border-radius: 1.4rem;
+//   border-top-left-radius: 0.5rem;
+//   border: 1px solid rgba(255,255,255,0.06);
+//   width: 100%;
+//   transition: 0.25s ease;
+// }
 
-.sendBtn {
-  position: absolute;
-  right: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--primary);
-  cursor: pointer;
-   background: transparent;    
-  border: none; 
+// .bubble:hover {
+//   border-color: rgba(164,19,236,0.35);
+//   box-shadow: 0 0 20px -6px rgba(164,19,236,0.4);
+// }
 
-  span {
-    font-size: 24px;
-    // background: red;
-    border: none;
-  }
-  svg {
-    display: block;          // removes inline spacing
-  }
-}
+// /* Username + time */
+// .meta {
+//   display: flex;
+//   justify-content: space-between;
+//   align-items: center;
+//   margin-bottom: 6px;
+// }
 
-/* COMMENT LIST */
-.commentList {
-  display: flex;
-  flex-direction: column;
-  gap: 1.6rem;
-}
+// .username {
+//   font-size: 0.75rem;
+//   font-weight: 700;
+//   color: var(--primary);
+// }
 
-/* EACH COMMENT */
-.commentRow {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.3rem;
-}
+// .creator {
+//   text-shadow: 0 0 10px rgba(164,19,236,0.7);
+// }
 
-/* Avatar */
-.avatar {
-  border-radius: 50%;
-}
+// .time {
+//   font-size: 0.65rem;
+//   color: rgba(255,255,255,0.4);
+// }
 
-/* Bubble */
-.bubble {
-  padding: 1rem;
-  border-radius: 1.4rem;
-  border-top-left-radius: 0.5rem;
-  border: 1px solid rgba(255,255,255,0.06);
-  width: 100%;
-  transition: 0.25s ease;
-}
+// /* Comment text */
+// .text {
+//   font-size: 0.9rem;
+//   line-height: 1.45;
+//   margin-top: 4px;
+//   color: rgba(255,255,255,0.9);
+// }
 
-.bubble:hover {
-  border-color: rgba(164,19,236,0.35);
-  box-shadow: 0 0 20px -6px rgba(164,19,236,0.4);
-}
+// /* Actions */
+// .actions {
+//   margin-top: 0.6rem;
+//   display: flex;
+//   gap: 1.2rem;
 
-/* Username + time */
-.meta {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 6px;
-}
+//   span {
+//     font-size: 17px;
+//     cursor: pointer;
+//     color: rgba(255,255,255,0.5);
+//     transition: 0.25s ease;
 
-.username {
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: var(--primary);
-}
-
-.creator {
-  text-shadow: 0 0 10px rgba(164,19,236,0.7);
-}
-
-.time {
-  font-size: 0.65rem;
-  color: rgba(255,255,255,0.4);
-}
-
-/* Comment text */
-.text {
-  font-size: 0.9rem;
-  line-height: 1.45;
-  margin-top: 4px;
-  color: rgba(255,255,255,0.9);
-}
-
-/* Actions */
-.actions {
-  margin-top: 0.6rem;
-  display: flex;
-  gap: 1.2rem;
-
-  span {
-    font-size: 17px;
-    cursor: pointer;
-    color: rgba(255,255,255,0.5);
-    transition: 0.25s ease;
-
-    &:hover {
-      color: var(--primary);
-    }
-  }
-}
+//     &:hover {
+//       color: var(--primary);
+//     }
+//   }
+// }
 
 
