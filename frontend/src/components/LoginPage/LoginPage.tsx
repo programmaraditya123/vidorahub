@@ -8,6 +8,7 @@ import { useToast } from "@/src/hooks/ui/ToastProvider/ToastProvider";
 import Loader from "@/src/components/ui/loader/Loader";
 import VidorahubIcon from "@/src/icons/VidorahubIcon";
 import Link from "next/link";
+import { GoogleLogin } from "@react-oauth/google";
 
 // Routes that should never be used as a redirect destination
 const AUTH_ROUTES = ["/login", "/signup"];
@@ -36,7 +37,10 @@ export default function LoginPage() {
 
         localStorage.setItem("token", res.token);
         localStorage.setItem("userName", res.user?.name ?? "");
-        localStorage.setItem("userSerialNumber", res.user?.userSerialNumber ?? "");
+        localStorage.setItem(
+          "userSerialNumber",
+          res.user?.userSerialNumber ?? "",
+        );
 
         success("Logged in successfully!");
 
@@ -54,8 +58,56 @@ export default function LoginPage() {
         setLoading(false);
       }
     },
-    [email, password, loading, router, success, toastError]
+    [email, password, loading, router, success, toastError],
   );
+
+  const handleGoogleLogin = async (credentialResponse: any) => {
+    try {
+      setLoading(true);
+
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}api/v1/google-login`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            token: credentialResponse.credential,
+          }),
+        },
+      );
+
+      const data = await res.json();
+
+      if (!data.success) {
+        toastError(data.message || "Google login failed");
+        return;
+      }
+
+      // ✅ SAME AS YOUR LOGIN FLOW
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("userName", data.user?.name ?? "");
+      localStorage.setItem(
+        "userSerialNumber",
+        data.user?.userSerialNumber ?? "",
+      );
+
+      success("Logged in with Google!");
+
+      const savedPath = sessionStorage.getItem("redirectAfterLogin");
+      sessionStorage.removeItem("redirectAfterLogin");
+
+      const destination =
+        savedPath && !AUTH_ROUTES.includes(savedPath) ? savedPath : "/";
+
+      router.replace(destination);
+    } catch (err: any) {
+      toastError("Google login failed");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className={styles.wrapper}>
@@ -137,6 +189,16 @@ export default function LoginPage() {
                 />
               </div>
 
+
+              <div style={{ marginBottom: "16px" }}>
+                <GoogleLogin
+                  onSuccess={handleGoogleLogin}
+                  onError={() => toastError("Google Login Failed")}
+                />
+              </div>
+
+              
+
               <button
                 className={styles.loginBtn}
                 type="submit"
@@ -162,7 +224,6 @@ export default function LoginPage() {
     </div>
   );
 }
-
 
 // "use client";
 
@@ -335,8 +396,6 @@ export default function LoginPage() {
 //   );
 // }
 
-
-
 // "use client";
 
 // import { useState } from "react";
@@ -379,7 +438,7 @@ export default function LoginPage() {
 //       toastError(err.message || "Login failed");
 //     } finally {
 //       setLoading(false);
-      
+
 //     }
 //   };
 

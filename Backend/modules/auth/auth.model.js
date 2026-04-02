@@ -99,7 +99,6 @@ const userProfileSchema = new mongoose.Schema(
     },
     password: {
       type: String,
-      required: true,
     },
     phone: {
       type: String,
@@ -139,6 +138,16 @@ const userProfileSchema = new mongoose.Schema(
     },
     userSerialNumber: {
       type: Number,
+    },
+    provider: {
+      type: String,
+      enum: ["local", "google"],
+      default: "local",
+    },
+    avatar: String,
+    isVerified: {
+      type: Boolean,
+      default: false,
     },
   },
   { timestamps: true },

@@ -1,5 +1,5 @@
 const userProfile = require('./auth.model')
-const {hashPassword,comparePassword} = require('./auth.helper')
+const {hashPassword,comparePassword, verifyGoogleToken} = require('./auth.helper')
 const jwt = require('jsonwebtoken');
 const { getNextNumber } = require('../counter/counter.controller');
 require("dotenv").config();
@@ -111,4 +111,64 @@ const userLoginController = async (req,res) => {
         
     }
 }
-module.exports = {userRegister,userLoginController}
+
+
+const googleAuthController = async (req, res) => {
+  try {
+    const { token } = req.body;
+
+    if (!token) {
+      return res.status(400).json({
+        success: false,
+        message: "Google token missing",
+      });
+    }
+
+    const payload = await verifyGoogleToken(token);
+
+    const { email, name, picture } = payload;
+
+    // 🔍 Check if user exists
+    let user = await userProfile.findOne({ email });
+
+    if (!user) {
+      // 👉 Create new user
+      user = await new userProfile({
+        name,
+        email,
+        avatar: picture,
+        provider: "google",
+        isVerified: true,
+        userSerialNumber: await getNextNumber("user"),
+      }).save();
+    }
+
+    // 🔐 Generate SAME JWT (your system)
+    const jwtToken = jwt.sign(
+      { _id: user._id },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" }
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: "Google login successful",
+      user: {
+        name: user.name,
+        email: user.email,
+        userSerialNumber: user.userSerialNumber,
+      },
+      token: jwtToken,
+    });
+
+  } catch (error) {
+    console.log("Google Auth Error", error);
+    res.status(500).json({
+      success: false,
+      message: "Google authentication failed",
+    });
+  }
+};
+
+
+module.exports = {userRegister,userLoginController,googleAuthController}

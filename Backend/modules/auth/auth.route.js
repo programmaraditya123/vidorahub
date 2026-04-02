@@ -1,5 +1,5 @@
 const express = require('express')
-const {userRegister,userLoginController} = require('./auth.controller')
+const {userRegister,userLoginController, googleAuthController} = require('./auth.controller')
 const {requireSignIn} = require('./auth.middleware')
 
 
@@ -13,6 +13,8 @@ Router.post('/userlogin',userLoginController)
 Router.get('/check-session',requireSignIn,(req,res) => {
     res.status(200).json({ok:true,user:req.user})
 })
+
+Router.post("/google-login", googleAuthController);
 
 
 module.exports = Router;
