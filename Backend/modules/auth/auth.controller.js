@@ -150,6 +150,8 @@ const googleAuthController = async (req, res) => {
       { expiresIn: "7d" }
     );
 
+    await sendLoginEmail(email,name)
+
     return res.status(200).json({
       success: true,
       message: "Google login successful",
