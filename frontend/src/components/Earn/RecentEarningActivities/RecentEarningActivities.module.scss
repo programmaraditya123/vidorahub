@@ -1,13 +1,15 @@
 .wrapper {
-  background: #12121a;
+  background: #ffffff;
   border-radius: 18px;
   padding: 40px 20px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  color: #fff;
+  border: 1px solid rgba(124, 58, 237, 0.12);
+  box-shadow:
+    0 2px 8px rgba(124, 58, 237, 0.05),
+    0 1px 0 rgba(255, 255, 255, 0.9) inset;
+  color: #1a1a2e;
   width: 86%;
   margin: auto;
-  margin-bottom: 6rem
- 
+  margin-bottom: 6rem;
 }
 
 /* HEADER */
@@ -19,14 +21,21 @@
 
   h3 {
     font-size: 18px;
-    font-weight: 600;
+    font-weight: 700;
+    color: #1a1a2e;
   }
 }
 
 .viewAll {
-  color: #c084fc;
+  background: linear-gradient(90deg, #7c3aed, #a855f7);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
   font-size: 14px;
+  font-weight: 600;
   cursor: pointer;
+
+  &:hover { opacity: 0.75; }
 }
 
 /* TABLE */
@@ -41,15 +50,18 @@
 
   th {
     text-align: left;
-    font-size: 12px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
     color: #9ca3af;
     padding-bottom: 12px;
   }
 
   td {
     padding: 16px 0;
-    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    border-top: 1px solid rgba(124, 58, 237, 0.07);
     font-size: 14px;
+    color: #1a1a2e;
   }
 }
 
@@ -63,10 +75,12 @@
   width: 36px;
   height: 36px;
   border-radius: 10px;
-  background: linear-gradient(135deg, #7e22ce, #4c1d95);
+  background: linear-gradient(135deg, #7c3aed, #a855f7);
+  box-shadow: 0 3px 10px rgba(124, 58, 237, 0.25);
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
 
   span {
     font-size: 20px;
@@ -75,20 +89,23 @@
 }
 
 .source {
-  color: #9ca3af;
+  color: #6b7280;
 }
 
 .points {
-  color: #c084fc;
-  font-weight: 600;
+  background: linear-gradient(90deg, #7c3aed, #a855f7);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 700;
 }
 
 .date {
-  color: #94a3b8;
+  color: #9ca3af;
 }
 
 /* ========================= */
-/* MOBILE VERSION */
+/* MOBILE VERSION            */
 /* ========================= */
 
 .mobileList {
@@ -107,10 +124,11 @@
   }
 
   .mobileCard {
-    background: #181824;
+    background: #faf8ff;
     padding: 16px;
     border-radius: 14px;
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(124, 58, 237, 0.1);
+    box-shadow: 0 2px 8px rgba(124, 58, 237, 0.05);
   }
 
   .mobileTop {
@@ -122,11 +140,12 @@
   .mobileAction {
     font-weight: 600;
     font-size: 14px;
+    color: #1a1a2e;
   }
 
   .mobileSource {
     font-size: 12px;
-    color: #9ca3af;
+    color: #6b7280;
   }
 
   .mobileBottom {

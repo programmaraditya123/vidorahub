@@ -3,38 +3,49 @@
   width: 100%;
 }
 
-/* HEADER */
+// ─── HEADER ───────────────────────────────────────────────────────────────────
+
 .header {
   font-size: 0.7rem;
   text-transform: uppercase;
-  color: var(--primary);
-  letter-spacing: 0.20em;
-  font-weight: 700;
+  letter-spacing: 0.2em;
+  font-weight: 800;
   margin-bottom: 1rem;
+  background: var(--primary-grad);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
-/* DESCRIPTION CARD */
+// ─── CARD ─────────────────────────────────────────────────────────────────────
+
 .descriptionBox {
-  background: rgba(0, 0, 0, 0.4);
-  backdrop-filter: blur(28px);
-
-  border-radius: 1.6rem;
-  border: 1px solid rgba(255, 255, 255, 0.06);
-
-  padding: 1.4rem;
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border-radius: 1.25rem;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  padding: 1.4rem 1.6rem;
   position: relative;
+  transition: box-shadow 200ms ease, border-color 200ms ease;
+
+  &:hover {
+    box-shadow: var(--shadow-md);
+    border-color: rgba(124, 58, 237, 0.22);
+  }
 }
 
-/* DESCRIPTION TEXT */
+// ─── TEXT ─────────────────────────────────────────────────────────────────────
+
 .text {
-  font-size: 0.95rem;
-  color: rgba(255, 255, 255, 0.85);
-  line-height: 1.55;
+  font-size: 0.925rem;
+  color: var(--text-secondary, #3d2f6e);
+  line-height: 1.65;
 
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
-
   overflow: hidden;
   transition: all 0.3s ease;
 }
@@ -44,31 +55,42 @@
   overflow: visible;
 }
 
-/* READ MORE BUTTON */
+// ─── READ MORE ────────────────────────────────────────────────────────────────
+
 .readMore {
   margin-top: 1rem;
-
   background: none;
   border: none;
-
   cursor: pointer;
-
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  color: var(--primary);
-
+  font-family: "Be Vietnam Pro", sans-serif;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 3px;
+  transition: gap 200ms ease;
 
-  transition: color 0.25s ease;
+  // Gradient text
+  background: var(--primary-grad);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
 
-  span {
+  span.material-symbols-outlined {
     font-size: 16px;
+    color: var(--primary);
+    -webkit-text-fill-color: var(--primary);
+    transition: transform 200ms cubic-bezier(0.34, 1.56, 0.64, 1);
   }
 
   &:hover {
-    color: white;
+    gap: 6px;
+
+    span.material-symbols-outlined {
+      transform: translateY(2px);
+      color: var(--primary-end);
+      -webkit-text-fill-color: var(--primary-end);
+    }
   }
 }

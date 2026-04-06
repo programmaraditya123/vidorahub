@@ -1,7 +1,7 @@
 .wrapper {
   padding: 40px 20px;
-  background: #0b0b0f;
-  color: #ffffff;
+  background: #ffffff;
+  color: #1a1a2e;
   width: 88%;
   justify-content: center;
   margin: auto;
@@ -12,12 +12,17 @@
 
   h2 {
     font-size: 28px;
-    font-weight: 700;
+    font-weight: 800;
     margin-bottom: 8px;
+    background: linear-gradient(90deg, #7c3aed, #a855f7);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: -0.02em;
   }
 
   p {
-    color: #9ca3af;
+    color: #6b7280;
     font-size: 14px;
   }
 }
@@ -31,16 +36,22 @@
 
 /* CARD */
 .card {
-  background: #12121a;
+  background: #ffffff;
   border-radius: 16px;
   padding: 28px 20px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(124, 58, 237, 0.12);
+  box-shadow:
+    0 2px 8px rgba(124, 58, 237, 0.05),
+    0 1px 0 rgba(255, 255, 255, 0.9) inset;
   text-align: center;
-  transition: 0.3s ease;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
 
   &:hover {
     transform: translateY(-4px);
-    border-color: rgba(168, 85, 247, 0.4);
+    border-color: rgba(124, 58, 237, 0.35);
+    box-shadow:
+      0 8px 28px rgba(124, 58, 237, 0.12),
+      0 1px 0 rgba(255, 255, 255, 0.9) inset;
   }
 }
 
@@ -49,10 +60,11 @@
   height: 60px;
   margin: 0 auto 16px;
   border-radius: 50%;
-  background: radial-gradient(circle, #7e22ce, #4c1d95);
+  background: linear-gradient(135deg, #7c3aed, #a855f7);
   display: flex;
   align-items: center;
   justify-content: center;
+  box-shadow: 0 4px 14px rgba(124, 58, 237, 0.3);
 
   span {
     font-size: 28px;
@@ -67,25 +79,29 @@
 
 .head3 {
   font-size: 16px;
-  font-weight: 600;
+  font-weight: 700;
   margin-bottom: 6px;
+  color: #1a1a2e;
 }
 
 .subtitle {
   font-size: 13px;
-  color: #9ca3af;
+  color: #6b7280;
 }
 
 .divider {
   margin: 18px 0;
   height: 1px;
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(124, 58, 237, 0.08);
 }
 
 .value {
   font-size: 22px;
-  font-weight: 700;
-  color: #c084fc;
+  font-weight: 800;
+  background: linear-gradient(90deg, #7c3aed, #a855f7);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 /* TABLET */

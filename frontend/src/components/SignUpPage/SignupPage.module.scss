@@ -1,9 +1,28 @@
+// ─── THEME TOKENS ─────────────────────────────────────────────────────────────
+// Primary gradient: #7c3aed → #a855f7
+// Navbar bg:        #f6f4fb
+// Page bg:          #ffffff
+// Text/icons grad:  linear-gradient(90deg, #7c3aed, #a855f7)
+
 .wrapper {
-  min-height: 100dvh; // dvh: correct on mobile, vh shifts with browser chrome
-  background: #050505; // solid — instant paint
-  color: white;
-  // Remove font-family — declare Space Grotesk once in layout.tsx, not per page
+  min-height: 100dvh;
+  background: #ffffff;
+  color: #1a1a2e;
   overflow: hidden;
+  position: relative;
+
+  // Subtle grid texture — matches LoginPage
+  &::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(124, 58, 237, 0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(124, 58, 237, 0.04) 1px, transparent 1px);
+    background-size: 48px 48px;
+    pointer-events: none;
+    z-index: 0;
+  }
 }
 
 // ─── NAV ──────────────────────────────────────────────────────────────────────
@@ -12,43 +31,65 @@
   position: absolute;
   top: 0;
   width: 100%;
-  padding: 24px 40px;
+  padding: 0 32px;
+  height: 68px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   z-index: 10;
+  background: #f6f4fb;
+  border-bottom: 1px solid rgba(124, 58, 237, 0.1);
+  box-shadow: 0 1px 0 rgba(124, 58, 237, 0.06), 0 4px 20px rgba(124, 58, 237, 0.04);
 }
 
 .brand {
   display: flex;
   gap: 12px;
   align-items: center;
+
+  h2 {
+    font-size: 18px;
+    font-weight: 700;
+    background: linear-gradient(90deg, #7c3aed, #a855f7);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: -0.02em;
+  }
 }
 
 .loginText {
   font-size: 14px;
-  color: rgba(255, 255, 255, 0.4);
-  border: 1px solid #a413ec;
-  padding: 0.4rem 1rem;
+  font-weight: 600;
+  border: 1.5px solid #7c3aed;
+  padding: 0 18px;
+  height: 36px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 2rem;
-  // GPU-composited only — no repaint on hover
-  transition: background-color 0.2s ease, color 0.2s ease;
+  border-radius: 999px;
   cursor: pointer;
+  transition: background 0.2s ease, box-shadow 0.2s ease;
+  background: transparent;
 
   a {
-    color: #a413ec;
-    font-weight: 600;
+    background: linear-gradient(90deg, #7c3aed, #a855f7);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: 700;
     text-decoration: none;
-    transition: color 0.2s ease;
+    transition: opacity 0.2s ease;
   }
 
   &:hover {
-    background-color: #a413ec;
+    background: linear-gradient(90deg, #7c3aed, #a855f7);
+    box-shadow: 0 4px 15px rgba(124, 58, 237, 0.3);
 
-    a { color: white; }
+    a {
+      -webkit-text-fill-color: white;
+      background: none;
+    }
   }
 }
 
@@ -59,7 +100,9 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 1rem;
+  padding: 28px 16px 32px; // top offset for navbar
+  position: relative;
+  z-index: 1;
 }
 
 // ─── CARD ─────────────────────────────────────────────────────────────────────
@@ -67,31 +110,31 @@
 .cardContainer {
   position: relative;
   width: 100%;
-  max-width: 600px;
+  max-width: 520px;
 }
 
 .step {
-  background: rgba(255, 255, 255, 0.03);
-  // Scoped backdrop-filter — only blurs this card, not the entire viewport
-  backdrop-filter: blur(20px);         // was 28px — imperceptible diff, cheaper
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #ffffff;
+  border: 1px solid rgba(124, 58, 237, 0.12);
+  box-shadow:
+    0 4px 6px rgba(124, 58, 237, 0.04),
+    0 20px 60px rgba(124, 58, 237, 0.08),
+    0 1px 0 rgba(255, 255, 255, 0.8) inset;
   border-radius: 24px;
-  padding: 40px;
-  // Isolate paint — input focus/hover won't repaint the page behind
+  padding: 44px 40px;
   contain: layout paint;
-  // Fade up on mount — single animation, no JS
-  animation: stepIn 0.38s ease both;
+  animation: stepIn 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
 
   @media (max-width: 500px) {
-    padding: 28px;
-    border-radius: 16px;
+    padding: 32px 24px;
+    border-radius: 20px;
+    padding-bottom: 0.5rem;
   }
 }
 
 @keyframes stepIn {
-  from { opacity: 0; transform: translateY(14px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; transform: translateY(20px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 // ─── HEADER ───────────────────────────────────────────────────────────────────
@@ -101,14 +144,30 @@
   margin-bottom: 32px;
 
   h1 {
-    font-size: 32px;
-    margin: 0;
+    font-size: 34px;
+    font-weight: 800;
+    margin: 8px 0 0;
+    letter-spacing: -0.03em;
+    color: #1a1a2e;
+
+    @media (max-width: 500px) { font-size: 26px; }
   }
 
   p {
-    color: rgba(255, 255, 255, 0.4);
+    color: #9ca3af;
     margin: 6px 0 0;
+    font-size: 14px;
   }
+}
+
+.portal {
+  font-size: 10px;
+  letter-spacing: 0.3em;
+  font-weight: 700;
+  background: linear-gradient(90deg, #7c3aed, #a855f7);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 // ─── FORM ─────────────────────────────────────────────────────────────────────
@@ -116,116 +175,150 @@
 .form {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 20px;
 }
 
 .field {
   display: flex;
   flex-direction: column;
+  gap: 6px;
 
   label {
     font-size: 10px;
-    letter-spacing: 0.25em;
-    color: rgba(255, 255, 255, 0.5);
+    letter-spacing: 0.2em;
+    font-weight: 700;
+    color: #9ca3af;
+    text-transform: uppercase;
   }
 
   input {
-    background: transparent;
-    border: none;
-    border-bottom: 2px solid rgba(255, 255, 255, 0.1);
-    color: white;
-    padding: 12px 4px;
-    font-size: 16px; // >= 16px prevents iOS auto-zoom on focus
+    background: #f9f7ff;
+    border: 1.5px solid rgba(124, 58, 237, 0.15);
+    border-radius: 10px;
+    color: #1a1a2e;
+    padding: 12px 16px;
+    font-size: 15px;
     outline: none;
-    transition: border-color 0.2s ease;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
 
-    &::placeholder { color: rgba(255, 255, 255, 0.25); }
-    &:focus { border-bottom-color: #a413ec; }
+    &::placeholder {
+      color: #c4b5fd;
+    }
+
+    &:focus {
+      border-color: #7c3aed;
+      background: #ffffff;
+      box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.08);
+    }
+
+    &:hover:not(:focus) {
+      border-color: rgba(124, 58, 237, 0.3);
+    }
   }
 }
 
 // ─── BUTTON ───────────────────────────────────────────────────────────────────
 
-.nextBtn,
 .signupBtn {
-  margin-top: 16px;
-  // Gradient on a button repaints on every hover if you use filter/opacity wrong
-  // Use background-color transition instead of gradient animation for perf
-  background: linear-gradient(90deg, #6b0f9c, #a413ec, #6b0f9c);
+  margin-top: 8px;
+  background: linear-gradient(90deg, #7c3aed, #a855f7);
   border: none;
-  border-radius: 999px;
+  border-radius: 12px;
   padding: 14px;
   color: white;
   font-size: 15px;
-  font-weight: bold;
-  letter-spacing: 0.1em;
+  font-weight: 700;
+  letter-spacing: 0.01em;
   cursor: pointer;
-  // opacity + transform: GPU-composited, zero repaint cost
-  transition: opacity 0.2s ease, transform 0.15s ease;
+  position: relative;
+  overflow: hidden;
+  transition: opacity 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+  box-shadow: 0 4px 15px rgba(124, 58, 237, 0.35), 0 1px 0 rgba(255,255,255,0.15) inset;
+
+  // Shimmer sweep
+  &::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 60%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.5s ease;
+  }
 
   &:hover:not(:disabled) {
-    opacity: 0.85;
-    transform: translateY(-1px);
+    opacity: 0.92;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(124, 58, 237, 0.4), 0 1px 0 rgba(255,255,255,0.15) inset;
+
+    &::after { left: 150%; }
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0);
   }
 
   &:disabled {
-    opacity: 0.5;
+    opacity: 0.55;
     cursor: not-allowed;
   }
 }
 
-// ─── MISC (kept for future steps) ─────────────────────────────────────────────
+// ─── FOOTER ───────────────────────────────────────────────────────────────────
 
-.vibeCloud {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 16px;
-}
+.footer {
+  margin-top: 24px;
+  font-size: 14px;
+  text-align: center;
+  color: #6b7280;
 
-.vibeBubble {
-  padding: 12px 20px;
-  border-radius: 999px;
-  background: rgba(164, 19, 236, 0.1);
-  border: 1px solid rgba(164, 19, 236, 0.3);
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  cursor: pointer;
-  transition: transform 0.2s ease, background 0.2s ease;
+  a {
+    background: linear-gradient(90deg, #7c3aed, #a855f7);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: 700;
+    text-decoration: none;
+    padding: 8px;
+    margin: -8px;
+    display: inline-block;
 
-  &:hover {
-    transform: scale(1.08);
-    background: rgba(164, 19, 236, 0.25);
+    &:hover { opacity: 0.8; }
   }
 }
 
-.selected {
-  background: #a413ec;
-  box-shadow: 0 0 15px rgba(164, 19, 236, 0.6);
+// ─── BLOBS ────────────────────────────────────────────────────────────────────
+
+.blobTop,
+.blobBottom {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  user-select: none;
+  will-change: transform;
+  contain: strict;
 }
 
-.actions {
-  display: flex;
-  gap: 16px;
-  margin-top: 32px;
+.blobTop {
+  top: 80px;
+  right: 80px;
+  width: 160px;
+  height: 160px;
+  background: radial-gradient(circle, rgba(168, 85, 247, 0.08) 0%, transparent 70%);
+  filter: blur(40px);
 }
 
-.backBtn {
-  flex: 1;
-  background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: rgba(255, 255, 255, 0.5);
-  border-radius: 999px;
-  padding: 14px;
-  cursor: pointer;
-  transition: border-color 0.2s ease, color 0.2s ease;
-
-  &:hover {
-    border-color: rgba(255, 255, 255, 0.3);
-    color: rgba(255, 255, 255, 0.8);
-  }
+.blobBottom {
+  bottom: 60px;
+  left: 30%;
+  width: 280px;
+  height: 280px;
+  background: radial-gradient(circle, rgba(124, 58, 237, 0.06) 0%, transparent 70%);
+  filter: blur(50px);
 }
+
+// ─── MISC ─────────────────────────────────────────────────────────────────────
 
 .linktext {
   text-decoration: none;
@@ -237,212 +330,3 @@
 @media (prefers-reduced-motion: reduce) {
   .step { animation: none; }
 }
-
-
-
-
-
-
-
-// .wrapper {
-//   min-height: 100vh;
-//   background: #050505;
-//   color: white;
-//   font-family: "Space Grotesk", sans-serif;
-//   overflow: hidden;
-// }
-
-// .navbar {
-//   position: absolute;
-//   top: 0;
-//   width: 100%;
-//   padding: 24px 40px;
-//   display: flex;
-//   justify-content: space-between;
-// }
-
-// .brand {
-//   display: flex;
-//   gap: 12px;
-//   align-items: center;
-// }
-
-// .loginText {
-//   font-size: 14px;
-//   color: rgba(255,255,255,0.4);
-//   border: 1px solid #a413ec;
-//   padding: 0.4rem;
-//   display: flex;
-//   align-items: center;
-//   justify-content: center;
-//   border-radius: 2rem;
-
-//   a {
-//     color: #a413ec;
-//     font-weight: 600;
-//     text-decoration: none;
-//   }
-// }
-
-// .loginText:hover{
-//   background-color: #a413ec;
-//   cursor: pointer;
-   
-//   a{
-//     color: white;
-//   }
-// }
-
-// .main {
-//   min-height: 100vh;
-//   display: flex;
-//   justify-content: center;
-//   align-items: center;
-// }
-
-// .cardContainer {
-//   position: relative;
-//   width: 100%;
-//   max-width: 600px;
-//   height: 520px;
-// }
-
-// .step {
-//   position: absolute;
-//   inset: 0;
-//   background: rgba(255,255,255,0.03);
-//   backdrop-filter: blur(28px);
-//   border: 1px solid rgba(255,255,255,0.08);
-//   border-radius: 24px;
-//   padding: 40px;
-//   transition: all 0.45s ease;
-// }
-
-// /* STATES */
-// .active {
-//   opacity: 1;
-//   transform: translateX(0);
-//   pointer-events: auto;
-// }
-
-// .hiddenLeft {
-//   opacity: 0;
-//   transform: translateX(-60px);
-//   pointer-events: none;
-// }
-
-// .hiddenRight {
-//   opacity: 0;
-//   transform: translateX(60px);
-//   pointer-events: none;
-// }
-
-// /* CONTENT */
-// .header {
-//   text-align: center;
-//   margin-bottom: 32px;
-
-//   h1 {
-//     font-size: 32px;
-//   }
-
-//   p {
-//     color: rgba(255,255,255,0.4);
-//   }
-// }
-
-// .form {
-//   display: flex;
-//   flex-direction: column;
-//   gap: 24px;
-// }
-
-// .field {
-//   display: flex;
-//   flex-direction: column;
-
-//   label {
-//     font-size: 10px;
-//     letter-spacing: 0.25em;
-//     color: rgba(255,255,255,0.5);
-//   }
-
-//   input {
-//     background: transparent;
-//     border: none;
-//     border-bottom: 2px solid rgba(255,255,255,0.1);
-//     color: white;
-//     padding: 12px 4px;
-//     font-size: 16px;
-
-//     &:focus {
-//       border-bottom-color: #a413ec;
-//       outline: none;
-//     }
-//   }
-// }
-
-// .nextBtn,
-// .signupBtn {
-//   margin-top: 16px;
-//   background: linear-gradient(90deg, #6b0f9c, #a413ec, #6b0f9c);
-//   border: none;
-//   border-radius: 999px;
-//   padding: 14px;
-//   color: white;
-//   font-weight: bold;
-//   letter-spacing: 0.1em;
-//   cursor: pointer;
-// }
-
-// /* VIBES */
-// .vibeCloud {
-//   display: flex;
-//   flex-wrap: wrap;
-//   justify-content: center;
-//   gap: 16px;
-// }
-
-// .vibeBubble {
-//   padding: 12px 20px;
-//   border-radius: 999px;
-//   background: rgba(164,19,236,0.1);
-//   border: 1px solid rgba(164,19,236,0.3);
-//   display: flex;
-//   gap: 8px;
-//   align-items: center;
-//   cursor: pointer;
-//   transition: 0.3s ease;
-
-//   &:hover {
-//     transform: scale(1.08);
-//     background: rgba(164,19,236,0.25);
-//   }
-// }
-
-// .selected {
-//   background: #a413ec;
-//   box-shadow: 0 0 15px #a413ec;
-// }
-
-// /* ACTIONS */
-// .actions {
-//   display: flex;
-//   gap: 16px;
-//   margin-top: 32px;
-// }
-
-// .backBtn {
-//   flex: 1;
-//   background: transparent;
-//   border: 1px solid rgba(255,255,255,0.1);
-//   color: rgba(255,255,255,0.5);
-//   border-radius: 999px;
-//   padding: 14px;
-//   cursor: pointer;
-// }
-
-// .linktext{
-//   text-decoration: none;
-//   color: inherit;
-// }

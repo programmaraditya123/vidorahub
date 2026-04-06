@@ -133,7 +133,7 @@ export default function SearchPage() {
         {/* Infinite scroll trigger */}
         <div ref={loaderRef} style={{ height: 40 }} />
 
-        {loading && <p><VidoraHubLoader/></p>}
+        {loading && <VidoraHubLoader/>}
         {/* {!hasNext && <p>No more videos</p>} */}
       </main>
     </div>

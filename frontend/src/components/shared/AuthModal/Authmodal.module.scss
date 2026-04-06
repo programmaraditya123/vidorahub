@@ -6,9 +6,9 @@
   position: fixed;
   inset: 0;
   z-index: 9999;
-  background: rgba(0, 0, 0, 0.72);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
+  background: rgba(246, 244, 251, 0.82);
+  backdrop-filter: blur(12px) saturate(160%);
+  -webkit-backdrop-filter: blur(12px) saturate(160%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -27,28 +27,42 @@
 
 .card {
   position: relative;
-  background: rgba(18, 8, 28, 0.85);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border: 1px solid rgba(164, 19, 236, 0.18);
-  border-radius: 24px;
-  padding: 40px 36px 32px;
+  background: rgba(255, 255, 255, 0.97);
+  backdrop-filter: blur(32px) saturate(180%);
+  -webkit-backdrop-filter: blur(32px) saturate(180%);
+  border: 1px solid var(--border);
+  border-radius: 1.5rem;
+  padding: 2.5rem 2.25rem 2rem;
   width: 100%;
   max-width: 400px;
-  color: #fff;
+  color: var(--text-primary);
   overflow: hidden;
+  box-shadow:
+    var(--shadow-xl, 0 20px 60px rgba(124, 58, 237, 0.22)),
+    0 0 0 1px rgba(255, 255, 255, 0.9) inset;
   animation: slideUp 0.3s cubic-bezier(0.22, 1, 0.36, 1) both;
   z-index: 999999;
 
+  // Top accent line
+  &::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 12%;
+    right: 12%;
+    height: 2px;
+    border-radius: 0 0 999px 999px;
+    background: var(--primary-grad);
+    opacity: 0.8;
+  }
+
   @media (min-width: 768px) {
-    padding: 44px 40px 36px;
+    padding: 2.75rem 2.5rem 2.25rem;
   }
 
   @media (max-width: 480px) {
-    padding: 32px 24px 28px;
-    border-radius: 18px;
-   
-     
+    padding: 2rem 1.5rem 1.75rem;
+    border-radius: 1.25rem;
   }
 
   @media (max-width: 360px) {
@@ -58,7 +72,7 @@
 
 @keyframes slideUp {
   from { opacity: 0; transform: translateY(18px) scale(0.97); }
-  to   { opacity: 1; transform: translateY(0)    scale(1);    }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 // ─── CLOSE BUTTON ─────────────────────────────────────────────────────────────
@@ -67,9 +81,9 @@
   position: absolute;
   top: 16px;
   right: 16px;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: rgba(255, 255, 255, 0.5);
+  background: var(--bg-subtle);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
   width: 30px;
   height: 30px;
   border-radius: 50%;
@@ -78,11 +92,15 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background 0.2s ease, color 0.2s ease;
+  transition:
+    background 180ms ease,
+    color 180ms ease,
+    transform 200ms cubic-bezier(0.34, 1.56, 0.64, 1);
 
   &:hover {
-    background: rgba(164, 19, 236, 0.2);
-    color: #fff;
+    background: var(--bg-muted);
+    color: var(--primary);
+    transform: scale(1.1) rotate(90deg);
   }
 }
 
@@ -92,70 +110,102 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 22px;
+  margin-bottom: 1.375rem;
 
   span {
-    font-size: 15px;
-    font-weight: 600;
+    font-size: 0.9rem;
+    font-weight: 700;
+    background: var(--primary-grad);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
   }
 }
 
 // ─── HEADING ──────────────────────────────────────────────────────────────────
 
 .heading {
-  font-size: 26px;
+  font-size: 1.6rem;
   font-weight: 700;
   letter-spacing: -0.02em;
-  margin: 0 0 10px;
+  margin: 0 0 0.625rem;
+  color: var(--text-primary);
 
-  @media (max-width: 480px) { font-size: 22px; }
+  @media (max-width: 480px) { font-size: 1.375rem; }
 }
 
 // ─── MESSAGE ──────────────────────────────────────────────────────────────────
 
 .message {
-  font-size: 14px;
-  color: rgba(255, 255, 255, 0.5);
-  line-height: 1.55;
-  margin: 0 0 28px;
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  line-height: 1.6;
+  margin: 0 0 1.75rem;
 }
 
 // ─── PRIMARY BUTTON ───────────────────────────────────────────────────────────
 
 .primaryBtn {
   display: block;
-  background: #a413ec;
+  width: 100%;
+  background: var(--primary-grad);
   color: #fff;
   text-align: center;
   text-decoration: none;
-  padding: 14px;
+  padding: 0.875rem;
   border-radius: 999px;
+  border: none;
+  font-family: "Be Vietnam Pro", sans-serif;
   font-weight: 700;
-  font-size: 15px;
-  transition: opacity 0.2s ease, transform 0.15s ease;
+  font-size: 0.925rem;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(124, 58, 237, 0.35);
+  transition:
+    box-shadow 200ms ease,
+    filter 150ms ease,
+    transform 150ms cubic-bezier(0.16, 1, 0.3, 1);
 
   &:hover {
-    opacity: 0.85;
+    box-shadow: 0 8px 24px rgba(124, 58, 237, 0.45);
+    filter: brightness(1.06);
     transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(124, 58, 237, 0.3);
   }
 }
 
 // ─── REGISTER LINE ────────────────────────────────────────────────────────────
 
 .registerLine {
-  margin-top: 20px;
-  font-size: 14px;
+  margin-top: 1.25rem;
+  font-size: 0.875rem;
   text-align: center;
-  color: rgba(255, 255, 255, 0.45);
+  color: var(--text-muted);
+}
 
-  a {
-    color: #a413ec;
-    font-weight: 600;
-    text-decoration: none;
-    padding: 4px;
-    margin: -4px;
+// ─── REGISTER BUTTON ──────────────────────────────────────────────────────────
 
-    &:hover { text-decoration: underline; }
+.registerBtn {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font-family: "Be Vietnam Pro", sans-serif;
+  font-size: inherit;
+  font-weight: 700;
+  background: var(--primary-grad);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  transition: filter 150ms ease;
+
+  &:hover {
+    filter: brightness(1.15);
+    text-decoration: underline;
+    text-decoration-color: var(--primary);
   }
 }
 
@@ -163,12 +213,12 @@
 
 .glow {
   position: absolute;
-  bottom: -60px;
+  bottom: -50px;
   left: 50%;
   transform: translateX(-50%);
-  width: 220px;
-  height: 140px;
-  background: rgba(164, 19, 236, 0.12);
+  width: 200px;
+  height: 120px;
+  background: rgba(124, 58, 237, 0.07);
   filter: blur(48px);
   border-radius: 50%;
   pointer-events: none;
@@ -179,19 +229,4 @@
 
 @media (prefers-reduced-motion: reduce) {
   .backdrop, .card { animation: none; }
-}
-
-// ─── REGISTER BUTTON (inline text button) ────────────────────────────────────
-
-.registerBtn {
-  background: none;
-  border: none;
-  padding: 0;
-  cursor: pointer;
-  color: #a413ec;
-  font-weight: 600;
-  font-size: inherit;
-  font-family: inherit;
-
-  &:hover { text-decoration: underline; }
 }

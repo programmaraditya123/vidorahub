@@ -1,83 +1,133 @@
-/* Toast wrapper (bottom center handled by provider) */
+// ─── TOAST BASE ───────────────────────────────────────────────────────────────
+
 .toast {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 14px 20px;
+  gap: 10px;
+  padding: 12px 20px;
   border-radius: 999px;
 
-  font-family: "Space Grotesk", sans-serif;
-  font-size: 14px;
-  font-weight: 500;
-  color: white;
+  font-family: "Be Vietnam Pro", sans-serif;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-primary);
 
-  background: rgba(255, 255, 255, 0.04);
-  backdrop-filter: blur(16px) saturate(160%);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1.5px solid var(--border);
 
   box-shadow:
-    0 0 20px rgba(164, 19, 236, 0.15),
-    0 12px 30px rgba(0, 0, 0, 0.4);
+    var(--shadow-md),
+    0 0 0 1px rgba(255, 255, 255, 0.9) inset;
 
   max-width: 420px;
   pointer-events: auto;
 
-  animation: toastIn 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275),
-             toastOut 0.35s ease forwards;
+  animation:
+    toastIn 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards,
+    toastOut 0.35s ease forwards;
   animation-delay: 0s, var(--delay, 2.7s);
 }
 
-/* ICON */
+// ─── ICON ─────────────────────────────────────────────────────────────────────
+
 .icon {
-  font-size: 1.25rem;
+  font-size: 1.1rem;
   line-height: 1;
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
 }
 
-/* MESSAGE */
+// ─── MESSAGE ──────────────────────────────────────────────────────────────────
+
 .msg {
   line-height: 1.4;
   letter-spacing: 0.02em;
+  color: var(--text-primary);
 }
 
-/* === VARIANTS === */
+// ─── VARIANTS ─────────────────────────────────────────────────────────────────
 
 .success {
-  border-color: rgba(34, 197, 94, 0.4);
+  border-color: rgba(5, 150, 105, 0.3);
+  background: rgba(240, 253, 249, 0.97);
   box-shadow:
-    0 0 18px rgba(34, 197, 94, 0.35),
-    0 0 40px rgba(34, 197, 94, 0.15);
+    0 4px 20px rgba(5, 150, 105, 0.12),
+    0 0 0 1px rgba(255, 255, 255, 0.9) inset;
+
+  .msg {
+    color: #065f46;
+  }
 
   .icon {
-    color: #22c55e;
+    color: #059669;
+  }
+
+  // Left accent stripe
+  &::before {
+    content: "";
+    width: 3px;
+    height: 60%;
+    border-radius: 999px;
+    background: linear-gradient(180deg, #059669, #10b981);
+    flex-shrink: 0;
   }
 }
 
 .error {
-  border-color: rgba(239, 68, 68, 0.4);
+  border-color: rgba(220, 38, 38, 0.25);
+  background: rgba(255, 241, 241, 0.97);
   box-shadow:
-    0 0 18px rgba(239, 68, 68, 0.35),
-    0 0 40px rgba(239, 68, 68, 0.15);
+    0 4px 20px rgba(220, 38, 38, 0.1),
+    0 0 0 1px rgba(255, 255, 255, 0.9) inset;
+
+  .msg {
+    color: #7f1d1d;
+  }
 
   .icon {
-    color: #ef4444;
+    color: #dc2626;
+  }
+
+  &::before {
+    content: "";
+    width: 3px;
+    height: 60%;
+    border-radius: 999px;
+    background: linear-gradient(180deg, #dc2626, #ef4444);
+    flex-shrink: 0;
   }
 }
 
 .info {
-  border-color: rgba(164, 19, 236, 0.5);
+  border-color: rgba(124, 58, 237, 0.2);
+  background: rgba(250, 247, 255, 0.97);
   box-shadow:
-    0 0 18px rgba(164, 19, 236, 0.45),
-    0 0 40px rgba(164, 19, 236, 0.2);
+    0 4px 20px rgba(124, 58, 237, 0.1),
+    0 0 0 1px rgba(255, 255, 255, 0.9) inset;
+
+  .msg {
+    color: var(--text-secondary, #3d2f6e);
+  }
 
   .icon {
-    color: #a413ec;
+    color: var(--primary);
+  }
+
+  &::before {
+    content: "";
+    width: 3px;
+    height: 60%;
+    border-radius: 999px;
+    background: var(--primary-grad);
+    flex-shrink: 0;
   }
 }
 
-/* === ANIMATIONS === */
+// ─── ANIMATIONS ───────────────────────────────────────────────────────────────
 
 @keyframes toastIn {
   from {
@@ -96,6 +146,3 @@
     opacity: 0;
   }
 }
-
-
-

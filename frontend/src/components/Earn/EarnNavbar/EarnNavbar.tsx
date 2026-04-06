@@ -93,9 +93,9 @@ export default function EarnNavbar() {
             {/* Hamburger */}
             <button className={styles.menuBtn} onClick={() => setOpen(!open)}>
               {open ? (
-                <VidorahubIcon.CrossIcon size={20} color="#fff" />
+                <VidorahubIcon.CrossIcon size={20} color="#7c3aed" />
               ) : (
-                <VidorahubIcon.HamburgerIcon size={20} color="#fff" />
+                <VidorahubIcon.HamburgerIcon size={20} color="#7c3aed" />
               )}
             </button>
           </div>

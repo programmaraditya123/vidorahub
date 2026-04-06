@@ -8,19 +8,19 @@ import { usePathname } from "next/navigation";
 
 export default function Sidebar() {
   const pathName = usePathname();
+
   const menu = [
-    { icon: "home", label: "Home", link: "/" },
-    { icon: "search", label: "search", link: "/search" },
-    { icon: "animated_images", label: "Subscriptions", link: "/vibes/?v=" },
-    // { icon: "history", label: "History" , link : '/history'},
-    { icon: "currency_rupee", label: "earn", link: "/earn" },
+    { icon: "home",             label: "Home",          link: "/"         },
+    { icon: "search",           label: "Search",        link: "/search"   },
+    { icon: "animated_images",  label: "Vibes", link: "/vibes" },
+    { icon: "currency_rupee",   label: "Earn",          link: "/earn"     },
   ];
 
   return (
     <aside className={styles.sidebar}>
       <nav className={`${styles.nav} glass-dark`}>
         {/* Logo */}
-        <div className={`${styles.logo} neon-glow`}>
+        <div className={styles.logo}>
           <span className="material-symbols-outlined">play_circle</span>
         </div>
 
@@ -30,10 +30,12 @@ export default function Sidebar() {
           return (
             <div
               key={item.label}
-              className={`${styles.link} ${isActive ? "neon-glow" : ""}`}
+              className={`${styles.link} ${isActive ? styles.active : ""}`}
             >
               <Link href={item.link}>
-                <span className="material-symbols-outlined">{item.icon}</span>
+                <span className={`material-symbols-outlined ${styles.icon}`}>
+                  {item.icon}
+                </span>
                 <span className={`${styles.tooltip} glass`}>{item.label}</span>
               </Link>
             </div>
@@ -46,7 +48,7 @@ export default function Sidebar() {
         {/* Profile */}
         <Link href={userValidates() ? "/profile" : "/signup"}>
           <div className={styles.profile}>
-            <VidorahubIcon.UserIcon height={28} width={28} />
+            <VidorahubIcon.UserIcon height={22} width={22} />
           </div>
         </Link>
       </nav>

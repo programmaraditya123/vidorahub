@@ -8,6 +8,13 @@
   overflow-x: hidden;
   position: relative;
   z-index: 2;
+  background: #ffffff;
+
+  /* Subtle purple grid texture consistent with rest of the app */
+  background-image:
+    linear-gradient(rgba(124, 58, 237, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(124, 58, 237, 0.03) 1px, transparent 1px);
+  background-size: 48px 48px;
 }
 
 .main-content {
@@ -60,7 +67,6 @@
   .sidebar-container {
     display: none !important;
   }
- 
 
   .sidebar {
     left: 0 !important;
@@ -78,11 +84,12 @@
     grid-template-columns: none !important;
     grid-template-areas: none !important;
     column-gap: 0 !important;
+    background-image: none; /* remove grid on small screens for perf */
   }
 
   .main-content {
     padding: 0 !important;
-    gap: 16px !important;  
+    gap: 16px !important;
   }
 
   .vibe-selector {

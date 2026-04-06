@@ -2,7 +2,7 @@
 /* BASE HEADER */
 /* ------------------------------------------------- */
 .header {
-  height: 90px;
+  height: 60px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -10,7 +10,28 @@
   position: sticky;
   top: 0;
   z-index: 40;
-  backdrop-filter: blur(20px);
+  background: #f6f4fb;
+  border-bottom: 1px solid rgba(124, 58, 237, 0.1);
+  box-shadow: 0 1px 0 rgba(124, 58, 237, 0.06), 0 4px 20px rgba(124, 58, 237, 0.04);
+  margin-bottom: 0.5rem;
+  // border-radius: 1rem;
+  border-radius: 0 0 1rem 1rem;
+}
+
+/* ------------------------------------------------- */
+/* LOGO */
+/* ------------------------------------------------- */
+.homeLogo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.9rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  background: linear-gradient(90deg, #7c3aed, #a855f7);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 /* ------------------------------------------------- */
@@ -30,7 +51,7 @@
 .searchIcon {
   position: absolute;
   left: 14px;
-  color: #9ca3af;
+  color: #7c3aed;
   transition: 0.25s ease;
 }
 
@@ -39,18 +60,21 @@
   height: 48px;
   padding-left: 48px;
   padding-right: 16px;
-  border: none;
   border-radius: 18px;
-  color: white;
-  background: rgba(0, 0, 0, 0.35);
-  backdrop-filter: blur(25px);
+  color: #1a1a2e;
+  background: #ffffff;
   outline: none;
   font-size: 0.95rem;
-  transition: 0.25s ease;
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  border: 1.5px solid rgba(124, 58, 237, 0.15);
 
   &::placeholder {
-    color: #666;
+    color: #c4b5fd;
+  }
+
+  &:focus {
+    border-color: #7c3aed;
+    box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.08);
   }
 }
 
@@ -70,12 +94,18 @@
   border-radius: 12px;
   padding: 10px;
   cursor: pointer;
-  transition: 0.25s ease;
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  transition: background 0.2s ease, box-shadow 0.2s ease;
+  border: 1px solid rgba(124, 58, 237, 0.12);
+  background: #f9f7ff;
 
   span {
-    color: #d1d5db;
+    color: #7c3aed;
     font-size: 22px;
+  }
+
+  &:hover {
+    background: #ede9fe;
+    box-shadow: 0 2px 8px rgba(124, 58, 237, 0.15);
   }
 }
 
@@ -86,23 +116,26 @@
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: var(--primary);
-  box-shadow: 0 0 8px rgba(164, 19, 236, 1);
+  background: #7c3aed;
+  box-shadow: 0 0 8px rgba(124, 58, 237, 0.8);
 }
 
 .uploadBtn {
   padding: 10px 24px;
   border-radius: 14px;
   font-size: 0.85rem;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
-  transition: 0.25s ease;
-  border: 1px solid rgba(164, 19, 236, 0.2);
-  color: white;
+  transition: background 0.2s ease, box-shadow 0.2s ease, color 0.2s ease;
+  border: 1.5px solid #7c3aed;
+  color: #7c3aed;
+  background: transparent;
 
   &:hover {
-    background: var(--primary);
-    border-color: var(--primary);
+    background: linear-gradient(90deg, #7c3aed, #a855f7);
+    border-color: transparent;
+    color: #ffffff;
+    box-shadow: 0 4px 15px rgba(124, 58, 237, 0.35);
   }
 }
 
@@ -110,9 +143,6 @@
 /* RESPONSIVE BREAKPOINTS */
 /* ------------------------------------------------- */
 
-/* ----------------------- */
-/* Tablets (≤1024px) */
-/* ----------------------- */
 @media (max-width: 1024px) {
   .header {
     padding: 0 1rem;
@@ -123,12 +153,9 @@
   }
 }
 
-/* ----------------------- */
-/* Mobile Landscape (≤768px) */
-/* ----------------------- */
 @media (max-width: 768px) {
   .header {
-    height: 80px;
+    height: 60px;
     padding: 0 0.8rem;
     gap: 1rem;
   }
@@ -143,13 +170,10 @@
   }
 }
 
-/* ----------------------- */
-/* Mobile Portrait (≤600px) */
-/* ----------------------- */
 @media (max-width: 600px) {
   .header {
     padding: 0 0.8rem;
-    height: 75px;
+    height: 60px;
   }
 
   .searchContainer {
@@ -177,11 +201,7 @@
   }
 }
 
-/* ----------------------- */
-/* Small Phones (≤450px) */
-/* ----------------------- */
 @media (max-width: 450px) {
-  /* Upload button shrinks */
   .uploadBtn {
     padding: 6px 12px;
     font-size: 0.7rem;
@@ -202,13 +222,7 @@
   }
 }
 
- 
 @media (max-width: 360px) {
-  /* Hide Upload button */
-  // .uploadBtn {
-  //   display: none;
-  // }
-
   .header {
     justify-content: center;
   }
@@ -221,17 +235,9 @@
     width: 38px;
     height: 38px;
   }
-  .homeLogo{
-    font-weight: 100;
+
+  .homeLogo {
+    font-weight: 700;
     font-size: 1rem;
   }
-}
-
-.homeLogo{
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 1.9rem;
-  font-weight: 800;
-  
 }

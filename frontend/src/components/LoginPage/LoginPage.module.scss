@@ -1,11 +1,28 @@
+// ─── THEME TOKENS ─────────────────────────────────────────────────────────────
+// Primary gradient: #7c3aed → #a855f7
+// Navbar bg:        #f6f4fb
+// Page bg:          #ffffff
+// Text/icons grad:  linear-gradient(90deg, #7c3aed, #a855f7)
+
 .wrapper {
   min-height: 100dvh;
-  background: #0a0a0a; // solid — instant paint, no gradient cost
-  color: white;
-  // Don't declare font-family here — load Space Grotesk once in layout.tsx
-  // Declaring it per-page causes FOUT on every route transition
+  background: #ffffff;
+  color: #1a1a2e;
   overflow: hidden;
   position: relative;
+
+  // Subtle grid pattern for premium texture
+  &::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(124, 58, 237, 0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(124, 58, 237, 0.04) 1px, transparent 1px);
+    background-size: 48px 48px;
+    pointer-events: none;
+    z-index: 0;
+  }
 }
 
 // ─── NAV ──────────────────────────────────────────────────────────────────────
@@ -14,11 +31,15 @@
   position: absolute;
   top: 0;
   width: 100%;
-  padding: 20px 32px;
+  padding: 0 32px;
+  height: 68px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   z-index: 10;
+  background: #f6f4fb;
+  border-bottom: 1px solid rgba(124, 58, 237, 0.1);
+  box-shadow: 0 1px 0 rgba(124, 58, 237, 0.06), 0 4px 20px rgba(124, 58, 237, 0.04);
 }
 
 .brand {
@@ -28,21 +49,32 @@
 
   h2 {
     font-size: 18px;
-    font-weight: 600;
+    font-weight: 700;
+    background: linear-gradient(90deg, #7c3aed, #a855f7);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: -0.02em;
   }
 }
 
 .links {
   display: flex;
-  gap: 24px;
+  gap: 8px;
 
   a {
-    color: rgba(255, 255, 255, 0.6);
+    color: #6b7280;
     font-size: 14px;
+    font-weight: 500;
     text-decoration: none;
-    transition: color 0.2s ease;
+    padding: 8px 14px;
+    border-radius: 8px;
+    transition: color 0.2s ease, background 0.2s ease;
 
-    &:hover { color: white; }
+    &:hover {
+      color: #7c3aed;
+      background: rgba(124, 58, 237, 0.06);
+    }
   }
 }
 
@@ -50,7 +82,10 @@
 
 .main {
   display: flex;
-  height: 100dvh; // dvh: correct on mobile — browser chrome doesn't shift it
+  height: 100dvh;
+  padding-top: 68px; // offset for fixed navbar
+  position: relative;
+  z-index: 1;
 }
 
 // ─── LEFT ─────────────────────────────────────────────────────────────────────
@@ -61,54 +96,92 @@
   justify-content: center;
   align-items: center;
   position: relative;
+  background: linear-gradient(135deg, #faf8ff 0%, #f3eeff 50%, #ede5ff 100%);
+  border-right: 1px solid rgba(124, 58, 237, 0.1);
 
-  @media (max-width: 900px) { display: none; }
+  @media (max-width: 900px) {
+    display: none;
+  }
 }
 
 .glowBg {
   position: absolute;
   inset: 0;
-  background: radial-gradient(
-    ellipse at bottom left,
-    rgba(164, 19, 236, 0.13) 0%,
-    transparent 65%
-  );
+  background:
+    radial-gradient(ellipse at 30% 50%, rgba(124, 58, 237, 0.12) 0%, transparent 60%),
+    radial-gradient(ellipse at 75% 80%, rgba(168, 85, 247, 0.08) 0%, transparent 50%);
   pointer-events: none;
-  will-change: transform;  // own GPU layer — won't trigger sibling repaints
+  will-change: transform;
   contain: strict;
 }
 
 .logoContainer {
-  width: 380px;
-  height: 380px;
+  width: 360px;
+  height: 360px;
   position: relative;
-  filter: drop-shadow(0 0 30px rgba(164, 19, 236, 0.35));
-  contain: layout paint; // isolate compositing to this subtree
+  filter: drop-shadow(0 8px 40px rgba(124, 58, 237, 0.2));
+  contain: layout paint;
+
+  // Decorative ring
+  &::before {
+    content: "";
+    position: absolute;
+    inset: -24px;
+    border-radius: 50%;
+    border: 1px dashed rgba(124, 58, 237, 0.2);
+    animation: spinSlow 30s linear infinite;
+  }
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset: -48px;
+    border-radius: 50%;
+    border: 1px dashed rgba(168, 85, 247, 0.12);
+    animation: spinSlow 45s linear infinite reverse;
+  }
 
   img {
     width: 100%;
     height: 100%;
     object-fit: contain;
+    position: relative;
+    z-index: 1;
   }
+}
+
+@keyframes spinSlow {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
 }
 
 .pulse {
   position: absolute;
-  inset: 0;
+  inset: 20px;
   border-radius: 50%;
-  background: rgba(164, 19, 236, 0.18);
-  filter: blur(40px);     // was blur(60px) — visually identical, ~30% cheaper
-  will-change: transform; // own compositor layer
+  background: radial-gradient(circle, rgba(168, 85, 247, 0.15) 0%, transparent 70%);
+  filter: blur(24px);
+  will-change: transform;
   pointer-events: none;
+  animation: pulsate 4s ease-in-out infinite;
+}
+
+@keyframes pulsate {
+  0%, 100% { opacity: 0.6; transform: scale(1); }
+  50%       { opacity: 1;   transform: scale(1.08); }
 }
 
 .phase {
   position: absolute;
   bottom: 40px;
   left: 40px;
-  color: rgba(164, 19, 236, 0.4);
+  background: linear-gradient(90deg, #7c3aed, #a855f7);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
   letter-spacing: 0.3em;
-  font-size: 11px;
+  font-size: 10px;
+  font-weight: 600;
 }
 
 // ─── RIGHT ────────────────────────────────────────────────────────────────────
@@ -118,58 +191,64 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  background: #ffffff;
+  padding: 24px;
+  margin-bottom: 4rem;
 
-  @media (max-width: 900px) { width: 100%; }
+  @media (max-width: 900px) {
+    width: 100%;
+  }
 }
 
 .glassCard {
-  // backdrop-filter scoped to card only — NOT the full viewport
-  // This is the single biggest perf win on this page
-  background: rgba(60, 35, 72, 0.15);
-  backdrop-filter: blur(20px);         // reduced from 24px — imperceptible diff
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  padding: 40px;
+  background: #ffffff;
+  border: 1px solid rgba(124, 58, 237, 0.12);
+  box-shadow:
+    0 4px 6px rgba(124, 58, 237, 0.04),
+    0 20px 60px rgba(124, 58, 237, 0.08),
+    0 1px 0 rgba(255, 255, 255, 0.8) inset;
+  padding: 44px 40px;
   border-radius: 24px;
   width: 100%;
   max-width: 460px;
-  contain: layout paint; // browser skips repainting page behind on focus/hover
-
-  animation: cardIn 0.38s ease both;
+  contain: layout paint;
+  animation: cardIn 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
 
   @media (max-width: 500px) {
-    padding: 28px;
-    border-radius: 16px;
+    padding: 32px 24px;
+    border-radius: 20px;
   }
 }
 
 @keyframes cardIn {
-  from { opacity: 0; transform: translateY(14px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; transform: translateY(20px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 // ─── HEADER ───────────────────────────────────────────────────────────────────
 
 .header {
-  margin-bottom: 28px;
+  margin-bottom: 32px;
 
   h1 {
-    font-size: 34px;
-    margin: 6px 0;
+    font-size: 36px;
+    font-weight: 800;
+    margin: 8px 0 0;
+    letter-spacing: -0.03em;
+    color: #1a1a2e;
 
-    @media (max-width: 500px) { font-size: 26px; }
-  }
-
-  span {
-    color: rgba(255, 255, 255, 0.4);
-    font-size: 14px;
+    @media (max-width: 500px) { font-size: 28px; }
   }
 }
 
 .portal {
   font-size: 10px;
   letter-spacing: 0.3em;
-  color: #a413ec;
+  font-weight: 700;
+  background: linear-gradient(90deg, #7c3aed, #a855f7);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 // ─── FORM ─────────────────────────────────────────────────────────────────────
@@ -177,79 +256,139 @@
 .form {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 20px;
 }
 
 .field {
   display: flex;
   flex-direction: column;
+  gap: 6px;
 
   label {
     font-size: 10px;
-    letter-spacing: 0.25em;
-    color: rgba(255, 255, 255, 0.5);
+    letter-spacing: 0.2em;
+    font-weight: 700;
+    color: #9ca3af;
+    text-transform: uppercase;
   }
 
   input {
-    background: transparent;
-    border: none;
-    border-bottom: 2px solid rgba(255, 255, 255, 0.1);
-    color: white;
-    padding: 12px 4px;
-    font-size: 16px; // must be >= 16px — prevents iOS auto-zoom on focus
+    background: #f9f7ff;
+    border: 1.5px solid rgba(124, 58, 237, 0.15);
+    border-radius: 10px;
+    color: #1a1a2e;
+    padding: 12px 16px;
+    font-size: 15px;
     outline: none;
-    transition: border-color 0.2s ease;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
 
-    &::placeholder { color: rgba(255, 255, 255, 0.25); }
-    &:focus { border-bottom-color: #a413ec; }
+    &::placeholder {
+      color: #c4b5fd;
+    }
+
+    &:focus {
+      border-color: #7c3aed;
+      background: #ffffff;
+      box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.08);
+    }
+
+    &:hover:not(:focus) {
+      border-color: rgba(124, 58, 237, 0.3);
+    }
   }
 }
 
 // ─── BUTTON ───────────────────────────────────────────────────────────────────
 
 .loginBtn {
-  background: #a413ec;
+  background: linear-gradient(90deg, #7c3aed, #a855f7);
   color: #fff;
   border: none;
   padding: 14px;
-  border-radius: 999px;
-  font-weight: bold;
+  border-radius: 12px;
+  font-weight: 700;
   font-size: 15px;
+  letter-spacing: 0.01em;
   cursor: pointer;
-  margin-top: 12px;
-  // opacity + transform only — both GPU-composited, zero repaint cost
-  transition: opacity 0.2s ease, transform 0.15s ease;
+  margin-top: 8px;
+  position: relative;
+  overflow: hidden;
+  transition: opacity 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+  box-shadow: 0 4px 15px rgba(124, 58, 237, 0.35), 0 1px 0 rgba(255,255,255,0.15) inset;
+
+  // Shimmer effect
+  &::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 60%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.5s ease;
+  }
 
   &:hover:not(:disabled) {
-    opacity: 0.85;
-    transform: translateY(-1px);
+    opacity: 0.92;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(124, 58, 237, 0.4), 0 1px 0 rgba(255,255,255,0.15) inset;
+
+    &::after {
+      left: 150%;
+    }
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0);
   }
 
   &:disabled {
-    opacity: 0.5;
+    opacity: 0.55;
     cursor: not-allowed;
+  }
+}
+
+// ─── DIVIDER ──────────────────────────────────────────────────────────────────
+
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #d1d5db;
+  font-size: 12px;
+  letter-spacing: 0.05em;
+
+  &::before,
+  &::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: rgba(124, 58, 237, 0.1);
   }
 }
 
 // ─── FOOTER ───────────────────────────────────────────────────────────────────
 
 .footer {
-  margin-top: 32px;
+  margin-top: 28px;
   font-size: 14px;
   text-align: center;
-  // Removed z-index: 9999 — was masking elements unnecessarily
-  // Removed pointer-events hacks — those patched a z-index bug, not a real fix
+  color: #6b7280;
 
   a {
-    color: #a413ec;
-    font-weight: bold;
+    background: linear-gradient(90deg, #7c3aed, #a855f7);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: 700;
     text-decoration: none;
-    // Larger tap target without layout shift
     padding: 8px;
     margin: -8px;
     display: inline-block;
 
-    &:hover { text-decoration: underline; }
+    &:hover {
+      opacity: 0.8;
+    }
   }
 }
 
@@ -261,26 +400,26 @@
   border-radius: 50%;
   pointer-events: none;
   user-select: none;
-  will-change: transform; // GPU layer — never triggers main-thread repaints
-  contain: strict;        // skipped in layout + style recalcs entirely
+  will-change: transform;
+  contain: strict;
 }
 
 .blobTop {
   top: 80px;
   right: 80px;
-  width: 120px;
-  height: 120px;
-  background: rgba(164, 19, 236, 0.05);
-  filter: blur(60px); // was blur(100px) on 120px element — disproportionate
+  width: 160px;
+  height: 160px;
+  background: radial-gradient(circle, rgba(168, 85, 247, 0.08) 0%, transparent 70%);
+  filter: blur(40px);
 }
 
 .blobBottom {
-  bottom: 80px;
-  left: 50%;
-  width: 240px;
-  height: 240px;
-  background: rgba(164, 19, 236, 0.05);
-  filter: blur(70px); // was blur(120px) — half the GPU cost, same look
+  bottom: 60px;
+  left: 45%;
+  width: 280px;
+  height: 280px;
+  background: radial-gradient(circle, rgba(124, 58, 237, 0.06) 0%, transparent 70%);
+  filter: blur(50px);
 }
 
 // ─── MISC ─────────────────────────────────────────────────────────────────────
@@ -294,276 +433,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   .glassCard { animation: none; }
+  .pulse { animation: none; }
+  .logoContainer::before,
+  .logoContainer::after { animation: none; }
 }
-
-
-
-
-
-// .wrapper {
-//   min-height: 100vh;
-//   background: #0a0a0a;
-//   color: white;
-//   font-family: "Space Grotesk", sans-serif;
-//   overflow: hidden;
-//   position: relative;
-// }
-
-// /* NAV */
-// .navbar {
-//   position: absolute;
-//   top: 0;
-//   width: 100%;
-//   padding: 20px 32px;
-//   display: flex;
-//   justify-content: space-between;
-//   z-index: 10;
-//   align-items: center;
-// }
-
-// .brand {
-//   display: flex;
-//   align-items: center;
-//   gap: 12px;
-
-//   h2 {
-//     font-size: 18px;
-//     font-weight: 600;
-//   }
-// }
-
-// .links {
-//   display: flex;
-//   gap: 24px;
-
-//   a {
-//     color: rgba(255, 255, 255, 0.6);
-//     font-size: 14px;
-
-//     &:hover {
-//       color: white;
-//     }
-//   }
-// }
-
-// /* MAIN */
-// .main {
-//   display: flex;
-//   height: 100vh;
-// }
-
-// /* LEFT */
-// .left {
-//   width: 60%;
-//   display: flex;
-//   justify-content: center;
-//   align-items: center;
-//   position: relative;
-
-//   @media (max-width: 900px) {
-//     display: none;
-//   }
-// }
-
-// .glowBg {
-//   position: absolute;
-//   inset: 0;
-//   background: linear-gradient(
-//     to top right,
-//     rgba(164, 19, 236, 0.15),
-//     transparent
-//   );
-// }
-
-// .logoContainer {
-//   width: 380px;
-//   height: 380px;
-//   position: relative;
-//   filter: drop-shadow(0 0 30px rgba(164, 19, 236, 0.4));
-
-//   img {
-//     width: 100%;
-//     height: 100%;
-//     object-fit: contain;
-//   }
-// }
-
-// .pulse {
-//   position: absolute;
-//   inset: 0;
-//   border-radius: 50%;
-//   background: rgba(164, 19, 236, 0.2);
-//   filter: blur(60px);
-// }
-
-// .phase {
-//   position: absolute;
-//   bottom: 40px;
-//   left: 40px;
-//   color: rgba(164, 19, 236, 0.4);
-//   letter-spacing: 0.3em;
-//   font-size: 11px;
-// }
-
-// /* RIGHT */
-// .right {
-//   width: 40%;
-//   display: flex;
-//   justify-content: center;
-//   align-items: center;
-
-//   @media (max-width: 900px) {
-//     width: 100%;
-//   }
-// }
-
-// .glassCard {
-//   background: rgba(60, 35, 72, 0.15);
-//   backdrop-filter: blur(24px);
-//   border: 1px solid rgba(255, 255, 255, 0.1);
-//   padding: 40px;
-//   border-radius: 24px;
-//   width: 100%;
-//   max-width: 460px;
-
-//   @media (max-width: 500px) {
-//     padding: 28px;
-//     border-radius: 16px;
-//   }
-// }
-
-// .header {
-//   margin-bottom: 28px;
-
-//   h1 {
-//     font-size: 34px;
-//     margin: 6px 0;
-
-//     @media (max-width: 500px) {
-//       font-size: 26px;
-//     }
-//   }
-
-//   span {
-//     color: rgba(255, 255, 255, 0.4);
-//     font-size: 14px;
-//   }
-// }
-
-// .portal {
-//   font-size: 10px;
-//   letter-spacing: 0.3em;
-//   color: #a413ec;
-// }
-
-// /* FORM */
-// .form {
-//   display: flex;
-//   flex-direction: column;
-//   gap: 24px;
-// }
-
-// .field {
-//   display: flex;
-//   flex-direction: column;
-
-//   label {
-//     font-size: 10px;
-//     letter-spacing: 0.25em;
-//     color: rgba(255, 255, 255, 0.5);
-//   }
-
-//   input {
-//     background: transparent;
-//     border: none;
-//     border-bottom: 2px solid rgba(255, 255, 255, 0.1);
-//     color: white;
-//     padding: 12px 4px;
-//     font-size: 16px;
-//     outline: none;
-
-//     &:focus {
-//       border-bottom-color: #a413ec;
-//     }
-//   }
-// }
-
-// /* BUTTON */
-// .loginBtn {
-//   background: #a413ec;
-//   border: none;
-//   padding: 14px;
-//   border-radius: 999px;
-//   font-weight: bold;
-//   cursor: pointer;
-//   margin-top: 12px;
-
-//   &:disabled {
-//     opacity: 0.6;
-//     cursor: not-allowed;
-//   }
-
-//   &:hover {
-//     opacity: 0.85;
-//   }
-// }
-
-// /* FOOTER */
-// .footer {
-//   position: relative;
-//   z-index: 9999;
-//   margin-top: 32px;
-//   font-size: 14px;
-//   text-align: center;
-
-//   a {
-//     color: #a413ec;
-//     font-weight: bold;
-//     text-decoration: none;
-//   }
-// }
-
-// .footer a {
-//   padding: 10px; 
-//   display: inline-block; 
-//   margin: -10px; /* Counteracts the padding so the layout doesn't shift */
-// }
-
-// .footer p a {
-//   pointer-events: auto;
-//   position: relative;
-//   z-index: 1000;
-// }
-
-// .blobTop, .blobBottom {
-//   pointer-events: none;  
-//   user-select: none;
-// }
-
-// /* BLOBS */
-// .blobTop {
-//   position: absolute;
-//   top: 80px;
-//   right: 80px;
-//   width: 120px;
-//   height: 120px;
-//   background: rgba(164, 19, 236, 0.05);
-//   filter: blur(100px);
-//   border-radius: 50%;
-// }
-
-// .blobBottom {
-//   position: absolute;
-//   bottom: 80px;
-//   left: 50%;
-//   width: 240px;
-//   height: 240px;
-//   background: rgba(164, 19, 236, 0.05);
-//   filter: blur(120px);
-//   border-radius: 50%;
-// }
-
-// .linktext{
-//   text-decoration: none;
-//   color: inherit;
-// }

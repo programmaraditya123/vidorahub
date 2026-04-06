@@ -1,3 +1,4 @@
+import Sidebar from "@/src/components/HomePage/Sidebar/Sidebar";
 import SignupPage from "@/src/components/SignUpPage/SignupPage";
 
 export const metadata = {
@@ -9,6 +10,7 @@ export const metadata = {
 export default function Signup(){
     return(
         <>
+        <Sidebar/>
            <SignupPage/>
         </>
        

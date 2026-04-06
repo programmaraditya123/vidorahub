@@ -50,7 +50,6 @@ export default function SignupPage() {
 
   return (
     <div className={styles.wrapper}>
-      {/* NAV */}
       <header className={styles.navbar}>
         <div className={styles.brand}>
           <VidorahubIcon.VidorahubIcon color="purple" height={32} width={32} />
@@ -67,6 +66,7 @@ export default function SignupPage() {
         <div className={styles.cardContainer}>
           <div className={styles.step}>
             <div className={styles.header}>
+              <p className={styles.portal}>GET STARTED</p>
               <h1>Create Account</h1>
             </div>
 
@@ -119,141 +119,19 @@ export default function SignupPage() {
                 {loading ? <Loader /> : "Create Account"}
               </button>
             </form>
+
+            <div className={styles.footer}>
+              <p>
+                Already have an account?{" "}
+                <Link href="/login">Log in to VidoraHub</Link>
+              </p>
+            </div>
           </div>
         </div>
       </main>
+
+      <div className={styles.blobTop} aria-hidden="true" />
+      <div className={styles.blobBottom} aria-hidden="true" />
     </div>
   );
 }
-
-
-
-
-// "use client";
-
-// import { useState } from "react";
-// import styles from "./SignupPage.module.scss";
-// import { useRouter } from "next/navigation";
-// import { userRegister } from "@/src/lib/auth/auth";
-// import { useToast } from "@/src/hooks/ui/ToastProvider/ToastProvider";
-// import Loader from "@/src/components/ui/loader/Loader";
-// import Link from "next/link";
-// import VidorahubIcon from "@/src/icons/VidorahubIcon";
-
-// export default function SignupPage() {
-//   const router = useRouter();
-//   const { success, error: toastError } = useToast();
-
-//   const [loading, setLoading] = useState(false);
-
-//   const [form, setForm] = useState({
-//     name: "",
-//     email: "",
-//     password: "",
-//   });
-
-//   const onSignup = async () => {
-//     if (!form.name || !form.email || !form.password) {
-//       toastError("Please fill all fields");
-//       return;
-//     }
-
-//     setLoading(true);
-//     try {
-//       const res = await userRegister({
-//         name: form.name,
-//         email: form.email,
-//         password: form.password,
-//       });
-
-//       if (!res.success) {
-//         toastError(res.message || "Registration failed");
-//         return;
-//       }
-
-//       success("Account created successfully!");
-//       router.replace("/login");
-//     } catch (err: any) {
-//       toastError(err.message || "Signup failed");
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
-
-//   return (
-//     <div className={styles.wrapper}>
-//       {/* NAV */}
-//       <header className={styles.navbar}>
-//         <div className={styles.brand}>
-//           <VidorahubIcon.VidorahubIcon color="purple" height={32} width={32} />
-//           <Link href="/" className={styles.linktext}>
-//             <h2>VidoraHub</h2>
-//           </Link>
-//         </div>
-//         <p className={styles.loginText}>
-//           <Link href="/login"> Log In</Link>
-//         </p>
-//       </header>
-
-//       <main className={styles.main}>
-//         <div className={styles.cardContainer}>
-//           <div className={styles.step}>
-//             <div className={styles.header}>
-//               <h1>Ceate Account </h1>
-//               {/* <p>Define your digital presence.</p> */}
-//             </div>
-
-//             <form
-//               className={styles.form}
-//               onSubmit={(e) => {
-//                 e.preventDefault();
-//                 onSignup();
-//               }}
-//             >
-//               <div className={styles.field}>
-//                 <label>Your Name</label>
-//                 <input
-//                   type="text"
-//                   placeholder="Display name"
-//                   onChange={(e) =>
-//                     setForm({ ...form, name: e.target.value })
-//                   }
-//                 />
-//               </div>
-
-//               <div className={styles.field}>
-//                 <label>Email address</label>
-//                 <input
-//                   type="email"
-//                   placeholder="Email address"
-//                   onChange={(e) =>
-//                     setForm({ ...form, email: e.target.value })
-//                   }
-//                 />
-//               </div>
-
-//               <div className={styles.field}>
-//                 <label>Password</label>
-//                 <input
-//                   type="password"
-//                   placeholder="••••••••"
-//                   onChange={(e) =>
-//                     setForm({ ...form, password: e.target.value })
-//                   }
-//                 />
-//               </div>
-
-//               <button
-//                 type="submit"
-//                 className={styles.signupBtn}
-//                 disabled={loading}
-//               >
-//                 {loading ? <Loader /> : "Create Account"}
-//               </button>
-//             </form>
-//           </div>
-//         </div>
-//       </main>
-//     </div>
-//   );
-// }

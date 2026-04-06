@@ -106,7 +106,7 @@ export default function VideoPageClient() {
 
   return (
     <div className={styles.page}>
-      <BackgroundLayers />
+      {/* <BackgroundLayers /> */}
 
       <div className={styles.sidebar}>
         <Sidebar />

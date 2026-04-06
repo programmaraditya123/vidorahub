@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import VidorahubIcon from "@/src/icons/VidorahubIcon";
 import styles from "../../../app/profile/Profile.module.scss";
 import Link from "next/link";
@@ -9,68 +9,79 @@ import { useRouter } from "next/navigation";
 export default function Header() {
   const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
-  const[token,setToken] = useState<string | null>(null);
+  const [token, setToken] = useState<string | null>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const menuBtnRef = useRef<HTMLButtonElement>(null);
 
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("userName");
-    localStorage.removeItem("userSerialNumber")
+    localStorage.removeItem("userSerialNumber");
     router.replace("/");
   };
 
   const handleUpload = () => {
-    router.replace('/upload')
-  }
-
+    router.replace("/upload");
+  };
 
   const handleEarn = () => {
-    router.replace('/earn')
-  }
+    router.replace("/earn");
+  };
 
   useEffect(() => {
-    const storedToken = localStorage.getItem("token")
-    setToken(storedToken)
+    const storedToken = localStorage.getItem("token");
+    setToken(storedToken);
+  }, []);
 
-  },[])
+  useEffect(() => {
+    if (!menuOpen) return;
+
+    const handleClickOutside = (e: MouseEvent) => {
+      if (
+        menuRef.current &&
+        !menuRef.current.contains(e.target as Node) &&
+        menuBtnRef.current &&
+        !menuBtnRef.current.contains(e.target as Node)
+      ) {
+        setMenuOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [menuOpen]);
 
   return (
     <header className={styles.header}>
       <div className={`${styles.logoBox} ${styles.glass}`}>
         <Link href="/" className={styles.logoLink}>
           <span className={styles.logo}>
-            <VidorahubIcon.VidorahubIcon height={22} width={22} color="purple" />
+            <VidorahubIcon.VidorahubIcon
+              height={22}
+              width={22}
+              color="purple"
+            />
             VidoraHub
           </span>
         </Link>
 
         {/* Desktop Nav */}
         <nav className={styles.nav}>
-          <Link href={`https://studio.vidorahub.com/login/${token}`} target="_blank">
-          <p>Dashboard</p>
+          <Link
+            href={`https://studio.vidorahub.com/login/${token}`}
+            target="_blank"
+          >
+            <p>Dashboard</p>
           </Link>
           <a onClick={handleEarn}>Earning</a>
-          <a onClick={handleUpload} >Upload</a>
+          <a onClick={handleUpload}>Upload</a>
           <a onClick={handleLogout}>Logout</a>
         </nav>
       </div>
 
       <div className={styles.headerRight}>
-        {/* <div className={`${styles.searchBox} ${styles.glass}`}>
-          <input placeholder="Explore universes..." />
-        </div> */}
-
-        {/* <div className={`${styles.iconBtn} ${styles.glass}`}>🔔</div> */}
-
-        {/* <div
-          className={styles.avatarSmall}
-          style={{
-            backgroundImage:
-              "url('https://lh3.googleusercontent.com/aida-public/AB6AXuCatHzKNH0w4j21uqC8H-Iy9eIaPN7ZxjH5snkAiUoZwC0961xEtPQ-zRC8ND_-lRPqFlRIoNl6cRvegPhc8CB4rXeARlO4OeQFhPySr0uzv9XTI9gD71O2OpD5HjFTRMYJ0g0A_8E7tUShT4bn0DoKlrVhh-vz8issQrhuI9KxErZWdebE44pZpHjAhT9ueJQ6Qpkh-vfuwRrDi9qmzTx9oTF-CHlIc9p_CmOS4qA6TK-hQKFLc6HmKrqe1GABj2bWP-m6TojgGyUL')",
-          }}
-        /> */}
-
-        {/* Mobile Menu Button */}
         <button
+          ref={menuBtnRef}
           className={styles.menuBtn}
           onClick={() => setMenuOpen(!menuOpen)}
         >
@@ -80,12 +91,20 @@ export default function Header() {
 
       {/* Mobile Dropdown */}
       {menuOpen && (
-        <div className={`${styles.mobileMenu} ${styles.glass}`}>
-          <Link href={`https://studio.vidorahub.com/login/${token}`} target="_blank" className={styles.logoutMobile}>
-          <p>Dashboard</p>
+        <div ref={menuRef} className={`${styles.mobileMenu} ${styles.glass}`}>
+          <Link
+            href={`https://studio.vidorahub.com/login/${token}`}
+            target="_blank"
+            className={styles.logoutMobile}
+          >
+            <p>Dashboard</p>
           </Link>
-          <a onClick={handleEarn} className={styles.logoutMobile}>Earning</a>
-          <a onClick={handleUpload} className={styles.logoutMobile}>Upload</a>
+          <a onClick={handleEarn} className={styles.logoutMobile}>
+            Earning
+          </a>
+          <a onClick={handleUpload} className={styles.logoutMobile}>
+            Upload
+          </a>
           <a onClick={handleLogout} className={styles.logoutMobile}>
             Logout
           </a>

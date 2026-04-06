@@ -13,7 +13,7 @@ export default function Home() {
    useUserActivity()
   return (
     <>
-      <BackgroundLayers />
+      {/* <BackgroundLayers /> */}
 
       <div className="page-wrapper">
         <div className="sidebar-container">
