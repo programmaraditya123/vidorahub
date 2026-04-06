@@ -10,7 +10,7 @@ $overlay-gradient: linear-gradient(
 // The feed IS the scroll container. Each slide snaps into view.
 .feed {
   width: 100%;
-  height: calc(100dvh - 8rem);
+  height: calc(100dvh - 4rem);
   overflow-y: scroll;
   scroll-snap-type: y mandatory;      // hard snap — no in-between resting
   scrollbar-width: none;
@@ -24,7 +24,7 @@ $overlay-gradient: linear-gradient(
 // One wrapper per vibe — this is the scroll-snap target
 .slideWrapper {
   width: 100%;
-  height: calc(100dvh - 8rem);
+  height: calc(100dvh - 4rem);
   scroll-snap-align: start;
   scroll-snap-stop: always;           // must stop on EVERY slide (no skip-scrolling)
   flex-shrink: 0;
@@ -148,7 +148,7 @@ $overlay-gradient: linear-gradient(
 // ─── Loading-more indicator (3 bouncing dots) ─────────────────────────────────
 .loadingMore {
   width: 100%;
-  height: calc(100dvh - 8rem);
+  height: calc(100dvh - 4rem);
   display: flex;
   align-items: center;
   justify-content: center;
