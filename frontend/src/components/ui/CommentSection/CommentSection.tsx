@@ -116,6 +116,8 @@ export default function CommentsSection() {
       setComments((prev) =>
         prev.filter((c) => c._id !== optimisticComment._id)
       );
+      setShowModal(true);
+      return;
     }
   };
 

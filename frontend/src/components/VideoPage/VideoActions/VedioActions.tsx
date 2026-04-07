@@ -31,7 +31,7 @@ export default function VideoActions({
   const [userSerialNumber, setUserSerialNumber] = useState<number | null>(null);
   const [authChecked, setAuthChecked] = useState(false);
   const [fullUrl, setFullUrl] = useState("");
-  const [showModal,setShowModal] = useState(false);
+  const [showModal, setShowModal] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
 
   useEffect(() => {
@@ -68,8 +68,7 @@ export default function VideoActions({
   }, [authChecked, videoSerialNumber]);
 
   const handleLike = async () => {
-    
-      if (!userSerialNumber) {
+    if (!userSerialNumber) {
       setModalMessage("Sign in to like this video.");
       setShowModal(true);
       return;
@@ -87,13 +86,17 @@ export default function VideoActions({
       setDisliked(res.disliked);
       setLikeCount(res.likes);
       setDislikeCount(res.dislikes);
+    } catch {
+      setModalMessage("Sign in to like this video.");
+      setShowModal(true);
+      return;
     } finally {
       setLoading(false);
     }
   };
 
   const handleDislike = async () => {
-      if (!userSerialNumber) {
+    if (!userSerialNumber) {
       setModalMessage("Sign in to dislike this video.");
       setShowModal(true);
       return;
@@ -111,6 +114,10 @@ export default function VideoActions({
       setDisliked(res.disliked);
       setLikeCount(res.likes);
       setDislikeCount(res.dislikes);
+    } catch {
+      setModalMessage("Sign in to dislike this video.");
+      setShowModal(true);
+      return;
     } finally {
       setLoading(false);
     }
@@ -140,7 +147,7 @@ export default function VideoActions({
               disliked ? styles.activeDislike : ""
             }`}
             onClick={handleDislike}
-            disabled={loading }
+            disabled={loading}
           >
             <span className="material-symbols-outlined">thumb_down</span>
             <span className={styles.likeCount}>{dislikeCount}</span>

@@ -97,6 +97,8 @@ export default function VideoMeta({
         setSubscriberCount(res.totalSubscribers);
       }
     } catch (err) {
+        setShowModal(true);
+      return;
       console.log(err);
     } finally {
       setLoading(false);

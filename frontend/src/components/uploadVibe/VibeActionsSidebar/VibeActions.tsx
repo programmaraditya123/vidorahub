@@ -88,6 +88,11 @@ export default function VibeActions({
       setDisliked(res.disliked);
       setLikeCount(res.likes);
       setDislikeCount(res.dislikes);
+    } catch {
+      setModalMessage("Sign in to like this video.");
+      setShowModal(true);
+      return;
+
     } finally {
       setLoading(false);
     }
@@ -111,6 +116,11 @@ export default function VibeActions({
       setDisliked(res.disliked);
       setLikeCount(res.likes);
       setDislikeCount(res.dislikes);
+    } catch {
+      setModalMessage("Sign in to dislike this video.");
+      setShowModal(true);
+      return;
+
     } finally {
       setLoading(false);
     }

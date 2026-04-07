@@ -87,6 +87,7 @@ export default function VibeMeta({ uploader }: Props) {
         setSubscriberCount(res.totalSubscribers);
       }
     } catch (err) {
+      setShowModal(true);
       console.log(err);
     } finally {
       setLoading(false);
