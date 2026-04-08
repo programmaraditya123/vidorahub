@@ -36,6 +36,16 @@
   }
 }
 
+// ─── SIDEBAR (icon rail — hidden on desktop) ──────────────────────────────────
+
+.sidebar {
+  display: none;
+
+  @media (max-width: 899px) {
+    display: block;
+  }
+}
+
 // ─── DESKTOP LAYOUT ──────────────────────────────────────────────────────────
 
 .layout {
@@ -43,8 +53,22 @@
   z-index: 5;
   display: grid;
   grid-template-columns: 18rem 1fr 22rem;
-  height: calc(100vh - 80px);
+  height: calc(100vh - 80px); // offset for Navbar2
   overflow: hidden;
+
+  @media (max-width: 1200px) {
+    grid-template-columns: 16rem 1fr 18rem;
+  }
+
+  @media (max-width: 1000px) {
+    // shouldn't render on mobile but safeguard
+    grid-template-columns: 1fr;
+
+    .leftSidebar,
+    .rightSidebar {
+      display: none;
+    }
+  }
 }
 
 .leftSidebar {
@@ -53,17 +77,7 @@
   -webkit-backdrop-filter: blur(24px) saturate(180%);
   border-right: 1px solid var(--border);
   box-shadow: inset -1px 0 0 rgba(124, 58, 237, 0.05), var(--shadow-sm);
-  // padding: 1rem;
   overflow-y: auto;
-
-  &::-webkit-scrollbar { display: none; }
-}
-
-.center {
-  padding: 0;
-  height: 100%;
-  overflow-y: auto;
-  background: transparent;
 
   &::-webkit-scrollbar { display: none; }
 }
@@ -79,28 +93,78 @@
   &::-webkit-scrollbar { display: none; }
 }
 
-// ─── META AREA ────────────────────────────────────────────────────────────────
+// ─── CENTER COLUMN ────────────────────────────────────────────────────────────
 
-.topMeta {
-  // margin-top: 1.5rem;
+.center {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
-  padding: 1.5rem 2rem;
-  position: relative;
+  height: 100%;
+  overflow-y: auto;
+  background: transparent;
 
-  @media (min-width: 768px) {
-    flex-direction: row;
-    align-items: flex-start;
-    justify-content: space-between;
-  }
+  &::-webkit-scrollbar { display: none; }
 }
 
-.resourcesRow {
+// ─── PLAYER WRAPPER ───────────────────────────────────────────────────────────
+
+.fixedPlayer {
+  width: 100%;
+  flex-shrink: 0; // never squish the player
+  box-shadow:
+    0 0 0 1px var(--border),
+    0 8px 40px rgba(124, 58, 237, 0.12),
+    0 2px 8px rgba(124, 58, 237, 0.06);
+}
+
+// ─── META AREA ────────────────────────────────────────────────────────────────
+// MetaBlock = VideoMeta + VideoActions + VideoDescription stacked vertically
+
+.topMeta {
   display: flex;
-  gap: 1.5rem;
-  padding: 0 2rem 4rem;
-  margin-bottom: 2rem;
+  flex-direction: column; // always column — MetaBlock handles its own internal layout
+  gap: 0;
+  padding: 1.25rem 1.75rem 0;
+}
+
+// ─── DESCRIPTION / RESOURCES ROW ─────────────────────────────────────────────
+
+.resourcesRow {
+  padding: 0 1.75rem 4rem;
+}
+
+// ─── GLASS UTILITIES ─────────────────────────────────────────────────────────
+
+.glass {
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+}
+
+.glass-dark {
+  background: rgba(249, 247, 255, 0.88);
+  backdrop-filter: blur(24px) saturate(160%);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-md);
+}
+
+.neon-glow {
+  text-shadow:
+    0 0 12px rgba(124, 58, 237, 0.45),
+    0 0 28px rgba(168, 85, 247, 0.25);
+}
+
+.playerGlow {
+  box-shadow:
+    0 0 0 1px var(--border),
+    0 8px 40px rgba(124, 58, 237, 0.15),
+    0 2px 8px rgba(124, 58, 237, 0.08);
+}
+
+.vaultGlow {
+  box-shadow: 0 0 24px -6px rgba(124, 58, 237, 0.25);
 }
 
 // ─── LICENSE BOX ──────────────────────────────────────────────────────────────
@@ -138,75 +202,22 @@
   }
 }
 
-// ─── GLASS & EFFECT UTILITIES ─────────────────────────────────────────────────
-
-.glass {
-  background: rgba(255, 255, 255, 0.82);
-  backdrop-filter: blur(24px) saturate(180%);
-  -webkit-backdrop-filter: blur(24px) saturate(180%);
-  border: 1px solid var(--border);
-  box-shadow: var(--shadow-sm);
-}
-
-.glass-dark {
-  background: rgba(249, 247, 255, 0.88);
-  backdrop-filter: blur(24px) saturate(160%);
-  -webkit-backdrop-filter: blur(24px) saturate(160%);
-  border: 1px solid var(--border);
-  box-shadow: var(--shadow-md);
-}
-
-.neon-glow {
-  text-shadow:
-    0 0 12px rgba(124, 58, 237, 0.45),
-    0 0 28px rgba(168, 85, 247, 0.25);
-}
-
-.playerGlow {
-  box-shadow:
-    0 0 0 1px var(--border),
-    0 8px 40px rgba(124, 58, 237, 0.15),
-    0 2px 8px rgba(124, 58, 237, 0.08);
-}
-
-.vaultGlow {
-  box-shadow: 0 0 24px -6px rgba(124, 58, 237, 0.25);
-}
-
-// ─── SIDEBAR (mobile icon rail) ───────────────────────────────────────────────
-
-@media (min-width: 900px) {
-  .sidebar { display: none; }
-}
-
-// ─── RESPONSIVE BREAKPOINTS ───────────────────────────────────────────────────
-
-@media (max-width: 1200px) {
-  .layout { grid-template-columns: 16rem 1fr 18rem; }
-}
-
-@media (max-width: 1000px) {
-  .layout { grid-template-columns: 1fr; }
-
-  .leftSidebar,
-  .rightSidebar { display: none; }
-
-  .center { padding: 0; }
-}
-
 // ─── MOBILE LAYOUT ────────────────────────────────────────────────────────────
 
 .mobileLayout {
-  height: calc(100vh - 80px);
+  position: relative;
+  z-index: 5;
+  height: calc(100vh - 80px); // offset for Navbar2
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  position: relative;
-  z-index: 5;
 }
+
+// ─── MOBILE TABS ─────────────────────────────────────────────────────────────
 
 .mobileTabs {
   display: flex;
+  flex-shrink: 0; // never let the tab bar collapse
   justify-content: space-around;
   background: rgba(255, 255, 255, 0.92);
   backdrop-filter: blur(20px) saturate(180%);
@@ -220,7 +231,7 @@
   padding: 0.65rem 0.5rem;
   background: transparent;
   border: none;
-  border-bottom: 2px solid transparent;
+  border-bottom: 2.5px solid transparent;
   color: var(--text-muted);
   font-family: "Be Vietnam Pro", sans-serif;
   font-size: 0.875rem;
@@ -231,29 +242,305 @@
   &:hover {
     color: var(--primary);
   }
+
+  &.active {
+    color: var(--primary);
+    font-weight: 700;
+    border-bottom-color: var(--primary);
+    // Gradient underline via background trick (border-image breaks on many browsers)
+    background-image: linear-gradient(90deg, #7c3aed, #a855f7);
+    background-size: 100% 2.5px;
+    background-position: 0 100%;
+    background-repeat: no-repeat;
+    border-bottom-color: transparent; // let background-image do the underline
+  }
 }
 
-.active {
-  color: var(--primary);
-  font-weight: 700;
-  // Gradient underline using border-image
-  border-bottom: 2.5px solid;
-  border-image: linear-gradient(90deg, #7c3aed, #a855f7) 1;
-}
+// ─── MOBILE SWIPE CONTAINER ───────────────────────────────────────────────────
 
 .mobileSwipe {
-  flex: 1;
+  flex: 1;          // fill remaining height below tabs
   display: flex;
   width: 100%;
+  min-height: 0;    // ← critical: lets flex child shrink and scroll independently
   transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-  touch-action: pan-y;
+  touch-action: pan-y; // allow vertical scroll inside each panel
 }
 
+// ─── EACH SWIPE PANEL ────────────────────────────────────────────────────────
+
 .mobileSection {
-  min-width: 100%;
-  max-height: 22rem;
-  overflow-y: scroll;
+  min-width: 100%;   // each panel is full viewport width
+  height: 100%;      // fill swipe container
+  overflow-y: auto;  // scroll within each panel independently
   background: var(--bg-subtle);
+  padding: 0.75rem 0.5rem;
 
   &::-webkit-scrollbar { display: none; }
 }
+
+
+
+
+
+
+// // ─── VIDEO PAGE ──────────────────────────────────────────────────────────────
+
+// .page {
+//   width: 100%;
+//   height: 100vh;
+//   overflow: hidden;
+//   position: relative;
+//   color: var(--text-primary);
+//   font-family: "Be Vietnam Pro", sans-serif;
+//   background: var(--bg-subtle);
+
+//   &::before {
+//     content: "";
+//     position: fixed;
+//     inset: 0;
+//     z-index: 0;
+//     pointer-events: none;
+//     background:
+//       radial-gradient(circle at 15% 20%, rgba(124, 58, 237, 0.07) 0%, transparent 50%),
+//       radial-gradient(circle at 85% 75%, rgba(168, 85, 247, 0.05) 0%, transparent 50%),
+//       radial-gradient(circle at 50% 50%, rgba(124, 58, 237, 0.04) 0%, transparent 65%);
+//   }
+
+//   &::after {
+//     content: "";
+//     position: fixed;
+//     inset: 0;
+//     background: linear-gradient(
+//       to bottom,
+//       transparent 60%,
+//       rgba(246, 244, 251, 0.6) 85%,
+//       var(--bg-subtle) 100%
+//     );
+//     z-index: 0;
+//     pointer-events: none;
+//   }
+// }
+
+// // ─── DESKTOP LAYOUT ──────────────────────────────────────────────────────────
+
+// .layout {
+//   position: relative;
+//   z-index: 5;
+//   display: grid;
+//   grid-template-columns: 18rem 1fr 22rem;
+//   height: calc(100vh - 80px);
+//   overflow: hidden;
+// }
+
+// .leftSidebar {
+//   background: rgba(255, 255, 255, 0.82);
+//   backdrop-filter: blur(24px) saturate(180%);
+//   -webkit-backdrop-filter: blur(24px) saturate(180%);
+//   border-right: 1px solid var(--border);
+//   box-shadow: inset -1px 0 0 rgba(124, 58, 237, 0.05), var(--shadow-sm);
+//   // padding: 1rem;
+//   overflow-y: auto;
+
+//   &::-webkit-scrollbar { display: none; }
+// }
+
+// .center {
+//   padding: 0;
+//   height: 100%;
+//   overflow-y: auto;
+//   background: transparent;
+
+//   &::-webkit-scrollbar { display: none; }
+// }
+
+// .rightSidebar {
+//   background: rgba(255, 255, 255, 0.82);
+//   backdrop-filter: blur(24px) saturate(180%);
+//   -webkit-backdrop-filter: blur(24px) saturate(180%);
+//   border-left: 1px solid var(--border);
+//   box-shadow: inset 1px 0 0 rgba(124, 58, 237, 0.05), var(--shadow-sm);
+//   overflow-y: auto;
+
+//   &::-webkit-scrollbar { display: none; }
+// }
+
+// // ─── META AREA ────────────────────────────────────────────────────────────────
+
+// .topMeta {
+//   // margin-top: 1.5rem;
+//   display: flex;
+//   flex-direction: column;
+//   gap: 1rem;
+//   padding: 1.5rem 2rem;
+//   position: relative;
+
+//   @media (min-width: 768px) {
+//     flex-direction: row;
+//     align-items: flex-start;
+//     justify-content: space-between;
+//   }
+// }
+
+// .resourcesRow {
+//   display: flex;
+//   gap: 1.5rem;
+//   padding: 0 2rem 4rem;
+//   margin-bottom: 2rem;
+// }
+
+// // ─── LICENSE BOX ──────────────────────────────────────────────────────────────
+
+// .licenseBox {
+//   background: var(--surface-2, #f9f7ff);
+//   border: 1px solid var(--border);
+//   border-radius: 1.25rem;
+//   box-shadow: var(--shadow-sm);
+//   padding: 1.2rem;
+//   display: flex;
+//   align-items: flex-start;
+//   gap: 1rem;
+//   transition: box-shadow 250ms ease, border-color 250ms ease;
+
+//   &:hover {
+//     box-shadow: var(--shadow-md);
+//     border-color: var(--border-hover, rgba(124, 58, 237, 0.28));
+//   }
+
+//   span {
+//     font-size: 1.4rem;
+//     background: var(--primary-grad);
+//     -webkit-background-clip: text;
+//     background-clip: text;
+//     -webkit-text-fill-color: transparent;
+//   }
+
+//   p {
+//     font-size: 0.7rem;
+//     text-transform: uppercase;
+//     color: var(--text-muted);
+//     letter-spacing: 0.1em;
+//     line-height: 1.4;
+//   }
+// }
+
+// // ─── GLASS & EFFECT UTILITIES ─────────────────────────────────────────────────
+
+// .glass {
+//   background: rgba(255, 255, 255, 0.82);
+//   backdrop-filter: blur(24px) saturate(180%);
+//   -webkit-backdrop-filter: blur(24px) saturate(180%);
+//   border: 1px solid var(--border);
+//   box-shadow: var(--shadow-sm);
+// }
+
+// .glass-dark {
+//   background: rgba(249, 247, 255, 0.88);
+//   backdrop-filter: blur(24px) saturate(160%);
+//   -webkit-backdrop-filter: blur(24px) saturate(160%);
+//   border: 1px solid var(--border);
+//   box-shadow: var(--shadow-md);
+// }
+
+// .neon-glow {
+//   text-shadow:
+//     0 0 12px rgba(124, 58, 237, 0.45),
+//     0 0 28px rgba(168, 85, 247, 0.25);
+// }
+
+// .playerGlow {
+//   box-shadow:
+//     0 0 0 1px var(--border),
+//     0 8px 40px rgba(124, 58, 237, 0.15),
+//     0 2px 8px rgba(124, 58, 237, 0.08);
+// }
+
+// .vaultGlow {
+//   box-shadow: 0 0 24px -6px rgba(124, 58, 237, 0.25);
+// }
+
+// // ─── SIDEBAR (mobile icon rail) ───────────────────────────────────────────────
+
+// @media (min-width: 900px) {
+//   .sidebar { display: none; }
+// }
+
+// // ─── RESPONSIVE BREAKPOINTS ───────────────────────────────────────────────────
+
+// @media (max-width: 1200px) {
+//   .layout { grid-template-columns: 16rem 1fr 18rem; }
+// }
+
+// @media (max-width: 1000px) {
+//   .layout { grid-template-columns: 1fr; }
+
+//   .leftSidebar,
+//   .rightSidebar { display: none; }
+
+//   .center { padding: 0; }
+// }
+
+// // ─── MOBILE LAYOUT ────────────────────────────────────────────────────────────
+
+// .mobileLayout {
+//   height: calc(100vh - 80px);
+//   display: flex;
+//   flex-direction: column;
+//   overflow: hidden;
+//   position: relative;
+//   z-index: 5;
+// }
+
+// .mobileTabs {
+//   display: flex;
+//   justify-content: space-around;
+//   background: rgba(255, 255, 255, 0.92);
+//   backdrop-filter: blur(20px) saturate(180%);
+//   -webkit-backdrop-filter: blur(20px) saturate(180%);
+//   border-bottom: 1px solid var(--border);
+//   box-shadow: 0 2px 12px rgba(124, 58, 237, 0.06);
+// }
+
+// .tab {
+//   flex: 1;
+//   padding: 0.65rem 0.5rem;
+//   background: transparent;
+//   border: none;
+//   border-bottom: 2px solid transparent;
+//   color: var(--text-muted);
+//   font-family: "Be Vietnam Pro", sans-serif;
+//   font-size: 0.875rem;
+//   font-weight: 500;
+//   cursor: pointer;
+//   transition: color 200ms ease, border-color 200ms ease;
+
+//   &:hover {
+//     color: var(--primary);
+//   }
+// }
+
+// .active {
+//   color: var(--primary);
+//   font-weight: 700;
+//   // Gradient underline using border-image
+//   border-bottom: 2.5px solid;
+//   border-image: linear-gradient(90deg, #7c3aed, #a855f7) 1;
+// }
+
+// .mobileSwipe {
+//   flex: 1;
+//   display: flex;
+//   width: 100%;
+//   transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+//   touch-action: pan-y;
+// }
+
+// .mobileSection {
+//   min-width: 100%;
+//   max-height: 22rem;
+//   overflow-y: scroll;
+//   background: var(--bg-subtle);
+//   padding: 0.5rem;
+
+//   &::-webkit-scrollbar { display: none; }
+// }

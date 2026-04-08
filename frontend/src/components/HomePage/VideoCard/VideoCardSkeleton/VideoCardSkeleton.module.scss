@@ -1,69 +1,78 @@
-/* ============================= */
-/* Skeleton shimmer animation */
-/* ============================= */
+// ─── SHIMMER ─────────────────────────────────────────────────────────────────
+// Uses the site's purple accent so the shimmer feels on-brand
+
 @keyframes shimmer {
-  0% {
-    background-position: -200% 0;
-  }
-  100% {
-    background-position: 200% 0;
-  }
+  0%   { background-position: -200% 0; }
+  100% { background-position:  200% 0; }
 }
 
-$skeleton-bg: linear-gradient(
+// Light shimmer — purple-tinted, matches the page glass surfaces
+$shimmer: linear-gradient(
   90deg,
-  rgba(255, 255, 255, 0.06) 25%,
-  rgba(255, 255, 255, 0.14) 37%,
-  rgba(255, 255, 255, 0.06) 63%
+  rgba(124, 58, 237, 0.06)  25%,
+  rgba(168, 85, 247, 0.16)  50%,
+  rgba(124, 58, 237, 0.06)  75%
 );
 
-/* ============================= */
-/* Card */
-/* ============================= */
+// ─── CARD ─────────────────────────────────────────────────────────────────────
+
 .card {
   border-radius: 26px;
   overflow: hidden;
   position: relative;
-  background: rgba(20, 20, 20, 0.8);
+  // Match the site's glass card surface
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid rgba(124, 58, 237, 0.1);
+  box-shadow:
+    0 0 0 1px rgba(124, 58, 237, 0.06),
+    0 4px 24px rgba(124, 58, 237, 0.08);
   pointer-events: none;
 }
 
-/* ============================= */
-/* Thumbnail */
-/* ============================= */
+// ─── THUMBNAIL ────────────────────────────────────────────────────────────────
+
 .thumbnailWrapper {
   position: relative;
   width: 100%;
   aspect-ratio: 16 / 9;
   border-radius: 26px;
   overflow: hidden;
+  // Subtle purple-tinted placeholder bg behind the shimmer
+  background: rgba(124, 58, 237, 0.05);
 }
 
 .thumbnail {
   width: 100%;
   height: 100%;
-  background: $skeleton-bg;
+  background: $shimmer;
   background-size: 200% 100%;
-  animation: shimmer 1.4s infinite;
+  animation: shimmer 1.6s ease-in-out infinite;
 }
 
-/* ============================= */
-/* Info glass box */
-/* ============================= */
+// ─── INFO GLASS BOX ───────────────────────────────────────────────────────────
+
 .info {
   position: absolute;
-  inset: auto 18px 18px 18px;
-  padding: 16px;
-  border-radius: 22px;
+  inset: auto 14px 14px 14px;
+  padding: 14px 16px;
+  border-radius: 18px;
   display: flex;
   gap: 12px;
   align-items: center;
-  background: rgba(15, 15, 15, 0.65);
-  backdrop-filter: blur(14px);
+  // Matches .glass from video.module.scss
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(124, 58, 237, 0.1);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.6),
+    0 2px 12px rgba(124, 58, 237, 0.06);
 
   @media (max-width: 600px) {
-    inset: auto 12px 12px 12px;
-    padding: 12px;
+    inset: auto 10px 10px 10px;
+    padding: 10px 12px;
   }
 
   @media (max-width: 400px) {
@@ -71,16 +80,18 @@ $skeleton-bg: linear-gradient(
   }
 }
 
-/* ============================= */
-/* Avatar */
-/* ============================= */
+// ─── AVATAR ───────────────────────────────────────────────────────────────────
+
 .avatar {
+  flex-shrink: 0;
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: $skeleton-bg;
+  background: $shimmer;
   background-size: 200% 100%;
-  animation: shimmer 1.4s infinite;
+  animation: shimmer 1.6s ease-in-out infinite;
+  // Faint purple ring — mirrors real avatar style
+  box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.12);
 
   @media (max-width: 480px) {
     width: 30px;
@@ -88,43 +99,41 @@ $skeleton-bg: linear-gradient(
   }
 }
 
-/* ============================= */
-/* Meta */
-/* ============================= */
+// ─── META ─────────────────────────────────────────────────────────────────────
+
 .meta {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 7px;
   flex: 1;
+  min-width: 0; // prevent overflow
+}
+
+%bar {
+  border-radius: 6px;
+  background: $shimmer;
+  background-size: 200% 100%;
+  animation: shimmer 1.6s ease-in-out infinite;
 }
 
 .title {
-  height: 16px;
-  width: 90%;
-  border-radius: 6px;
-  background: $skeleton-bg;
-  background-size: 200% 100%;
-  animation: shimmer 1.4s infinite;
+  @extend %bar;
+  height: 14px;
+  width: 88%;
 
   @media (max-width: 480px) {
-    height: 14px;
+    height: 12px;
   }
 }
 
 .creator {
-  height: 12px;
-  width: 60%;
-  border-radius: 6px;
-  background: $skeleton-bg;
-  background-size: 200% 100%;
-  animation: shimmer 1.4s infinite;
+  @extend %bar;
+  height: 11px;
+  width: 58%;
 }
 
 .views {
-  height: 11px;
-  width: 40%;
-  border-radius: 6px;
-  background: $skeleton-bg;
-  background-size: 200% 100%;
-  animation: shimmer 1.4s infinite;
+  @extend %bar;
+  height: 10px;
+  width: 38%;
 }
