@@ -18,18 +18,24 @@ function buildVideoUrl(videoUrl: string, videoId: string): string | null {
 
 export const revalidate = 3600;
 
-const RENDER_URL = "https://about-vidorahub-ffmpeg-worker.onrender.com/api/v1/getsitemap"
-
-const local_URL = "http://localhost:4000/api/v1/getsitemap"
+// ✅ No NEXT_PUBLIC_ prefix — this runs server-side only
+const SITEMAP_API_URL = process.env.API_BASE_URL_RENDER
+  ? `${process.env.API_BASE_URL_RENDER}/api/v1/getsitemap`
+  : "https://about-vidorahub-ffmpeg-worker.onrender.com/api/v1/getsitemap"; // hardcoded fallback
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   let videos: SitemapVideo[] = [];
 
   try {
-    const res = await fetch(
-      RENDER_URL,
-      { next: { revalidate: 3600 } }
-    );
+    const res = await fetch(SITEMAP_API_URL, { next: { revalidate: 3600 } });
+
+    // ✅ Guard against HTML error pages
+    const contentType = res.headers.get("content-type") || "";
+    if (!res.ok || !contentType.includes("application/json")) {
+      console.error(`Sitemap API error ${res.status}:`, await res.text());
+      return [];
+    }
+
     const data = await res.json();
     videos = data.videos ?? [];
   } catch (err) {
@@ -53,7 +59,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   return [
     {
-      url: `https://www.vidorahub.com/`,
+      url: "https://www.vidorahub.com/",
       lastModified: new Date(),
       changeFrequency: "daily",
       priority: 1,
