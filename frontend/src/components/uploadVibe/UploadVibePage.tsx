@@ -161,7 +161,7 @@ export default function UploadVibePage() {
         <div className={styles.right}>
           <DataSculptingForm
             onPublish={handlePublish}
-            onSaveDraft={() => handleSaveDraft}
+            // onSaveDraft={() => handleSaveDraft}
           />
         </div>
       )}
