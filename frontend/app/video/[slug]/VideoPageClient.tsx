@@ -109,6 +109,7 @@ export default function VideoPageClient() {
     if (loading || !videoMeta) return null;
     return (
       <>
+      <div className={styles.metablock}>
         <VideoMeta
           title={videoMeta.title}
           category={videoMeta.tags?.[0] || "General"}
@@ -125,9 +126,13 @@ export default function VideoPageClient() {
           hashtags={videoMeta.tags}
           description={videoMeta.description}
         />
+        </div>
       </>
     );
   }, [loading, videoMeta]);
+
+
+
 
   return (
     <div className={styles.page}>

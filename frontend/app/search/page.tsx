@@ -108,11 +108,7 @@ export default function SearchPage() {
             onChange={(e) => setSearch(e.target.value)}
             />
           </div>
-{/* 
-          <div className={styles.userActions}>
-            <button className={styles.bell}>🔔</button>
-            <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCe..." />
-          </div> */}
+ 
         </div>
       </header>
 
