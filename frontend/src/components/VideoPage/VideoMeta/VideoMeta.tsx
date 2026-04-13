@@ -9,6 +9,7 @@ import {
   unfollowCreator,
 } from "@/src/lib/video/likesDislikes";
 import AuthModal from "../../shared/AuthModal/AuthModal";
+import Image from "next/image";
 
 interface Props {
   title: string;
@@ -19,6 +20,7 @@ interface Props {
     name: string;
     subscriber: number;
     userSerialNumber: number;
+    profilePicUrl?: string;
   };
 }
 
@@ -97,14 +99,13 @@ export default function VideoMeta({
         setSubscriberCount(res.totalSubscribers);
       }
     } catch (err) {
-        setShowModal(true);
+      setShowModal(true);
       return;
       console.log(err);
     } finally {
       setLoading(false);
     }
   };
-
 
   return (
     <>
@@ -119,13 +120,17 @@ export default function VideoMeta({
         </h1>
 
         <div className={styles.channelRow}>
-          <div
-            className={styles.avatar}
-            style={{
-              backgroundImage:
-                "url('https://lh3.googleusercontent.com/aida-public/AB6AXuB7l0EWz1hBqpdjmRYNzy7ggwUEvmYk-4CzCpwX1RSEZR8jc5B2W85SNXX4A5yW5V64bw9Vrutfyll7spm4H1iifX1_buEQ6Dc-tB9WNCHMp9hT17YJXhYu8PJY2Aw1wuE2PX3X66HMl60gdC1e6cYdJz2FgUNF6WrZuUIjsDPjJpLNQ-IHg1F3-wgqJLi045QB5I4Lal9SOmRyArMS7pWAgcupMFgFaJMW8S3MvJf7BHVncFqhXoPYf2k9ViJsFga5QDJikEIQf8U1')",
-            }}
-          />
+          <div className={styles.avatar}>
+            <Image
+              src={
+                uploader.profilePicUrl ||
+                "https://lh3.googleusercontent.com/aida-public/AB6AXuB7l0EWz1hBqpdjmRYNzy7ggwUEvmYk-4CzCpwX1RSEZR8jc5B2W85SNXX4A5yW5V64bw9Vrutfyll7spm4H1iifX1_buEQ6Dc-tB9WNCHMp9hT17YJXhYu8PJY2Aw1wuE2PX3X66HMl60gdC1e6cYdJz2FgUNF6WrZuUIjsDPjJpLNQ-IHg1F3-wgqJLi045QB5I4Lal9SOmRyArMS7pWAgcupMFgFaJMW8S3MvJf7BHVncFqhXoPYf2k9ViJsFga5QDJikEIQf8U1"
+              }
+              alt={uploader.name}
+              fill
+              style={{ objectFit: "cover" }}
+            />
+          </div>
 
           <div className={styles.channelInfo} key={uploader._id}>
             <Link href={`/channel/${uploader._id}`}>
@@ -152,8 +157,6 @@ export default function VideoMeta({
     </>
   );
 }
-
-
 
 // "use client";
 

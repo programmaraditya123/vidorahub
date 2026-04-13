@@ -13,6 +13,7 @@ interface User {
   _id: string;
   name: string;
   avatar?: string;
+  profilePicUrl?: string;
 }
 
 interface Comment {
@@ -53,7 +54,7 @@ export default function CommentsSection() {
 
   const stopPropagation = useCallback(
     (e: React.SyntheticEvent) => e.stopPropagation(),
-    []
+    [],
   );
 
   const handlePost = useCallback(async () => {
@@ -88,9 +89,7 @@ export default function CommentsSection() {
 
       const real: Comment = res.data.data;
 
-      setComments((prev) =>
-        prev.map((c) => (c._id === tid ? { ...real } : c))
-      );
+      setComments((prev) => prev.map((c) => (c._id === tid ? { ...real } : c)));
     } catch (err) {
       console.error("Failed to post comment:", err);
       setComments((prev) => removeById(prev, tid));
@@ -120,20 +119,18 @@ export default function CommentsSection() {
         handlePost();
       }
     },
-    [handlePost]
+    [handlePost],
   );
 
   const CommentItem = ({ comment }: { comment: Comment }) => (
-    <div
-      className={styles.commentRow}
-      onClick={stopPropagation}
-    >
+    <div className={styles.commentRow} onClick={stopPropagation}>
       <Image
-        src={comment.user.avatar || fallbackThumbnail}
+        src={comment.user.profilePicUrl || fallbackThumbnail}
         width={36}
         height={36}
         alt={comment.user.name}
         className={styles.avatar}
+        loading="lazy"
       />
 
       <div
@@ -152,6 +149,8 @@ export default function CommentsSection() {
       </div>
     </div>
   );
+
+  console.log("comments", comments);
 
   return (
     <>
@@ -211,7 +210,6 @@ export default function CommentsSection() {
   );
 }
 
-
 // "use client";
 
 // import { useEffect, useRef, useState } from "react";
@@ -255,7 +253,6 @@ export default function CommentsSection() {
 //       .then((res) => setComments(res.data.data));
 //   }, [videoId]);
 
- 
 //   const insertReply = (
 //     tree: Comment[],
 //     parentId: string,
@@ -335,7 +332,6 @@ export default function CommentsSection() {
 //   el.style.height = el.scrollHeight + "px"; // grow to content
 // };
 
- 
 //   const CommentItem = ({
 //     comment,
 //     depth = 0,
@@ -370,7 +366,6 @@ export default function CommentsSection() {
 //         </div>
 
 //         <p className={styles.text}>{comment.content}</p>
-
 
 //         {comment.replies?.map((r) => (
 //           <CommentItem

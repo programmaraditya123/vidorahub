@@ -10,6 +10,7 @@ const { ExpressAdapter } = require("@bull-board/express");
 const { connectdb } = require("./db/mongo");
 const cors = require("cors");
 const userActivity = require('./modules/CheckActivity/CheckActivity.route');
+const SiteMap = require('./modules/Sitemap/sitemap.route')
 const db = require("./db/db2");
 
 db;
@@ -61,6 +62,8 @@ createBullBoard({
 app.use("/admin/queues", serverAdapter.getRouter());
 
 app.use('/api/v1',userActivity)
+
+app.use('/api/v1',SiteMap)
 
 app.get("/",(req,res) => {
     res.send("backned is runing")

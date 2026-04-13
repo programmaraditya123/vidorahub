@@ -9,7 +9,7 @@ const getVedioDataExceptCommentsDocs = async (req,res) => {
         const {id} = req.params;
         const data = await Video.findById(id)
         .select("-videoUrl -updatedAt -category -_id")
-        .populate({path : "uploader" , select : "name subscriber userSerialNumber"})
+        .populate({path : "uploader" , select : "name subscriber userSerialNumber profilePicUrl"})
         res.json({
             ok : true,
             data
@@ -119,7 +119,7 @@ const getVedioComments = async (req, res) => {
       .select("-isEdited -isPinned -updatedAt -__v")
       .skip(skip)
       .limit(limit)
-      .populate("user", "username avatar name")
+      .populate("user", "username avatar name profilePicUrl")
       .lean();
 
     const commentIds = comments.map((c) => c._id);

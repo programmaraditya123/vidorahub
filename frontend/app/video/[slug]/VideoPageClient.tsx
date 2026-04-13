@@ -77,7 +77,7 @@ export default function VideoPageClient() {
     return () => { cancelled = true; };
   }, [videoId]);
 
-  // ─── Adaptive video source ────────────────────────────────────────────────
+ 
   const finalVideoSrc = useMemo(() => {
     if (!videoMeta) return fallbackVideoUrl;
     const isReady = videoMeta?.Status === "ready";
@@ -88,7 +88,7 @@ export default function VideoPageClient() {
     return videoMeta?.videoUrl || fallbackVideoUrl;
   }, [videoMeta, fallbackVideoUrl]);
 
-  // ─── Mobile swipe ─────────────────────────────────────────────────────────
+ 
   const touchStartX = useRef(0);
 
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
@@ -104,7 +104,9 @@ export default function VideoPageClient() {
     });
   }, []);
 
-  // ─── Shared meta block ────────────────────────────────────────────────────
+  // console.log("video meta data",videoMeta.uploader)
+
+  
   const MetaBlock = useMemo(() => {
     if (loading || !videoMeta) return null;
     return (

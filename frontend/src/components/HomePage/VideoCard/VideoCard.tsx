@@ -19,6 +19,7 @@ type Video = {
   duration?: string;
   thumbnailUrl?: string;
   isLive?: boolean;
+  profilePicUrl ?: string;
 };
 
 export default function VideoCard({ video }: { video: Video }) {
@@ -104,7 +105,20 @@ export default function VideoCard({ video }: { video: Video }) {
 
       {/* Info */}
       <div className={`${styles.info} glass-dark`}>
-        <div className={styles.avatar} />
+        <div className={styles.avatar}>
+         {video.profilePicUrl && <Image
+            src={video.profilePicUrl}
+            alt={video.title}
+            priority={false}
+            className={styles.thumbnail}
+            loading="lazy"
+            // ✅ Hint to the browser this image may become important on hover
+            fetchPriority="low"
+            style={{ borderRadius: '50%', objectFit: 'cover' }} 
+            height={32}
+            width={32}
+          />}
+        </div>
 
         <div className={styles.meta}>
           <p className={styles.title}>{video.title}</p>
@@ -117,16 +131,12 @@ export default function VideoCard({ video }: { video: Video }) {
             <span className={styles.views}>{video.views} views</span>
           )}
 
-          {video.isLive && (
-            <span className={styles.liveText}>🔴 Live now</span>
-          )}
+          {video.isLive && <span className={styles.liveText}>🔴 Live now</span>}
         </div>
       </div>
     </div>
   );
 }
-
-
 
 // "use client";
 
@@ -146,7 +156,7 @@ export default function VideoCard({ video }: { video: Video }) {
 //   creatorName?: string;
 //   videoUrl?: string;
 //   views?: number | string;
-//   duration?: string;  
+//   duration?: string;
 //   thumbnailUrl?: string;
 //   isLive?: boolean;
 // };
@@ -154,7 +164,6 @@ export default function VideoCard({ video }: { video: Video }) {
 // export default function VideoCard({ video }: { video: Video }) {
 //   const router = useRouter();
 //   // const dispatch =  useAppDispatch()
-  
 
 //   const handleNavigate = useCallback(() => {
 //     if (!video.videoUrl) return;
@@ -164,7 +173,6 @@ export default function VideoCard({ video }: { video: Video }) {
 //     setVideoId(video?._id)
 //     localStorage.setItem("thubnailUrl",video?.thumbnailUrl!)
 //   }
-   
 
 //     const lastPart = video.videoUrl.split("vidorahub/")[1];
 //     const encoded = encodeFilename(lastPart!+`${video?._id}`);

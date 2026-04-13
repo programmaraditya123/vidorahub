@@ -19,6 +19,7 @@ type Video = {
   };
   uploader?: {
     name?: string;
+    profilePicUrl?:string;
   };
 };
 
@@ -100,6 +101,7 @@ export default function Masonry() {
       duration: formatDuration(Number(video.duration)),
       views: video.stats?.views ?? 0,
       videoUrl: video.videoUrl,
+      profilePicUrl : video.uploader?.profilePicUrl
     }));
   }, [videos]);
 
