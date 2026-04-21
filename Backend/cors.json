@@ -6,7 +6,7 @@
       "https://vidorahubb-frontend-189065286116.asia-south1.run.app"
     ],
     "method": ["PUT", "POST", "GET", "OPTIONS"],
-    "responseHeader": ["Content-Type", "Authorization"],
+    "responseHeader": ["*"],
     "maxAgeSeconds": 3600
   }
 ]
