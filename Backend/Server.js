@@ -24,7 +24,8 @@ const allowed_origins = [
     "http://localhost:3000",
     "https://vidorahub-v6qk.vercel.app",
     "https://www.vidorahub.com",
-    "https://studio.vidorahub.com"
+    "https://studio.vidorahub.com",
+    "https://vidorahub.adi4255saini.workers.dev"
 ]
 
 const corsOptions = {
