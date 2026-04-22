@@ -1,6 +1,5 @@
-import type { NextConfig } from "next";
-
-const nextConfig: NextConfig = {
+/** @type {import('next').NextConfig} */
+const nextConfig = {
   images: {
     remotePatterns: [
       {
@@ -16,13 +15,39 @@ const nextConfig: NextConfig = {
 
   output: "standalone",
 
-   
-
-  // If you really need this custom field:
+  // Optional (keep only if you actually use it)
   allowedDevOrigins: ["local-origin.dev", "*.local-origin.dev"],
 };
 
-export default nextConfig;
+module.exports = nextConfig;
+
+
+
+// import type { NextConfig } from "next";
+
+// const nextConfig: NextConfig = {
+//   images: {
+//     remotePatterns: [
+//       {
+//         protocol: "https",
+//         hostname: "lh3.googleusercontent.com",
+//       },
+//       {
+//         protocol: "https",
+//         hostname: "storage.googleapis.com",
+//       },
+//     ],
+//   },
+
+//   output: "standalone",
+
+   
+
+//   // If you really need this custom field:
+//   allowedDevOrigins: ["local-origin.dev", "*.local-origin.dev"],
+// };
+
+// export default nextConfig;
 
 
 
