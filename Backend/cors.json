@@ -3,7 +3,9 @@
     "origin": [
       "http://localhost:3000",
       "https://www.vidorahub.com",
-      "https://vidorahubb-frontend-189065286116.asia-south1.run.app"
+      "https://vidorahubb-frontend-189065286116.asia-south1.run.app",
+      "https://vidorahub.adi4255saini.workers.dev",
+      "https://vidorahub-v6qk.vercel.app"
     ],
     "method": ["PUT", "POST", "GET", "OPTIONS"],
     "responseHeader": ["*"],

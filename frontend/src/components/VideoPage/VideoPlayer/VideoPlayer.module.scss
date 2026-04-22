@@ -2,8 +2,21 @@
   width: 100%;
   max-width: 86rem;
   aspect-ratio: 16/9;
-  padding: 0.8rem;
-  border-radius: 2.5rem;
+  padding: 0.2rem;
+  max-height: 100%;
+  border-radius: 2rem;
+}
+
+@media (max-width: 1000px) {
+  .playerWrapper {
+    max-height: 60%;
+  }
+}
+
+@media (max-width: 768px) {
+  .playerWrapper {
+    max-height: 35%;
+  }
 }
 
 .inner {
