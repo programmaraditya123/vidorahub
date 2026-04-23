@@ -93,7 +93,8 @@ export default function VideoCard({ video }: { video: Video }) {
           className={styles.thumbnail}
           loading="lazy"
           // ✅ Hint to the browser this image may become important on hover
-          fetchPriority="low"
+          fetchPriority="high"
+          unoptimized
         />
 
         {video.isLive && <span className={styles.liveBadge}>LIVE</span>}
