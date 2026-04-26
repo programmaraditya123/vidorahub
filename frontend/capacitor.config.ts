@@ -1,7 +1,7 @@
 import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'com.vidorahub.app',
+  appId: 'com.vidorahub.mobile',
   appName: 'VidoraHub',
   webDir: 'public',
 
