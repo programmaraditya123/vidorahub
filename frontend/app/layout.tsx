@@ -40,15 +40,17 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <div id="portal-root"></div>
-        <ReduxProvider>
-          <ToastProvider>
-            <WelcomeModal />
-            <GoogleOAuthProvider clientId={process.env.GOOGLE_CLIENT_ID!}>
-              {children}
-            </GoogleOAuthProvider>
-            <SpeedInsightsClient />
-          </ToastProvider>
-        </ReduxProvider>
+        <div className="app-container">
+          <ReduxProvider>
+            <ToastProvider>
+              <WelcomeModal />
+              <GoogleOAuthProvider clientId={process.env.GOOGLE_CLIENT_ID!}>
+                {children}
+              </GoogleOAuthProvider>
+              <SpeedInsightsClient />
+            </ToastProvider>
+          </ReduxProvider>
+        </div>
       </body>
     </html>
   );
