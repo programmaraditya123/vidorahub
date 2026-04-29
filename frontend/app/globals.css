@@ -2,7 +2,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@300;400;500;600;700&display=swap');
 
 
-.app-container {
+body {
   padding-top: env(safe-area-inset-top);
 }
 
