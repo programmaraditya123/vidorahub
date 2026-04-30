@@ -12,6 +12,12 @@ export const metadata: Metadata = {
   title: "VidoraHub – Discover, Watch & Share Videos That Matter",
   description: "VidoraHub is a next-generation video sharing platform.",
 
+  viewport: {
+    width: "device-width",
+    initialScale: 1,
+    viewportFit: "cover", 
+  },
+
   icons: {
     icon: "/favicon.ico",
   },
@@ -41,6 +47,8 @@ export default function RootLayout({
       <body>
         <div id="portal-root"></div>
 
+        <div className="app-container">
+
         <ReduxProvider>
           <ToastProvider>
             <WelcomeModal />
@@ -50,6 +58,7 @@ export default function RootLayout({
             <SpeedInsightsClient />
           </ToastProvider>
         </ReduxProvider>
+        </div>
       </body>
     </html>
   );
