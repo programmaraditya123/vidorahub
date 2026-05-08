@@ -1,0 +1,2 @@
+SEQ:[{"a":true,"c":1},{"a":true,"c":2},{"a":true,"c":3},{"a":false,"c":4},{"a":false,"c":5}]
+PEEK:5

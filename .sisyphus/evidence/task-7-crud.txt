@@ -1,0 +1,4 @@
+✅ PASS | S1: 201 + pending + brandId matches | status=201 campaignStatus=pending brandIdMatch=true
+✅ PASS | S2: role=0 → 403 brand only | status=403 message=brand only
+✅ PASS | S3: PATCH with status=approved → still pending | patchStatus=200 fetchedStatus=pending
+✅ PASS | S4: Different brand → 404 | status=404

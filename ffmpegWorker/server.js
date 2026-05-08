@@ -11,6 +11,11 @@ const { connectdb } = require("./db/mongo");
 const cors = require("cors");
 const userActivity = require('./modules/CheckActivity/CheckActivity.route');
 const SiteMap = require('./modules/Sitemap/sitemap.route')
+const path = require('path');
+
+// Ad System (modular barrel: campaigns, creatives, uploads, moderation,
+// billing, delivery, analytics, feed)
+const { adsRouter, publicRouter: adPublicRouter, adCron } = require('./modules/AdSystem');
 const db = require("./db/db2");
 
 db;
@@ -67,6 +72,16 @@ app.use("/admin/queues", serverAdapter.getRouter());
 app.use('/api/v1',userActivity)
 
 app.use('/api/v1',SiteMap)
+
+// Static serving for uploaded ad assets
+app.use('/static/ads', express.static(path.join(__dirname, 'uploads', 'ads')));
+
+// Ad System API routes
+app.use('/api/v1/ads', adsRouter);
+app.use('/api/v1', adPublicRouter);
+
+// Start ad analytics cron jobs
+adCron.startCronJobs();
 
 app.get("/",(req,res) => {
     res.send("backned is runing")
