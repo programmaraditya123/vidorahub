@@ -1,3 +1,0 @@
-S1_CLICK:200 dup:false
-S2_DUP:200 dup:true
-S3_BAD_REQ:400

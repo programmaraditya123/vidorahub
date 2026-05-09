@@ -1,7 +1,0 @@
-﻿[dotenv@17.3.1] injecting env (8) from .env -- tip: ≡ƒöÉ prevent committing .env to code: https://dotenvx.com/precommit
-connected to mongodb database ac-0uoemzy-shard-00-00.bvcujm1.mongodb.net
-Γ£à Connected to DB: test
-Γ£à Collections: []
-CAMPAIGN_IDX:["_id_","status_1_brandId_1","status_1_targeting.countries_1"]
-CREATIVE_IDX:["_id_","campaignId_1"]
-REJECTED:true
