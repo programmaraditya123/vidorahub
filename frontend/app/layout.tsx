@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import ToastProvider from "@/src/hooks/ui/ToastProvider/ToastProvider";
 import ReduxProvider from "@/src/redux/provider";
@@ -12,11 +12,7 @@ export const metadata: Metadata = {
   title: "VidoraHub – Discover, Watch & Share Videos That Matter",
   description: "VidoraHub is a next-generation video sharing platform.",
 
-  viewport: {
-    width: "device-width",
-    initialScale: 1,
-    viewportFit: "cover", 
-  },
+ 
 
   icons: {
     icon: "/favicon.ico",
@@ -35,6 +31,12 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     images: ["https://www.vidorahub.com/og-image.png"],
   },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover", 
 };
 
 export default function RootLayout({

@@ -56,7 +56,8 @@ export default function UpNextSidebar() {
     localStorage.setItem("thubnailUrl",video?.thumbnailUrl!)
 
     const lastPart = video.videoUrl.split("vidorahub/")[1];
-    const encoded = encodeFilename(lastPart+`${video?._id}`);
+    // const encoded = encodeFilename(lastPart+`${video?._id}`);
+    const encoded = `${video?._id}`;
     router.push(`/video/${encoded}`);
   };
 

@@ -40,7 +40,8 @@ export default function MasonryGrid2({ uploads }: MasonryGridProps) {
     setVideoId(video._id);
 
     const lastPart = video.videoUrl.split("vidorahub/")[1];
-    const encoded = encodeFilename(lastPart);
+    // const encoded = encodeFilename(lastPart);
+    const encoded = video._id;
     router.push(`/video/${encoded}`);
   };
 
