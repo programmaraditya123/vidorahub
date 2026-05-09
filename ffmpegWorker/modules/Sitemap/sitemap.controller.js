@@ -5,7 +5,7 @@ const getAllVideosSitemap = async (req, res) => {
   try {
     const videos = await Video.find(
       { visibility: "public", isDeleted: false, Status: "ready" },
-      { _id: 1, title: 1, description: 1, videoUrl: 1, updatedAt: 1 }
+      { _id: 1, title: 1, description: 1, videoUrl: 1, updatedAt: 1 , thumbnailUrl: 1, tags: 1 }
     ).lean();
 
     res.status(200).json({ videos });
