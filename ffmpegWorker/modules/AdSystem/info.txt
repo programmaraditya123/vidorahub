@@ -1,5 +1,112 @@
-if yiou change anything , kindly enter the information in info.txt
+If you change anything in AdSystem, kindly enter the information here.
 
-the add system contains different modules , each with its own routes , controllers , helpers , middlewares 
+The Ad System contains different sub-modules, each with its own routes, controllers,
+helpers, models, and (where applicable) middleware/cron jobs.
 
+──────────────────────────────────────────────────────────────────────────────
+FOLDER STRUCTURE
+──────────────────────────────────────────────────────────────────────────────
 
+modules/AdSystem/
+├── index.js                    # Barrel: exposes adsRouter, publicRouter, adCron
+├── info.txt                    # This file (change log + structure docs)
+├── shared/
+│   └── middleware/
+│       ├── auth.middleware.js          # requireSignIn, requireBrand, requireAdmin
+│       └── optionalAuth.middleware.js  # Public-endpoint optional JWT decode
+├── campaigns/                  # Brand-owned ad campaigns (CRUD, pause/resume)
+│   ├── campaign.model.js
+│   ├── campaign.controller.js
+│   └── campaign.route.js       # /api/v1/ads/campaigns/*
+├── creatives/                  # Ad creatives belonging to a campaign
+│   ├── creative.model.js
+│   ├── creative.controller.js
+│   └── creative.route.js       # /api/v1/ads/creatives
+├── uploads/                    # Multer-backed creative media upload
+│   ├── upload.helper.js        # Multer config (50MB, image/video only)
+│   ├── upload.controller.js
+│   └── upload.route.js         # /api/v1/ads/upload
+├── moderation/                 # Admin approve/reject pending campaigns
+│   ├── moderation.controller.js
+│   └── moderation.route.js     # /api/v1/ads/{pending,:id/approve,:id/reject}
+├── billing/                    # Credit ledger + transactions + topups
+│   ├── billing.model.js        # CreditLedger, Transaction
+│   ├── billing.helper.js       # getBalance, topup, deduct (idempotent)
+│   ├── billing.controller.js
+│   └── billing.route.js        # /api/v1/ads/{balance,transactions,admin/topup}
+├── delivery/                   # Ad selection engine + per-user frequency cap
+│   ├── frequency.helper.js     # Redis-backed daily counters
+│   ├── delivery.helper.js      # selectAds() — eligibility, scoring, ranking
+│   ├── delivery.controller.js
+│   └── delivery.route.js       # /api/v1/ads/serve
+├── analytics/                  # Event ingest, daily rollups, AstraDB mirror
+│   ├── analytics.model.js      # AdAnalyticsDaily (per-campaign per-day)
+│   ├── analytics.helper.js     # AstraDB collection accessors + bootstrap
+│   ├── analytics.controller.js # POST event/impression, POST event/click
+│   ├── analytics.route.js      # /api/v1/ads/event/{impression,click}
+│   └── analytics.cron.js       # 5-min aggregation + UTC-midnight reset
+└── feed/                       # Public video feed with injected ads
+    ├── feed.controller.js
+    └── feed.route.js           # /api/v1/feed
+
+──────────────────────────────────────────────────────────────────────────────
+HOW TO ADD A NEW SUB-FEATURE
+──────────────────────────────────────────────────────────────────────────────
+1. Create a new folder under modules/AdSystem/<feature>/.
+2. Add <feature>.{model,helper,controller,route}.js as needed.
+3. Cross-feature imports: use relative paths
+   (e.g. require('../campaigns/campaign.model')).
+4. For DB / shared code outside AdSystem, use 3 levels up:
+   require('../../../db/redis').
+5. Register the new route in modules/AdSystem/index.js
+   (adsRouter.use(...) for /api/v1/ads/*, publicRouter.use(...) for /api/v1/*).
+
+──────────────────────────────────────────────────────────────────────────────
+CHANGE LOG
+──────────────────────────────────────────────────────────────────────────────
+- Reorganized AdSystem from flat layout (24 files in one folder) into one
+  folder per sub-feature. Each sub-feature owns its model/controller/route/helper.
+- Split ad.model.js → campaigns/campaign.model.js + creatives/creative.model.js.
+- Split ad.controller.js → campaign.controller.js + creative.controller.js.
+- Renamed adXxx.* → xxx.* inside each sub-folder (the "ad" prefix is implied
+  by the AdSystem parent folder).
+- Extracted duplicated optionalAuth middleware (was inlined in delivery + feed
+  routes) into shared/middleware/optionalAuth.middleware.js.
+- Added modules/AdSystem/index.js as a barrel — server.js now imports a single
+  module instead of 8 separate route files.
+- API URLs are unchanged (backward compatible).
+
+CRITICAL CORRECTNESS FIXES (post-refactor):
+- [#2] Frequency cap key: delivery.peek and analytics.checkAndIncrement now
+       both key on campaignId (was: delivery used creativeId, analytics used
+       campaignId — caps were never enforced).
+- [#1] billing.deduct(): compensates ledger AND campaign spend on ANY
+       transaction-write failure (was: only compensated duplicate-key races,
+       silently overcharged on every other error).
+- [#5] billing.deduct() now atomically increments Campaign.spentToday and
+       spentTotal alongside the ledger debit. Eliminates desync window
+       between billing and per-campaign spend counters. analytics.controller
+       no longer does a separate spend $inc.
+- [#3] billing.topup() revives campaigns where status==='exhausted' for the
+       topped-up brand (sets them back to 'approved'). Returns
+       revivedCampaigns count in the response.
+- [#4] analytics.cron.resetDailySpend() now revives 'exhausted' campaigns
+       at UTC-midnight UNLESS they're lifetime-budget-exhausted
+       (spentTotal >= lifetimeBudget).
+- [#15] analytics.cron.runAggregation() groups by campaignId (was: by
+        brandId, which 5x-inflated stats for brands with multiple campaigns).
+        Required adding `campaignId` field to the Transaction schema for
+        impression/click debits, plus a (campaignId, refType, createdAt) index.
+
+SCHEMA CHANGE (Transaction):
+- Added `campaignId: ObjectId ref Campaign` (populated for impression/click
+  debits, undefined for topup/adjustment).
+- New compound index: { campaignId: 1, refType: 1, createdAt: -1 }.
+- Existing rows continue to work (field is optional).
+
+API SIGNATURE CHANGE (internal):
+- billing.helper.deduct(brandId, amount, refType, refId, idempotencyKey,
+  campaignId = null) — added 6th optional `campaignId` parameter. Existing
+  callers without it still work; analytics.controller passes it for
+  impression/click events.
+- billing.helper.topup() now returns { balance, transactionId, revivedCampaigns }.
