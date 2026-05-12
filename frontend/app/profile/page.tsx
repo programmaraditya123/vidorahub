@@ -59,6 +59,7 @@ type CreatorProfileResponse = {
 export default function ProfilePage() {
   const [profileData, setProfileData] = useState<ProfileData | null>(null);
   const [uploads, setUploads] = useState<UploadVideo[]>([]);
+  const [activeTab, setActiveTab] = useState<string>("VIDEOS");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -94,8 +95,9 @@ export default function ProfilePage() {
         <main className={styles.main}>
           {!profileData ? <VidoraHubLoader/> : (<section className={styles.content}>
             <ProfileCard data={profileData} />
-            <Tabs />
-            <MasonryGrid uploads={uploads} />
+            <Tabs activeTab={activeTab} onTabChange={setActiveTab} />
+            {activeTab === "VIDEOS" && <MasonryGrid uploads={uploads} />}
+            {activeTab === "PRODUCTS" && <div>Here are Products Listed by Creator</div>}
           </section>)}
           
           <div>

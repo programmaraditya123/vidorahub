@@ -17,7 +17,9 @@ import Sidebar from "@/src/components/HomePage/Sidebar/Sidebar";
 export default function VideoPageClient() {
   const params = useParams();
   const slug = params?.slug;
+  // console.log("URL slug:", slug);
   const encoded = Array.isArray(slug) ? slug[0] : slug;
+  // console.log("Encoded slug:", encoded);
   const decoded = encoded ? decodeFilename(encoded) : "";
 
   // ✅ Memoized: don't recompute on every render
@@ -32,17 +34,19 @@ export default function VideoPageClient() {
   }, [decoded]);
 
   // ✅ Read videoId once from localStorage, fallback to URL param
-  const videoId = useMemo(() => {
-    if (typeof window !== "undefined") {
-      return localStorage.getItem("currentVideoId") || id;
-    }
-    return id;
-  }, [id]);
+  // const videoId = useMemo(() => {
+  //   if (typeof window !== "undefined") {
+  //     return localStorage.getItem("currentVideoId") || id;
+  //   }
+  //   return id;
+  // }, [id]);
+
+  const videoId = encoded;
 
   // Persist video ID
-  useEffect(() => {
-    if (id) localStorage.setItem("currentVideoId", id);
-  }, [id]);
+  // useEffect(() => {
+  //   if (id) localStorage.setItem("currentVideoId", id);
+  // }, [id]);
 
   const [videoMeta, setVideoMeta] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -61,6 +65,7 @@ export default function VideoPageClient() {
   // ─── Fetch video metadata ─────────────────────────────────────────────────
   useEffect(() => {
     if (!videoId) return;
+    console.log("Fetching metadata for video ID:", videoId);
     let cancelled = false;
     const fetchMeta = async () => {
       try {
