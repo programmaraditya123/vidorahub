@@ -63,6 +63,7 @@ interface ChannelPageProps {
 export default function ChannelPage({ id }: ChannelPageProps) {
   const [profileData, setProfileData] = useState<ProfileData | null>(null);
   const [uploads, setUploads] = useState<UploadVideo[]>([]);
+  const [activeTab, setActiveTab] = useState("VIDEOS");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -99,9 +100,10 @@ export default function ChannelPage({ id }: ChannelPageProps) {
           <main className={styles.main}>
             <section className={styles.content}>
               <ProfileCard data={profileData} />
-              <Tabs />
+              <Tabs activeTab={activeTab} onTabChange={setActiveTab} />
               {/* <MassonaryGrid uploads={uploads} /> */}
-              <MasonryGrid2 uploads={uploads} />
+              {activeTab === "VIDEOS" && <MasonryGrid2 uploads={uploads} />}
+              {activeTab === "PRODUCTS" && <div>Products coming soon...</div>}
             </section>
 
            <Sidebar bio={profileData?.bio} platforms={profileData?.platforms} />
