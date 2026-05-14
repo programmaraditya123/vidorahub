@@ -606,6 +606,67 @@ const MutedIcon = ({ size = 28 }: MutedIconProps) => {
   );
 };
 
+const ShareIcon = ({ size = 24, color = "#000" }) => {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 512 512"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      {/* Top Circle */}
+      <circle
+        cx="365"
+        cy="96"
+        r="54"
+        stroke={color}
+        strokeWidth="28"
+      />
+
+      {/* Left Circle */}
+      <circle
+        cx="116"
+        cy="256"
+        r="54"
+        stroke={color}
+        strokeWidth="28"
+      />
+
+      {/* Bottom Circle */}
+      <circle
+        cx="365"
+        cy="416"
+        r="54"
+        stroke={color}
+        strokeWidth="28"
+      />
+
+      {/* Top Line */}
+      <line
+        x1="160"
+        y1="225"
+        x2="320"
+        y2="125"
+        stroke={color}
+        strokeWidth="28"
+        strokeLinecap="round"
+      />
+
+      {/* Bottom Line */}
+      <line
+        x1="160"
+        y1="287"
+        x2="320"
+        y2="387"
+        stroke={color}
+        strokeWidth="28"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+};
+
 
  
 
@@ -613,4 +674,4 @@ const MutedIcon = ({ size = 28 }: MutedIconProps) => {
 
 export default {
   VidorahubIcon, HomeIcon, FollowingIcon, UploadIcon, FileIcon, ProfileCircleIcon, SettingsIcon, SunIcon, MoonIcon, BellAlertIcon, UserIcon,
-  SearchIcon, FilterIcon, LogoutIcon,BarIcon,EyeIcon,SendIcon,CrossIcon,HamburgerIcon,MutedIcon}
+  SearchIcon, FilterIcon, LogoutIcon,BarIcon,EyeIcon,SendIcon,CrossIcon,HamburgerIcon,MutedIcon ,ShareIcon}

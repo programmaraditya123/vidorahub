@@ -11,6 +11,8 @@ import Sidebar1 from "@/src/components/HomePage/Sidebar/Sidebar";
 import MasonryGrid2 from "@/src/components/ChannelPage/MassonaryGrid2";
 import Navbar2 from "@/src/components/Navbar2/Navbar2";
 import style from "./channel.module.scss";
+import ProductCard from "@/src/components/ChannelPage/ProductCard/ProductCard";
+import { useSearchParams } from "next/navigation";
 
 type VideoStats = {
   views: number;
@@ -45,9 +47,9 @@ type ProfileData = {
   role: number;
   createdAt: string;
   updatedAt: string;
-  bio?:string;
-  profilePicUrl?:string;
-  platforms?:Platform[];
+  bio?: string;
+  profilePicUrl?: string;
+  platforms?: Platform[];
 };
 
 type CreatorProfileResponse = {
@@ -63,7 +65,9 @@ interface ChannelPageProps {
 export default function ChannelPage({ id }: ChannelPageProps) {
   const [profileData, setProfileData] = useState<ProfileData | null>(null);
   const [uploads, setUploads] = useState<UploadVideo[]>([]);
-  const [activeTab, setActiveTab] = useState("VIDEOS");
+  // const [activeTab, setActiveTab] = useState("videos");
+  const searchParams = useSearchParams();
+  const activeTab = searchParams.get("tab") || "videos";
 
   useEffect(() => {
     const fetchData = async () => {
@@ -88,10 +92,11 @@ export default function ChannelPage({ id }: ChannelPageProps) {
       </div>
 
       {/* <div className={styles.hiddenSideBar}> */}
-        <Sidebar1 />
+      <Sidebar1 />
       {/* </div> */}
-
-      <Navbar2 />
+      <div className={styles.topNav}>
+        <Navbar2 />
+      </div>
 
       <div className={styles.container}>
         {/* <Header /> */}
@@ -100,13 +105,52 @@ export default function ChannelPage({ id }: ChannelPageProps) {
           <main className={styles.main}>
             <section className={styles.content}>
               <ProfileCard data={profileData} />
-              <Tabs activeTab={activeTab} onTabChange={setActiveTab} />
+              <Tabs channelId={id} />
               {/* <MassonaryGrid uploads={uploads} /> */}
-              {activeTab === "VIDEOS" && <MasonryGrid2 uploads={uploads} />}
-              {activeTab === "PRODUCTS" && <div>Products coming soon...</div>}
+              {activeTab === "videos" && <MasonryGrid2 uploads={uploads} />}
+              {activeTab === "store" && (
+                <div className={styles.wrapper}>
+                  <ProductCard
+                    products={[
+                      {
+                        id: "1",
+                        title: "Tape Winter Coat",
+                        category: "Premium Winter Collection",
+                        size: "M",
+                        stock: "In Stock",
+                        updatedAt: "2 days ago",
+                        description:
+                          "This is the best jacket you have seen in the world with premium quality fabric and luxury comfort.",
+                        price: 2350,
+                        oldPrice: 3999,
+                        image:
+                          "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?q=80&w=400&auto=format&fit=crop",
+                      },
+
+                      {
+                        id: "2",
+                        title: "Oversized Hoodie",
+                        category: "Streetwear Fashion",
+                        size: "L",
+                        stock: "Limited",
+                        updatedAt: "5 hours ago",
+                        description:
+                          "Premium oversized hoodie with ultra soft fabric and aesthetic fit.",
+                        price: 1899,
+                        oldPrice: 2599,
+                        image:
+                          "https://images.unsplash.com/photo-1503341504253-dff4815485f1?q=80&w=400&auto=format&fit=crop",
+                      },
+                    ]}
+                  />
+                </div>
+              )}
             </section>
 
-           <Sidebar bio={profileData?.bio} platforms={profileData?.platforms} />
+            <Sidebar
+              bio={profileData?.bio}
+              platforms={profileData?.platforms}
+            />
           </main>
 
           <Footer />

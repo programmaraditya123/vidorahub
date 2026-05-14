@@ -24,6 +24,7 @@ $text-faint:  #9ca3af;
   background-size: 48px 48px;
   background-attachment: fixed;
   // padding-top: env(safe-area-inset-top);
+  position: relative;
  
 }
 
@@ -73,6 +74,7 @@ $text-faint:  #9ca3af;
   display: flex;
   flex-direction: column;
   align-items: center;
+  margin-top: 5rem;
 }
 
 /* ================= GLASS ================= */
@@ -574,6 +576,32 @@ $text-faint:  #9ca3af;
   padding-bottom: 4rem;
 }
 
+// .masonry {
+//   display: grid;
+
+//   grid-template-columns: repeat(2, 1fr);
+
+//   gap: 18px;
+
+//   width: 100%;
+//   padding-bottom: 4rem;
+// }
+
+// /* Tablet */
+// @media (max-width: 900px) {
+//   .masonry {
+//     grid-template-columns: repeat(2, 1fr);
+//   }
+// }
+
+// /* Mobile */
+// @media (max-width: 640px) {
+//   .masonry {
+//     grid-template-columns: 1fr;
+//   }
+// }
+
+
 .card {
   position: relative;
   height: 18rem;
@@ -968,3 +996,34 @@ $text-faint:  #9ca3af;
 
 .header { flex-wrap: wrap; }
 .logo   { font-size: 1rem; }
+
+.wrapper  > div{
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+
+  gap: 18px;
+  width: 100%;
+}
+
+/* Tablet */
+@media (max-width: 900px) {
+  .wrapper > div {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Mobile */
+@media (max-width: 640px) {
+  .wrapper > div {
+    grid-template-columns: 1fr;
+  }
+}
+
+.topNav{
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  
+}
