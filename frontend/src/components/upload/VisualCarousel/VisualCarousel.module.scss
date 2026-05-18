@@ -87,7 +87,7 @@
 .addCustom {
   min-width: 180px;
   aspect-ratio: 16 / 9;
-  border: 2px dashed rgba(255, 255, 255, 0.2);
+  border: 2px dashed rgba(48, 23, 148, 0.2);
   border-radius: 0.8rem;
   display: flex;
   flex-direction: column;
@@ -95,7 +95,7 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  color: rgba(255, 255, 255, 0.45);
+  color: blue;
   transition: 0.3s ease;
 
   span {
@@ -109,8 +109,8 @@
   }
 
   &:hover {
-    border-color: white;
-    color: white;
+    border-color: blue;
+    color: blue;
   }
 }
 

@@ -60,7 +60,7 @@ export default function DataSculptingForm({ onPublish }: Props) {
     <div className={styles.panel}>
       <h2 className={styles.heading}>
         <span className="material-symbols-outlined">draw</span>
-        Data Sculpting
+        Upload Details
       </h2>
 
       <div className={`${styles.formGroup} ${titleError ? styles.hasError : ""}`}>
@@ -93,7 +93,7 @@ export default function DataSculptingForm({ onPublish }: Props) {
       </div>
 
       <div className={styles.tagsWrapper}>
-        <label>Cloud Tagging</label>
+        <label>Tags</label>
         <div className={styles.tagsBox}>
           {tags.map((tag) => (
             <div key={tag} className={styles.tag}>

@@ -863,7 +863,7 @@ $text-faint:  #9ca3af;
   gap: 0.5rem;
   font-size: 1.05rem;
   font-weight: 700;
-  margin-bottom: 1rem;
+  // margin-bottom: 1rem;
   color: $text;
 }
 
@@ -907,6 +907,7 @@ $text-faint:  #9ca3af;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: 1rem;
 }
 
 .editBtn {

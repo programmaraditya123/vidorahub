@@ -31,7 +31,8 @@ export default function ProductCard({ products }: ProductCardProps) {
   );
 
   useEffect(() => {
-    setFullUrl(window.location.href);
+    const id = localStorage.getItem("userid");
+    setFullUrl(`www.vidorahub.com/channel/${id}?tab=store`);
   }, []);
   return (
     <div className={styles.wrapper}>
