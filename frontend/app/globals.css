@@ -2,6 +2,12 @@
 @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@300;400;500;600;700&display=swap');
 
 
+#portal-root {
+  position: relative;
+  z-index: 100000;
+  isolation: isolate;
+}
+
 .app-container {
   padding-top: env(safe-area-inset-top);
   padding-bottom: env(safe-area-inset-bottom);
@@ -155,4 +161,10 @@ a {
 .masonry-item {
   break-inside: avoid;
   margin-bottom: 2rem;
+}
+
+button,
+a,
+div {
+  -webkit-tap-highlight-color: transparent;
 }

@@ -7,11 +7,17 @@ import Tabs from "@/src/components/ProfilePage/Tabs";
 import Sidebar from "@/src/components/ProfilePage/Sidebar";
 import Footer from "@/src/components/ProfilePage/Footer";
 import { creatorchannel } from "@/src/lib/video/videodata";
+import {
+  getAllProducts,
+  mapProductForCard,
+} from "@/src/lib/store/store";
 import Sidebar1 from "@/src/components/HomePage/Sidebar/Sidebar";
 import MasonryGrid2 from "@/src/components/ChannelPage/MassonaryGrid2";
 import Navbar2 from "@/src/components/Navbar2/Navbar2";
 import style from "./channel.module.scss";
-import ProductCard from "@/src/components/ChannelPage/ProductCard/ProductCard";
+import ProductCard, {
+  type ProductType,
+} from "@/src/components/ChannelPage/ProductCard/ProductCard";
 import { useSearchParams } from "next/navigation";
 
 type VideoStats = {
@@ -65,7 +71,7 @@ interface ChannelPageProps {
 export default function ChannelPage({ id }: ChannelPageProps) {
   const [profileData, setProfileData] = useState<ProfileData | null>(null);
   const [uploads, setUploads] = useState<UploadVideo[]>([]);
-  // const [activeTab, setActiveTab] = useState("videos");
+  const [products, setProducts] = useState<ProductType[]>([]);
   const searchParams = useSearchParams();
   const activeTab = searchParams.get("tab") || "videos";
 
@@ -77,6 +83,15 @@ export default function ChannelPage({ id }: ChannelPageProps) {
 
       setProfileData(res.data);
       setUploads(publicUploads);
+
+      try {
+        const productsRes = await getAllProducts(res.data._id);
+        if (productsRes.success) {
+          setProducts(productsRes.products.map(mapProductForCard));
+        }
+      } catch {
+        setProducts([]);
+      }
     };
 
     fetchData();
@@ -110,39 +125,7 @@ export default function ChannelPage({ id }: ChannelPageProps) {
               {activeTab === "videos" && <MasonryGrid2 uploads={uploads} />}
               {activeTab === "store" && (
                 <div className={styles.wrapper}>
-                  <ProductCard
-                    products={[
-                      {
-                        id: "1",
-                        title: "Tape Winter Coat",
-                        category: "Premium Winter Collection",
-                        size: "M",
-                        stock: "In Stock",
-                        updatedAt: "2 days ago",
-                        description:
-                          "This is the best jacket you have seen in the world with premium quality fabric and luxury comfort.",
-                        price: 2350,
-                        oldPrice: 3999,
-                        image:
-                          "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?q=80&w=400&auto=format&fit=crop",
-                      },
-
-                      {
-                        id: "2",
-                        title: "Oversized Hoodie",
-                        category: "Streetwear Fashion",
-                        size: "L",
-                        stock: "Limited",
-                        updatedAt: "5 hours ago",
-                        description:
-                          "Premium oversized hoodie with ultra soft fabric and aesthetic fit.",
-                        price: 1899,
-                        oldPrice: 2599,
-                        image:
-                          "https://images.unsplash.com/photo-1503341504253-dff4815485f1?q=80&w=400&auto=format&fit=crop",
-                      },
-                    ]}
-                  />
+                  <ProductCard products={products} />
                 </div>
               )}
             </section>

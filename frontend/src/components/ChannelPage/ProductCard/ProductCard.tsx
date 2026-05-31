@@ -5,19 +5,12 @@ import styles from "./ProductCard.module.scss";
 import { useEffect, useState } from "react";
 import ShareBlade from "../../ui/ShareBlade/ShareBlade";
 import ProductModal from "../ProductModal/ProductModal";
+import {
+  formatProductPrice,
+  type ProductType,
+} from "@/src/lib/store/store";
 
-export type ProductType = {
-  id: string;
-  title: string;
-  category: string;
-  size: string;
-  stock: string;
-  updatedAt: string;
-  description: string;
-  price: number;
-  oldPrice?: number;
-  image: string;
-};
+export type { ProductType };
 
 type ProductCardProps = {
   products: ProductType[];
@@ -77,10 +70,14 @@ export default function ProductCard({ products }: ProductCardProps) {
               <span className={styles.label}>Starting From</span>
 
               <div className={styles.priceRow}>
-                <h2 className={styles.price}>₹{product.price}</h2>
+                <h2 className={styles.price}>
+                  {formatProductPrice(product.price, product.currency)}
+                </h2>
 
-                {product.oldPrice && (
-                  <span className={styles.oldPrice}>₹{product.oldPrice}</span>
+                {product.oldPrice != null && product.oldPrice > 0 && (
+                  <span className={styles.oldPrice}>
+                    {formatProductPrice(product.oldPrice, product.currency)}
+                  </span>
                 )}
               </div>
             </div>
@@ -113,16 +110,7 @@ export default function ProductCard({ products }: ProductCardProps) {
       <ProductModal
         isOpen={!!selectedProduct}
         onClose={() => setSelectedProduct(null)}
-        product={{
-          title: selectedProduct?.title || "",
-          category: selectedProduct?.category || "",
-          updatedAt: selectedProduct?.updatedAt || "",
-          price: selectedProduct?.price || 0,
-          oldPrice: selectedProduct?.oldPrice,
-          stock: selectedProduct?.stock || "",
-          description: selectedProduct?.description || "",
-          images: [selectedProduct?.image || ""],
-        }}
+        product={selectedProduct}
       />
     </div>
   );
