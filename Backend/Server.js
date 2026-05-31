@@ -8,6 +8,8 @@ const studioRoute = require('./modules/studio/studio.route')
 const db = require('./config/db2')
 const viewsRoute = require('./modules/videoviews/videoviews.route')
 const earningRoute = require('./modules/earning/earning.route')
+const userDataRoute = require('./modules/userdata/userdata.route')
+const storeRoute = require("./modules/store/store.route")
 // const { deleteOldUploadFiles } = require('./modules/videodata/videodata.helper')
 // const fs = require("fs");
 // const path = require("path");
@@ -22,6 +24,7 @@ db;
 
 const allowed_origins = [
     "http://localhost:3000",
+    "http://localhost:3001",
     "https://vidorahub-v6qk.vercel.app",
     "https://www.vidorahub.com",
     "https://studio.vidorahub.com",
@@ -87,6 +90,12 @@ app.use('/api/v1',studioRoute)
 
 //this is the earning route
 app.use('/api/v1',earningRoute)
+
+//this is the user data route
+app.use('/api/v1',userDataRoute)
+
+//this is the store data route
+app.use("/api/v1",storeRoute)
 
 const PORT = process.env.PORT || 8000;
 
