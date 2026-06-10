@@ -22,6 +22,14 @@ export type MainStackParamList = {
   UploadChooser: undefined;
   UploadVideo: undefined;
   UploadVibe: undefined;
+  UploadDetails: {
+    contentType: 'video' | 'vibe';
+    videoUri: string;
+    videoFileName: string;
+    videoContentType: string;
+    duration: number;
+    sizeMb?: number;
+  };
   Login: undefined;
   Signup: undefined;
 };

@@ -1,5 +1,14 @@
-import React, { useCallback, useState } from 'react';
-import { ScrollView, View, Text, StyleSheet, Pressable } from 'react-native';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import {
+  ScrollView,
+  View,
+  Text,
+  StyleSheet,
+  Pressable,
+  useWindowDimensions,
+  type NativeScrollEvent,
+  type NativeSyntheticEvent,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRoute } from '@react-navigation/native';
 import type { RouteProp } from '@react-navigation/native';
@@ -12,6 +21,7 @@ import { VideoDescription } from '@/features/video/components/VideoDescription';
 import { UpNextSidebar } from '@/features/video/components/UpNextSidebar';
 import { CommentSection } from '@/features/video/components/CommentSection';
 import { Loader } from '@/components/ui/Loader';
+import { AppBottomNavigationBar, APP_BOTTOM_BAR_HEIGHT } from '@/components/shared/AppBottomNavigationBar';
 import { colors, spacing, typography } from '@/theme';
 import { parseVideoSlug } from '@/utils';
 import { logScreenView } from '@/lib/analytics';
@@ -31,6 +41,8 @@ const FALLBACK_UPLOADER: Uploader = {
 export function VideoPlayerScreen() {
   const route = useRoute<RouteProp<MainStackParamList, 'VideoPlayer'>>();
   const insets = useSafeAreaInsets();
+  const { width } = useWindowDimensions();
+  const pagerRef = useRef<ScrollView>(null);
   const [activeTab, setActiveTab] = useState<Tab>('Info');
 
   const videoId =
@@ -44,6 +56,30 @@ export function VideoPlayerScreen() {
     })();
 
   const { data, isLoading } = useVideoQuery(videoId);
+
+  const activeTabIndex = TABS.indexOf(activeTab);
+
+  const switchTab = useCallback(
+    (tab: Tab) => {
+      const nextIndex = TABS.indexOf(tab);
+      setActiveTab(tab);
+      pagerRef.current?.scrollTo({ x: nextIndex * width, animated: true });
+    },
+    [width],
+  );
+
+  const handlePagerMomentumEnd = useCallback(
+    (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+      const nextIndex = Math.round(event.nativeEvent.contentOffset.x / width);
+      const nextTab = TABS[Math.max(0, Math.min(TABS.length - 1, nextIndex))];
+      setActiveTab(nextTab);
+    },
+    [width],
+  );
+
+  useEffect(() => {
+    pagerRef.current?.scrollTo({ x: activeTabIndex * width, animated: false });
+  }, [activeTabIndex, width]);
 
   useFocusEffect(
     useCallback(() => {
@@ -63,6 +99,10 @@ export function VideoPlayerScreen() {
     ? new Date(video.createdAt).toDateString()
     : '';
   const views = (video.stats?.views ?? 0).toLocaleString();
+  const tabContentStyle = [
+    styles.bodyContent,
+    { paddingBottom: APP_BOTTOM_BAR_HEIGHT + insets.bottom + spacing.xl },
+  ];
 
   return (
     <View style={styles.container}>
@@ -76,7 +116,7 @@ export function VideoPlayerScreen() {
           <Pressable
             key={tab}
             style={styles.tab}
-            onPress={() => setActiveTab(tab)}
+            onPress={() => switchTab(tab)}
             accessibilityRole="tab"
             accessibilityState={{ selected: activeTab === tab }}
           >
@@ -89,11 +129,21 @@ export function VideoPlayerScreen() {
       </View>
 
       <ScrollView
-        style={styles.body}
-        contentContainerStyle={styles.bodyContent}
-        showsVerticalScrollIndicator={false}
+        ref={pagerRef}
+        style={styles.pager}
+        horizontal
+        pagingEnabled
+        bounces={false}
+        decelerationRate="fast"
+        scrollEventThrottle={16}
+        showsHorizontalScrollIndicator={false}
+        onMomentumScrollEnd={handlePagerMomentumEnd}
       >
-        {activeTab === 'Info' ? (
+        <ScrollView
+          style={[styles.page, { width }]}
+          contentContainerStyle={tabContentStyle}
+          showsVerticalScrollIndicator={false}
+        >
           <View style={styles.infoBlock}>
             <VideoMeta
               title={video.title}
@@ -113,20 +163,30 @@ export function VideoPlayerScreen() {
               description={video.description ?? ''}
             />
           </View>
-        ) : null}
+        </ScrollView>
 
-        {activeTab === 'Up Next' ? (
+        <ScrollView
+          style={[styles.page, { width }]}
+          contentContainerStyle={tabContentStyle}
+          showsVerticalScrollIndicator={false}
+        >
           <View style={styles.tabPanel}>
             <UpNextSidebar videoId={videoId} embedded />
           </View>
-        ) : null}
+        </ScrollView>
 
-        {activeTab === 'Comments' ? (
+        <ScrollView
+          style={[styles.page, { width }]}
+          contentContainerStyle={tabContentStyle}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+        >
           <View style={styles.tabPanel}>
             <CommentSection videoId={videoId} embedded />
           </View>
-        ) : null}
+        </ScrollView>
       </ScrollView>
+      <AppBottomNavigationBar />
     </View>
   );
 }
@@ -172,7 +232,11 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primary,
     borderRadius: 2,
   },
-  body: {
+  pager: {
+    flex: 1,
+    backgroundColor: colors.white,
+  },
+  page: {
     flex: 1,
     backgroundColor: colors.white,
   },

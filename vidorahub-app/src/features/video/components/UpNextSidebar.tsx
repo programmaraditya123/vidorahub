@@ -56,7 +56,9 @@ export function UpNextSidebar({ videoId, embedded = false }: Props) {
                   source={{ uri: v.thumbnailUrl }}
                   style={styles.thumbnail}
                   contentFit="cover"
-                  transition={200}
+                  cachePolicy="memory-disk"
+                  recyclingKey={v.thumbnailUrl ?? v._id}
+                  transition={0}
                 />
                 {v.duration ? (
                   <View style={styles.durationBadge}>

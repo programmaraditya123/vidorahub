@@ -116,8 +116,8 @@ export function ProductModal({ isOpen, onClose, product, onShare }: ProductModal
 
               {product.tags && product.tags.length > 0 ? (
                 <View style={styles.tagsRow}>
-                  {product.tags.map((tag) => (
-                    <Text key={tag} style={styles.tag}>
+                  {product.tags.map((tag, index) => (
+                    <Text key={`${tag}-${index}`} style={styles.tag}>
                       {tag}
                     </Text>
                   ))}
@@ -169,7 +169,7 @@ export function ProductModal({ isOpen, onClose, product, onShare }: ProductModal
 
 const styles = StyleSheet.create({
   overlay: { flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.55)' },
-  backdrop: { ...StyleSheet.absoluteFillObject },
+  backdrop: { ...StyleSheet.absoluteFill },
   sheet: {
     maxHeight: '92%',
     backgroundColor: colors.white,

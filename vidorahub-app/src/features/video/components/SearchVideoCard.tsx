@@ -26,7 +26,9 @@ export function SearchVideoCard({ video, onPress, width }: SearchVideoCardProps)
           source={{ uri: video.thumbnailUrl }}
           style={styles.thumbnail}
           contentFit="cover"
-          transition={200}
+          cachePolicy="memory-disk"
+          recyclingKey={video.thumbnailUrl ?? video._id}
+          transition={0}
         />
         {video.duration ? (
           <View style={styles.duration}>

@@ -48,6 +48,7 @@ export const linking = {
           UploadChooser: 'upload',
           UploadVideo: 'uploadvideo',
           UploadVibe: 'uploadvibe',
+          UploadDetails: 'upload/details',
           Login: 'login',
           Signup: 'signup',
         } satisfies Record<keyof MainStackParamList, unknown>,

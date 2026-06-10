@@ -1,6 +1,7 @@
 export const STORAGE_KEYS = {
   TOKEN: 'auth_token',
   USER_NAME: 'user_name',
+  USER_EMAIL: 'user_email',
   USER_SERIAL_NUMBER: 'user_serial_number',
   REDIRECT_AFTER_LOGIN: 'redirect_after_login',
   CURRENT_VIDEO_ID: 'current_video_id',

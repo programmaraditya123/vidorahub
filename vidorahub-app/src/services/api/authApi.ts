@@ -1,4 +1,5 @@
 import { http } from './client';
+import * as FileSystem from 'expo-file-system/legacy';
 import type {
   AuthResponse,
   ProfileData,
@@ -160,28 +161,25 @@ export async function uploadFileToGCS(
   contentType: string,
   onProgress?: (percent: number) => void,
 ) {
-  const response = await fetch(uri);
-  const blob = await response.blob();
-
-  return new Promise<void>((resolve, reject) => {
-    const xhr = new XMLHttpRequest();
-    xhr.open('PUT', uploadUrl);
-    xhr.setRequestHeader('Content-Type', contentType);
-
-    xhr.upload.onprogress = (event) => {
-      if (onProgress && event.lengthComputable) {
-        onProgress(Math.round((event.loaded / event.total) * 100));
-      }
-    };
-
-    xhr.onload = () => {
-      if (xhr.status >= 200 && xhr.status < 300) resolve();
-      else reject(new Error(`Upload failed: ${xhr.status}`));
-    };
-
-    xhr.onerror = () => reject(new Error('Upload failed'));
-    xhr.send(blob);
+  const uploadTask = FileSystem.createUploadTask(uploadUrl, uri, {
+    httpMethod: 'PUT',
+    uploadType: FileSystem.FileSystemUploadType.BINARY_CONTENT,
+    headers: {
+      'Content-Type': contentType,
+    },
+  }, (event) => {
+    if (!onProgress || event.totalBytesExpectedToSend <= 0) return;
+    onProgress(
+      Math.round((event.totalBytesSent / event.totalBytesExpectedToSend) * 100),
+    );
   });
+
+  const result = await uploadTask.uploadAsync();
+  if (!result || result.status < 200 || result.status >= 300) {
+    throw new Error(`Upload failed: ${result?.status ?? 'unknown'}`);
+  }
+
+  onProgress?.(100);
 }
 
 export async function saveVideoMetadata(payload: UploadMetadataPayload) {

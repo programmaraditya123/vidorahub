@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react';
+﻿import React, { useCallback, useMemo, useState } from 'react';
 import {
   View,
   Text,
@@ -56,14 +56,20 @@ type Activity = {
   date: string;
 };
 
-function EarnNavbar() {
+function EarnNavbar({ onLogoPress }: { onLogoPress: () => void }) {
   return (
     <View style={styles.navbar}>
-      <View style={styles.logoSection}>
+      <Pressable
+        style={styles.logoSection}
+        onPress={onLogoPress}
+        accessibilityRole="link"
+        accessibilityLabel="Go to VidoraHub home"
+      >
         <Ionicons name="play-circle" size={26} color={colors.primary} />
         <Text style={styles.logoText}>VidoraHub</Text>
-      </View>
+      </Pressable>
 
+      {/* Hidden for now.
       <View style={styles.actions}>
         <View style={styles.iconBtn}>
           <Ionicons name="notifications-outline" size={18} color={colors.primary} />
@@ -80,6 +86,7 @@ function EarnNavbar() {
           <Text style={styles.avatarText}>A</Text>
         </LinearGradient>
       </View>
+      */}
     </View>
   );
 }
@@ -123,6 +130,12 @@ function EarnBar({
   totalEarning: number;
   onWithdraw: () => void;
 }) {
+  const displayPoints = Math.trunc(totalPoints).toLocaleString();
+  const displayEarning = totalEarning.toLocaleString(undefined, {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+
   return (
     <LinearGradient
       colors={['#7e22ce', '#4c1d95']}
@@ -132,8 +145,8 @@ function EarnBar({
     >
       <View style={styles.barLeft}>
         <Text style={styles.barLabel}>Total Points Earned</Text>
-        <Text style={styles.barPoints}>{totalPoints} pts</Text>
-        <Text style={styles.barRupee}>≈ ₹{totalEarning}</Text>
+        <Text style={styles.barPoints}>{displayPoints} pts</Text>
+        <Text style={styles.barRupee}>{'\u2248 \u20b9'}{displayEarning}</Text>
       </View>
       <Pressable style={styles.withdrawBtn} onPress={onWithdraw}>
         <Text style={styles.withdrawText}>Withdraw</Text>
@@ -181,6 +194,10 @@ export function EarnScreen() {
   const [withdrawOpen, setWithdrawOpen] = useState(false);
 
   const { data, isLoading } = useEarningsQuery(isAuthenticated);
+
+  const handleLogoPress = useCallback(() => {
+    navigation.navigate('Tabs', { screen: 'Home' });
+  }, [navigation]);
 
   useFocusEffect(
     useCallback(() => {
@@ -242,7 +259,7 @@ export function EarnScreen() {
   if (!isAuthenticated) {
     return (
       <View style={[styles.container, { paddingTop: insets.top }]}>
-        <EarnNavbar />
+        <EarnNavbar onLogoPress={handleLogoPress} />
         <View style={styles.locked}>
           <LinearGradient
             colors={[colors.primary, colors.primaryEnd]}
@@ -269,7 +286,7 @@ export function EarnScreen() {
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
-      <EarnNavbar />
+      <EarnNavbar onLogoPress={handleLogoPress} />
       {isLoading ? (
         <Loader />
       ) : (
@@ -301,7 +318,7 @@ export function EarnScreen() {
             <Text style={styles.modalTitle}>Withdrawals aren&apos;t open yet</Text>
             <Text style={styles.modalBody}>
               VidoraHub is still growing. Your points are{' '}
-              <Text style={styles.modalStrong}>safe and recorded</Text> —
+              <Text style={styles.modalStrong}>safe and recorded</Text> â€”
               they&apos;ll convert to real money once our platform is fully
               funded.
             </Text>
@@ -313,7 +330,7 @@ export function EarnScreen() {
               </Text>
             </View>
             <Text style={styles.modalFooter}>
-              Keep creating — early creators like you will be rewarded first.
+              Keep creating â€” early creators like you will be rewarded first.
             </Text>
             <Pressable
               style={styles.modalCloseBtn}

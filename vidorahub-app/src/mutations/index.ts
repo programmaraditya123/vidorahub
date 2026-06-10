@@ -19,6 +19,8 @@ export function useLoginMutation() {
     onSuccess: async (data) => {
       if (data.success && data.token && data.user) {
         await login(data.token, {
+          id: data.user.id,
+          _id: data.user._id,
           name: data.user.name,
           email: data.user.email,
           userSerialNumber: data.user.userSerialNumber,
@@ -41,6 +43,8 @@ export function useGoogleLoginMutation() {
     onSuccess: async (data) => {
       if (data.success && data.token && data.user) {
         await login(data.token, {
+          id: data.user.id,
+          _id: data.user._id,
           name: data.user.name,
           email: data.user.email,
           userSerialNumber: data.user.userSerialNumber,

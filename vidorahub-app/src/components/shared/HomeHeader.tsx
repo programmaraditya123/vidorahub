@@ -25,12 +25,16 @@ export function HomeHeader() {
     }
   }, [navigation]);
 
+  const handleHome = useCallback(() => {
+    navigation.navigate('Tabs', { screen: 'Home' });
+  }, [navigation]);
+
   return (
     <View style={styles.header}>
-      <View style={styles.logoWrap}>
+      <Pressable style={styles.logoWrap} onPress={handleHome} accessibilityRole="link">
         <Ionicons name="play-circle" size={26} color={colors.primary} />
         <Text style={styles.logoText}>VidoraHub</Text>
-      </View>
+      </Pressable>
 
       <View style={styles.actions}>
         <Pressable

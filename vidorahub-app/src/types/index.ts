@@ -5,9 +5,11 @@ export type ApiError = {
 };
 
 export type User = {
+  _id?: string | number;
+  id?: string | number;
   email: string;
   name: string;
-  userSerialNumber: string;
+  userSerialNumber: string | number;
 };
 
 export type AuthResponse = {

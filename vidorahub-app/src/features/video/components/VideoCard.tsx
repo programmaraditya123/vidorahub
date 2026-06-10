@@ -36,7 +36,9 @@ export function VideoCard({ video, onPress, width }: VideoCardProps) {
           source={{ uri: video.thumbnailUrl }}
           style={styles.thumbnail}
           contentFit="cover"
-          transition={200}
+          cachePolicy="memory-disk"
+          recyclingKey={video.thumbnailUrl ?? video._id}
+          transition={0}
         />
         <View style={styles.thumbnailVignette} />
         {video.duration ? (

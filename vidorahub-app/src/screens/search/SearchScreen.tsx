@@ -68,13 +68,6 @@ export function SearchScreen() {
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
       <View style={styles.navbar}>
-        <View style={styles.logo}>
-          <Ionicons name="play-circle" size={26} color={colors.primary} />
-          <Text style={styles.logoText}>
-            Vidora<Text style={styles.logoTextAccent}>Hub</Text>
-          </Text>
-        </View>
-
         <View style={styles.searchWrapper}>
           <Ionicons name="search" size={18} color={colors.primary} />
           <TextInput
@@ -159,20 +152,6 @@ const styles = StyleSheet.create({
     paddingTop: spacing.md,
     paddingBottom: spacing.md,
     gap: spacing.md,
-  },
-  logo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
-  logoText: {
-    fontSize: typography.sizes.xl,
-    fontWeight: '800',
-    color: colors.primary,
-    letterSpacing: -0.4,
-  },
-  logoTextAccent: {
-    color: colors.primaryEnd,
   },
   searchWrapper: {
     flexDirection: 'row',
