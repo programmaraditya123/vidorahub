@@ -1,6 +1,6 @@
 {
   "name": "vidorahub-app",
-  "version": "1.0.0",
+  "version": "3.0.0",
   "main": "index.ts",
   "dependencies": {
     "@expo-google-fonts/be-vietnam-pro": "^0.4.1",
