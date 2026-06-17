@@ -1,63 +1,51 @@
 # VidoraHub Mobile App
 
-Production-ready React Native application for VidoraHub, built with Expo SDK 56.
+Production React Native CLI application for VidoraHub.
 
 ## Quick Start
 
 ```bash
 cd vidorahub-app
 cp .env.example .env
+npm install
 npm start
 ```
 
 ## Scripts
 
 | Command | Description |
-|---------|-------------|
-| `npm start` | Start Expo dev server |
+| --- | --- |
+| `npm start` | Start Metro |
 | `npm run android` | Run on Android |
-| `npm run ios` | Run on iOS |
+| `npm run android:debug` | Build Android debug APK |
+| `npm run android:release` | Build Android release APK |
+| `npm run android:bundle` | Build Android release AAB |
 | `npm run typecheck` | TypeScript validation |
 | `npm run lint` | ESLint |
 | `npm test` | Jest unit tests |
-
-## Architecture
-
-See [MIGRATION_PLAN.md](./MIGRATION_PLAN.md) for the full route map, API inventory, and migration decisions.
-
-```
-src/
-├── navigation/     # Root, Auth, Main, Tab navigators + deep linking
-├── screens/        # Screen components mapped from Next.js routes
-├── features/       # Feature modules (video, vibes, auth, store, chat, etc.)
-├── components/     # Shared UI primitives
-├── services/api/   # Axios clients + API functions
-├── queries/        # TanStack Query hooks
-├── mutations/      # TanStack mutations
-├── store/          # Zustand stores
-├── theme/          # Design tokens
-└── providers/      # App-wide providers
-```
 
 ## Environment
 
 Copy `.env.example` to `.env` and set:
 
-- `EXPO_PUBLIC_API_BASE_URL` — Primary FastAPI backend
-- `EXPO_PUBLIC_API_BASE_URL_SECOND` — Reactions/follow bitmap API
-- `EXPO_PUBLIC_GOOGLE_CLIENT_ID` — Google Sign-In (required for OAuth)
+- `API_BASE_URL` - Primary FastAPI backend
+- `API_BASE_URL_SECOND` - Reactions/follow bitmap API
+- `FFMPEG_WORKER_URL` - Transcoding worker URL
+- `GOOGLE_CLIENT_ID` - Google Sign-In web client ID
+- `GCS_BASE_URL` - Google Cloud Storage base URL
+- `SENTRY_DSN` - Sentry DSN
+- `FIREBASE_*` - Firebase app metadata, if read from JS
 
 ## Native Builds
 
-Firebase and Google Sign-In require a development build (not Expo Go):
+Android uses `android/app/google-services.json` for Firebase and release signing placeholders in `android/app/build.gradle`.
 
 ```bash
-npx expo prebuild
-npx expo run:android
-npx expo run:ios
+npm run android
+npm run android:debug
+npm run android:release
+npm run android:bundle
 ```
-
-Add `google-services.json` (Android) and `GoogleService-Info.plist` (iOS) for Firebase.
 
 ## Deep Links
 

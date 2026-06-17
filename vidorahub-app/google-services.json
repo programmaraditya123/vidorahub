@@ -1,21 +1,21 @@
 {
   "project_info": {
-    "project_number": "128466992134",
-    "project_id": "kriyana-b28be",
-    "storage_bucket": "kriyana-b28be.firebasestorage.app"
+    "project_number": "190129181527",
+    "project_id": "vidorahub-9bf61",
+    "storage_bucket": "vidorahub-9bf61.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:128466992134:android:588e47b48e29a92ba51787",
+        "mobilesdk_app_id": "1:190129181527:android:3e712e82211f1862be2412",
         "android_client_info": {
-          "package_name": "com.kariyana.wholesalekariyana"
+          "package_name": "com.vidorahub.mobile"
         }
       },
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyBhD4EbdAZtjCEseOMBoSWkalGplAqiTHc"
+          "current_key": "AIzaSyBpHgUTfJDMWE2sqnz1dJVjPoOeaB-_Pms"
         }
       ],
       "services": {

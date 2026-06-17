@@ -9,9 +9,10 @@ import {
   Linking,
   Share,
 } from 'react-native';
-import { Image } from 'expo-image';
-import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
+import { Image } from '@/components/native/Image';
+import Clipboard from '@react-native-clipboard/clipboard';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import LinearGradient from 'react-native-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, spacing, typography, radius, shadows } from '@/theme';
 
@@ -28,8 +29,7 @@ export function ShareBlade({ isOpen, onClose, thumbnailUrl, link }: ShareBladePr
 
   const copyLink = async () => {
     try {
-      const Clipboard = await import('expo-clipboard');
-      await Clipboard.setStringAsync(link);
+      Clipboard.setString(link);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch {

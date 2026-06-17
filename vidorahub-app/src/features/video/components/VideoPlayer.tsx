@@ -9,11 +9,15 @@ import {
   Modal,
   Platform,
 } from 'react-native';
-import { useVideoPlayer, VideoView, type VideoContentFit, type VideoTrack } from 'expo-video';
-import { Image } from 'expo-image';
-import { LinearGradient } from 'expo-linear-gradient';
-import * as ScreenOrientation from 'expo-screen-orientation';
-import { Ionicons } from '@expo/vector-icons';
+import Video, {
+  type OnLoadData,
+  type OnProgressData,
+  type VideoRef,
+} from 'react-native-video';
+import { Image } from '@/components/native/Image';
+import LinearGradient from 'react-native-linear-gradient';
+import Orientation from 'react-native-orientation-locker';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useFocusEffect } from '@react-navigation/native';
 import { config } from '@/config';
 import { postView } from '@/services/api/authApi';
@@ -31,6 +35,31 @@ const CONTROLS_HIDE_MS = 2800;
 const CONTROLS_BAR_HEIGHT = 104;
 const SKIP_SECONDS = 10;
 
+function isRemoteOrLocalUri(uri?: string | null): boolean {
+  if (!uri) return false;
+  return /^(https?:\/\/|file:\/\/|content:\/\/)/i.test(uri);
+}
+
+function buildMediaUri(video: VideoItem): string {
+  const hlsPath = video.hlsUl?.trim();
+  if (hlsPath) {
+    if (isRemoteOrLocalUri(hlsPath)) {
+      return hlsPath.endsWith('.m3u8')
+        ? hlsPath
+        : `${hlsPath.replace(/\/$/, '')}/master.m3u8`;
+    }
+
+    return `${config.gcsBaseUrl.replace(/\/$/, '')}/${hlsPath.replace(/^\/|\/$/g, '')}/master.m3u8`;
+  }
+
+  const videoPath = video.videoUrl.trim();
+  if (isRemoteOrLocalUri(videoPath)) return videoPath;
+
+  return videoPath
+    ? `${config.gcsBaseUrl.replace(/\/$/, '')}/${videoPath.replace(/^\//, '')}`
+    : '';
+}
+
 function formatTime(seconds: number): string {
   if (!seconds || Number.isNaN(seconds)) return '0:00';
   const m = Math.floor(seconds / 60);
@@ -41,7 +70,7 @@ function formatTime(seconds: number): string {
 }
 
 export function VideoPlayer({ video, autoPlay = true }: VideoPlayerProps) {
-  const videoViewRef = useRef<VideoView>(null);
+  const videoRef = useRef<VideoRef>(null);
   const hideTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const timelineWidthRef = useRef(0);
   const watchStartRef = useRef<number>(Date.now());
@@ -52,7 +81,7 @@ export function VideoPlayer({ video, autoPlay = true }: VideoPlayerProps) {
 
   const [isReady, setIsReady] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [isPlaying, setIsPlaying] = useState(autoPlay);
+  const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [showControls, setShowControls] = useState(true);
   const [showQualityMenu, setShowQualityMenu] = useState(false);
@@ -60,58 +89,25 @@ export function VideoPlayer({ video, autoPlay = true }: VideoPlayerProps) {
   const [duration, setDuration] = useState(0);
   const [buffered, setBuffered] = useState(0);
   const [isEnded, setIsEnded] = useState(false);
-  const [availableTracks, setAvailableTracks] = useState<VideoTrack[]>([]);
-  const [currentTrack, setCurrentTrack] = useState<VideoTrack | null>(null);
   const [playerError, setPlayerError] = useState<string | null>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
 
-  const sourceUri = video.hlsUl
-    ? `${config.gcsBaseUrl}/${video.hlsUl}/master.m3u8`
-    : video.videoUrl;
-  const source = useMemo(
-    () =>
-      video.hlsUl
-        ? {
-            uri: sourceUri,
-            contentType: 'hls' as const,
-            metadata: {
-              title: video.title,
-              artist: video.uploader?.name,
-              artwork: video.thumbnailUrl,
-            },
-          }
-        : {
-            uri: sourceUri,
-            metadata: {
-              title: video.title,
-              artist: video.uploader?.name,
-              artwork: video.thumbnailUrl,
-            },
-          },
-    [sourceUri, video.hlsUl, video.thumbnailUrl, video.title, video.uploader?.name],
-  );
-
-  const player = useVideoPlayer(source, (videoPlayer) => {
-    videoPlayer.loop = false;
-    videoPlayer.timeUpdateEventInterval = 0.25;
-    videoPlayer.keepScreenOnWhilePlaying = true;
-    if (autoPlay) videoPlayer.play();
-  });
-
+  const sourceUri = useMemo(() => buildMediaUri(video), [video]);
+  const hasPlayableSource = isRemoteOrLocalUri(sourceUri);
   const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
   const bufferProgress = duration > 0 ? (buffered / duration) * 100 : 0;
-  const currentQualityLabel = currentTrack?.size?.height
-    ? `${currentTrack.size.height}p`
-    : video.hlsUl
-      ? 'Auto'
-      : 'HD';
-  const sortedTracks = useMemo(
-    () =>
-      [...availableTracks]
-        .filter((track) => track.size?.height)
-        .sort((a, b) => b.size.height - a.size.height),
-    [availableTracks],
-  );
+  const currentQualityLabel = video.hlsUl ? 'Auto' : 'HD';
+
+  useEffect(() => {
+    setIsReady(false);
+    setIsLoading(Boolean(sourceUri));
+    setCurrentTime(0);
+    setDuration(0);
+    setBuffered(0);
+    setIsEnded(false);
+    setIsPlaying(autoPlay && hasPlayableSource);
+    setPlayerError(hasPlayableSource ? null : 'Video source is unavailable.');
+  }, [autoPlay, hasPlayableSource, sourceUri]);
 
   const clearHideTimeout = useCallback(() => {
     if (hideTimeoutRef.current) {
@@ -131,23 +127,15 @@ export function VideoPlayer({ video, autoPlay = true }: VideoPlayerProps) {
     }
   }, []);
 
-  const readPlayerValue = useCallback(<T,>(reader: () => T, fallback: T) => {
-    try {
-      return reader();
-    } catch {
-      return fallback;
-    }
-  }, []);
-
   const scheduleHideControls = useCallback(() => {
     clearHideTimeout();
     hideTimeoutRef.current = setTimeout(() => {
-      if (readPlayerValue(() => player.playing, false)) {
+      if (isPlaying) {
         setShowControls(false);
         setShowQualityMenu(false);
       }
     }, CONTROLS_HIDE_MS);
-  }, [clearHideTimeout, player, readPlayerValue]);
+  }, [clearHideTimeout, isPlaying]);
 
   const revealControls = useCallback(() => {
     setShowControls(true);
@@ -156,17 +144,16 @@ export function VideoPlayer({ video, autoPlay = true }: VideoPlayerProps) {
 
   const togglePlay = useCallback(() => {
     if (isEnded) {
-      runPlayerAction(() => player.replay());
+      runPlayerAction(() => {
+        videoRef.current?.seek(0);
+      });
+      setIsPlaying(true);
       setIsEnded(false);
       return;
     }
 
-    if (readPlayerValue(() => player.playing, false)) {
-      runPlayerAction(() => player.pause());
-    } else {
-      runPlayerAction(() => player.play());
-    }
-  }, [isEnded, player, readPlayerValue, runPlayerAction]);
+    setIsPlaying((playing) => !playing);
+  }, [isEnded, runPlayerAction]);
 
   const onVideoAreaPress = useCallback(() => {
     if (!showControls) {
@@ -178,34 +165,33 @@ export function VideoPlayer({ video, autoPlay = true }: VideoPlayerProps) {
   }, [showControls, revealControls, togglePlay]);
 
   const toggleMute = useCallback(() => {
-    runPlayerAction(() => {
-      player.muted = !readPlayerValue(() => player.muted, false);
-    });
+    setIsMuted((muted) => !muted);
     revealControls();
-  }, [player, readPlayerValue, revealControls, runPlayerAction]);
+  }, [revealControls]);
 
   const seekBy = useCallback(
     (seconds: number) => {
       if (!duration) return;
       const nextTime = Math.max(
         0,
-        Math.min(readPlayerValue(() => player.currentTime, currentTime) + seconds, duration),
+        Math.min(currentTime + seconds, duration),
       );
       runPlayerAction(() => {
-        player.currentTime = nextTime;
+        videoRef.current?.seek(nextTime);
       });
       setCurrentTime(nextTime);
       setIsEnded(false);
       revealControls();
     },
-    [currentTime, duration, player, readPlayerValue, revealControls, runPlayerAction],
+    [currentTime, duration, revealControls, runPlayerAction],
   );
 
   const replay = useCallback(() => {
-    runPlayerAction(() => player.replay());
+    runPlayerAction(() => videoRef.current?.seek(0));
+    setIsPlaying(true);
     setIsEnded(false);
     revealControls();
-  }, [player, revealControls, runPlayerAction]);
+  }, [revealControls, runPlayerAction]);
 
   const handleSeek = useCallback(
     (locationX: number) => {
@@ -213,124 +199,60 @@ export function VideoPlayer({ video, autoPlay = true }: VideoPlayerProps) {
       const ratio = Math.max(0, Math.min(locationX / timelineWidthRef.current, 1));
       const nextTime = duration * ratio;
       runPlayerAction(() => {
-        player.currentTime = nextTime;
+        videoRef.current?.seek(nextTime);
       });
       setCurrentTime(nextTime);
       setIsEnded(false);
       revealControls();
     },
-    [duration, player, revealControls, runPlayerAction],
+    [duration, revealControls, runPlayerAction],
   );
 
   const restoreAfterSurfaceSwap = useCallback(() => {
     const { wasPlaying, time } = fullscreenPlaybackRef.current;
     setTimeout(() => {
       runPlayerAction(() => {
-        player.currentTime = time;
+        videoRef.current?.seek(time);
       });
       setCurrentTime(time);
-      if (wasPlaying) runPlayerAction(() => player.play());
+      setIsPlaying(wasPlaying);
     }, 120);
-  }, [player, runPlayerAction]);
+  }, [runPlayerAction]);
 
   const enterFullscreen = useCallback(async () => {
     fullscreenPlaybackRef.current = {
-      wasPlaying: readPlayerValue(() => player.playing, false),
-      time: readPlayerValue(() => player.currentTime, currentTime),
+      wasPlaying: isPlaying,
+      time: currentTime,
     };
-    runPlayerAction(() => player.pause());
+    setIsPlaying(false);
     setShowQualityMenu(false);
-    await ScreenOrientation.lockAsync(
-      ScreenOrientation.OrientationLock.LANDSCAPE,
-    ).catch(() => undefined);
+    Orientation.lockToLandscape();
     setIsFullscreen(true);
     revealControls();
     restoreAfterSurfaceSwap();
-  }, [currentTime, player, readPlayerValue, restoreAfterSurfaceSwap, revealControls, runPlayerAction]);
+  }, [currentTime, isPlaying, restoreAfterSurfaceSwap, revealControls]);
 
   const exitFullscreen = useCallback(async () => {
     fullscreenPlaybackRef.current = {
-      wasPlaying: readPlayerValue(() => player.playing, false),
-      time: readPlayerValue(() => player.currentTime, currentTime),
+      wasPlaying: isPlaying,
+      time: currentTime,
     };
-    runPlayerAction(() => player.pause());
+    setIsPlaying(false);
     setShowQualityMenu(false);
     setIsFullscreen(false);
-    await ScreenOrientation.lockAsync(
-      ScreenOrientation.OrientationLock.PORTRAIT_UP,
-    ).catch(() => undefined);
+    Orientation.lockToPortrait();
     revealControls();
     restoreAfterSurfaceSwap();
-  }, [currentTime, player, readPlayerValue, restoreAfterSurfaceSwap, revealControls, runPlayerAction]);
+  }, [currentTime, isPlaying, restoreAfterSurfaceSwap, revealControls]);
 
   useEffect(() => {
-    const listeners = [
-      player.addListener('playingChange', ({ isPlaying: playing }) => {
-        setIsPlaying(playing);
-        if (playing) {
-          scheduleHideControls();
-        } else {
-          clearHideTimeout();
-          setShowControls(true);
-        }
-      }),
-      player.addListener('statusChange', ({ status }) => {
-        setIsLoading(status === 'loading');
-        setPlayerError(status === 'error' ? 'Video could not be loaded.' : null);
-      }),
-      player.addListener('mutedChange', ({ muted }) => {
-        setIsMuted(muted);
-      }),
-      player.addListener('timeUpdate', ({ currentTime: time, bufferedPosition }) => {
-        setCurrentTime(time);
-        if (bufferedPosition >= 0) setBuffered(bufferedPosition);
-      }),
-      player.addListener('sourceLoad', ({ duration: loadedDuration, availableVideoTracks }) => {
-        if (loadedDuration > 0) setDuration(loadedDuration);
-        setAvailableTracks(availableVideoTracks ?? []);
-        setCurrentTrack(readPlayerValue(() => player.videoTrack, null));
-
-        const saved = getSavedProgress(video._id);
-        if (saved > 3 && loadedDuration - saved > 6) {
-          runPlayerAction(() => {
-            player.currentTime = saved;
-          });
-          setCurrentTime(saved);
-        }
-      }),
-      player.addListener('videoTrackChange', ({ videoTrack }) => {
-        setCurrentTrack(videoTrack);
-      }),
-      player.addListener('playToEnd', () => {
-        setIsEnded(true);
-        setIsPlaying(false);
-        setShowControls(true);
-        clearHideTimeout();
-      }),
-    ];
-
-    const initialDuration = readPlayerValue(() => player.duration, 0);
-    const initialBuffered = readPlayerValue(() => player.bufferedPosition, -1);
-    const initialPlaying = readPlayerValue(() => player.playing, false);
-    setIsPlaying(initialPlaying);
-    setIsMuted(readPlayerValue(() => player.muted, false));
-    if (initialDuration > 0) setDuration(initialDuration);
-    if (initialBuffered >= 0) setBuffered(initialBuffered);
-    if (initialPlaying) scheduleHideControls();
-
-    return () => {
-      listeners.forEach((sub) => sub.remove());
+    if (isPlaying) {
+      scheduleHideControls();
+    } else {
       clearHideTimeout();
-    };
-  }, [
-    player,
-    scheduleHideControls,
-    clearHideTimeout,
-    getSavedProgress,
-    readPlayerValue,
-    runPlayerAction,
-    video._id,
-  ]);
+      setShowControls(true);
+    }
+  }, [clearHideTimeout, isPlaying, scheduleHideControls]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -353,30 +275,54 @@ export function VideoPlayer({ video, autoPlay = true }: VideoPlayerProps) {
         watchTime,
       }).catch(() => undefined);
     };
-  }, [player, video._id]);
+  }, [video._id]);
 
   useFocusEffect(
     useCallback(() => {
       return () => {
-        runPlayerAction(() => player.pause());
+        setIsPlaying(false);
         setIsFullscreen(false);
         setShowControls(true);
         setShowQualityMenu(false);
         clearHideTimeout();
-        ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP).catch(
-          () => undefined,
-        );
+        Orientation.lockToPortrait();
       };
-    }, [clearHideTimeout, player, runPlayerAction]),
+    }, [clearHideTimeout]),
   );
 
   useEffect(() => {
     return () => {
-      ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP).catch(
-        () => undefined,
-      );
+      Orientation.lockToPortrait();
     };
   }, []);
+
+  const handleLoad = useCallback(
+    (data: OnLoadData) => {
+      setDuration(data.duration);
+      setIsLoading(false);
+      setPlayerError(null);
+
+      const saved = getSavedProgress(video._id);
+      if (saved > 3 && data.duration - saved > 6) {
+        videoRef.current?.seek(saved);
+        setCurrentTime(saved);
+      }
+    },
+    [getSavedProgress, video._id],
+  );
+
+  const handleProgress = useCallback((data: OnProgressData) => {
+    setCurrentTime(data.currentTime);
+    const playable = data.playableDuration ?? 0;
+    if (playable >= 0) setBuffered(playable);
+  }, []);
+
+  const handleEnd = useCallback(() => {
+    setIsEnded(true);
+    setIsPlaying(false);
+    setShowControls(true);
+    clearHideTimeout();
+  }, [clearHideTimeout]);
 
   const onTimelineLayout = (e: LayoutChangeEvent) => {
     timelineWidthRef.current = e.nativeEvent.layout.width;
@@ -393,19 +339,35 @@ export function VideoPlayer({ video, autoPlay = true }: VideoPlayerProps) {
           />
         ) : null}
 
-        <VideoView
-          ref={!fullscreen ? videoViewRef : undefined}
-          player={player}
-          style={styles.video}
-          contentFit={'contain' as VideoContentFit}
-          nativeControls={false}
-          fullscreenOptions={{ enable: false }}
-          surfaceType={Platform.OS === 'android' ? 'textureView' : undefined}
-          onFirstFrameRender={() => {
-            setIsReady(true);
-            setIsLoading(false);
-          }}
-        />
+        {hasPlayableSource ? (
+          <Video
+            ref={videoRef}
+            source={{ uri: sourceUri, type: video.hlsUl ? 'm3u8' : undefined }}
+            style={styles.video}
+            controls={false}
+            paused={!isPlaying}
+            muted={isMuted}
+            resizeMode="contain"
+            repeat={false}
+            playInBackground={false}
+            playWhenInactive={false}
+            progressUpdateInterval={250}
+            useTextureView={Platform.OS === 'android'}
+            onLoad={handleLoad}
+            onProgress={handleProgress}
+            onBuffer={({ isBuffering }) => setIsLoading(isBuffering)}
+            onReadyForDisplay={() => {
+              setIsReady(true);
+              setIsLoading(false);
+            }}
+            onEnd={handleEnd}
+            onError={() => {
+              setIsLoading(false);
+              setIsPlaying(false);
+              setPlayerError('Video could not be loaded.');
+            }}
+          />
+        ) : null}
 
         {isLoading ? (
           <View style={styles.loader} pointerEvents="none">
@@ -508,11 +470,6 @@ export function VideoPlayer({ video, autoPlay = true }: VideoPlayerProps) {
                     <Text style={styles.qualityItemText}>Auto</Text>
                     <Ionicons name="checkmark" size={16} color={colors.white} />
                   </View>
-                  {sortedTracks.slice(0, 5).map((track) => (
-                    <View key={track.id} style={styles.qualityItem}>
-                      <Text style={styles.qualityItemText}>{track.size.height}p</Text>
-                    </View>
-                  ))}
                   <Text style={styles.qualityHint}>Adaptive playback</Text>
                 </View>
               ) : null}
@@ -614,14 +571,24 @@ export function VideoPlayer({ video, autoPlay = true }: VideoPlayerProps) {
 
   return (
     <View style={styles.wrapper}>
-      {!isFullscreen ? renderPlayerSurface(false) : <View style={styles.playerGlow} />}
+      {renderPlayerSurface(false)}
       <Modal
         visible={isFullscreen}
         animationType="fade"
         supportedOrientations={['portrait', 'landscape', 'landscape-left', 'landscape-right']}
         onRequestClose={exitFullscreen}
       >
-        <View style={styles.fullscreenModal}>{renderPlayerSurface(true)}</View>
+        <View style={styles.fullscreenModal}>
+          <Pressable
+            style={styles.fullscreenCloseButton}
+            onPress={exitFullscreen}
+            accessibilityRole="button"
+            accessibilityLabel="Exit fullscreen"
+          >
+            <Ionicons name="close" size={22} color={colors.white} />
+          </Pressable>
+          <Text style={styles.fullscreenHint}>Rotate your device for fullscreen playback</Text>
+        </View>
       </Modal>
     </View>
   );
@@ -643,6 +610,8 @@ const styles = StyleSheet.create({
   fullscreenModal: {
     flex: 1,
     backgroundColor: colors.black,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   fullscreenPlayer: {
     flex: 1,
@@ -764,6 +733,27 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255,255,255,0.18)',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  fullscreenCloseButton: {
+    position: 'absolute',
+    right: spacing.lg,
+    top: spacing.xl,
+    zIndex: 2,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(0,0,0,0.55)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.18)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  fullscreenHint: {
+    paddingHorizontal: spacing.xl,
+    color: colors.white,
+    fontSize: typography.sizes.md,
+    fontWeight: '700',
+    textAlign: 'center',
   },
   qualityText: {
     fontSize: typography.sizes.xs,

@@ -6,7 +6,7 @@ import {
   ActivityIndicator,
   type ViewStyle,
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
+import LinearGradient from 'react-native-linear-gradient';
 import { colors, spacing, radius, typography } from '@/theme';
 
 type GradientButtonProps = {

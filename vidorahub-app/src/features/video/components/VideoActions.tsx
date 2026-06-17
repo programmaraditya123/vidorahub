@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Pressable } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import { ShareBlade } from '@/components/ui/ShareBlade';
 import { AuthModal } from '@/components/shared/AuthModal';
 import { useReactionsQuery, useReactionMutation } from '@/queries';

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -7,10 +7,10 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { useVideoPlayer, VideoView, type VideoContentFit } from 'expo-video';
-import { Image } from 'expo-image';
-import { LinearGradient } from 'expo-linear-gradient';
-import { Ionicons } from '@expo/vector-icons';
+import Video, { type VideoRef } from 'react-native-video';
+import { Image } from '@/components/native/Image';
+import LinearGradient from 'react-native-linear-gradient';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import { config } from '@/config';
 import { AuthModal } from '@/components/shared/AuthModal';
 import { ShareBlade } from '@/components/ui/ShareBlade';
@@ -40,6 +40,7 @@ export function VibeSlide({
   onCreatorPress,
 }: VibeSlideProps) {
   const navigation = useNavigation<NativeStackNavigationProp<MainStackParamList>>();
+  const videoRef = useRef<VideoRef>(null);
   const [isReady, setIsReady] = useState(false);
   const [showMuteHint, setShowMuteHint] = useState(false);
   const [liked, setLiked] = useState(false);
@@ -81,15 +82,6 @@ export function VibeSlide({
     [vibe.uploader.profilePicUrl, vibe.uploader.profilePicture],
   );
 
-  const player = useVideoPlayer(sourceUri, (videoPlayer) => {
-    videoPlayer.loop = true;
-    videoPlayer.muted = isMuted;
-  });
-
-  useEffect(() => {
-    player.muted = isMuted;
-  }, [isMuted, player]);
-
   useEffect(() => {
     if (reactions) {
       setLiked(reactions.liked);
@@ -106,13 +98,10 @@ export function VibeSlide({
   }, [followData]);
 
   useEffect(() => {
-    if (isActive) {
-      player.play();
-    } else {
-      player.pause();
-      player.currentTime = 0;
+    if (!isActive) {
+      videoRef.current?.seek(0);
     }
-  }, [isActive, player]);
+  }, [isActive]);
 
   const requireAuth = (message: string) => {
     setAuthMessage(message);
@@ -198,12 +187,16 @@ export function VibeSlide({
       {!isReady ? (
         <View style={styles.skeleton} pointerEvents="none" />
       ) : null}
-      <VideoView
-        player={player}
+      <Video
+        ref={videoRef}
+        source={{ uri: sourceUri }}
         style={styles.video}
-        contentFit={'contain' as VideoContentFit}
-        nativeControls={false}
-        onFirstFrameRender={() => setIsReady(true)}
+        paused={!isActive}
+        muted={isMuted}
+        repeat
+        controls={false}
+        resizeMode="contain"
+        onReadyForDisplay={() => setIsReady(true)}
       />
 
       <LinearGradient

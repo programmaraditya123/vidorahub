@@ -17,6 +17,14 @@ expo-env.d.ts
 *.p12
 *.key
 *.mobileprovision
+android/keystore.properties
+*.apk
+*.aab
+*.aar
+*.dex
+*.class
+*.jar
+!android/gradle/wrapper/gradle-wrapper.jar
 
 # Metro
 .metro-health-check*
@@ -25,6 +33,7 @@ expo-env.d.ts
 npm-debug.*
 yarn-debug.*
 yarn-error.*
+*.log
 
 # macOS
 .DS_Store
@@ -40,4 +49,12 @@ yarn-error.*
 
 # generated native folders
 /ios
-/android
+
+# Android generated files. Keep android source files tracked.
+/android/.gradle/
+/android/.idea/
+/android/local.properties
+/android/**/build/
+/android/**/.cxx/
+/android/**/.externalNativeBuild/
+/android/**/captures/

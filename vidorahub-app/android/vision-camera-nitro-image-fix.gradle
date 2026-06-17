@@ -1,0 +1,34 @@
+// VisionCamera v5 links against react-native-nitro-image via prefab. On release builds the
+// generated CMake config can miss libNitroImage.so (IMPORTED_LOCATION), causing linker errors
+// like "undefined symbol: margelo::nitro::image::JHybridImageSpec::JavaPart::getJHybridImageSpec".
+// Force VisionCamera's native tasks to run after NitroImage has built and published prefab.
+subprojects { subproject ->
+  if (subproject.name != "react-native-vision-camera") {
+    return
+  }
+
+  subproject.afterEvaluate {
+    def nitroImageProject = rootProject.findProject(":react-native-nitro-image")
+    if (nitroImageProject == null) {
+      return
+    }
+
+    subproject.tasks.configureEach { task ->
+      if (!task.name.startsWith("configureCMake") && !task.name.startsWith("buildCMake")) {
+        return
+      }
+
+      def nitroImageTask = nitroImageProject.tasks.findByName(task.name)
+      if (nitroImageTask != null) {
+        task.dependsOn(nitroImageTask)
+      }
+
+      def isRelease = task.name.contains("Rel")
+      def prefabTaskName = isRelease ? "prefabReleasePackage" : "prefabDebugPackage"
+      def prefabTask = nitroImageProject.tasks.findByName(prefabTaskName)
+      if (prefabTask != null) {
+        task.dependsOn(prefabTask)
+      }
+    }
+  }
+}

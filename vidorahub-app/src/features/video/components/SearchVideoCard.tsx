@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
 import { View, Text, StyleSheet, Pressable } from 'react-native';
-import { Image } from 'expo-image';
+import { Image } from '@/components/native/Image';
 import type { VideoItem } from '@/types';
 import { colors, radius, spacing, typography, shadows } from '@/theme';
 import { formatDuration } from '@/utils';

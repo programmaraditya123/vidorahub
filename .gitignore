@@ -1,0 +1,16 @@
+# Codex / local scratch
+.tmp/
+
+# Dependencies and build outputs across workspace packages
+node_modules/
+build/
+dist/
+.next/
+
+# Local environment files
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log

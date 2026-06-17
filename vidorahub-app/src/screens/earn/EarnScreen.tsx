@@ -1,4 +1,4 @@
-﻿import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import {
   View,
   Text,
@@ -8,8 +8,8 @@ import {
   Modal,
   Dimensions,
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import LinearGradient from 'react-native-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -318,7 +318,7 @@ export function EarnScreen() {
             <Text style={styles.modalTitle}>Withdrawals aren&apos;t open yet</Text>
             <Text style={styles.modalBody}>
               VidoraHub is still growing. Your points are{' '}
-              <Text style={styles.modalStrong}>safe and recorded</Text> â€”
+              <Text style={styles.modalStrong}>safe and recorded</Text> —
               they&apos;ll convert to real money once our platform is fully
               funded.
             </Text>
@@ -330,7 +330,7 @@ export function EarnScreen() {
               </Text>
             </View>
             <Text style={styles.modalFooter}>
-              Keep creating â€” early creators like you will be rewarded first.
+              Keep creating — early creators like you will be rewarded first.
             </Text>
             <Pressable
               style={styles.modalCloseBtn}

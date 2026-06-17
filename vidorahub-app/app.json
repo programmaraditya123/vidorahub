@@ -1,38 +1,5 @@
 {
-  "expo": {
-    "name": "vidorahub-app",
-    "slug": "vidorahub-app",
-    "version": "3.0.0",
-    "orientation": "portrait",
-    "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
-    "ios": {
-      "supportsTablet": true
-    },
-    "android": {
-      "package": "com.vidorahub.app",
-      "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
-        "foregroundImage": "./assets/android-icon-foreground.png",
-        "backgroundImage": "./assets/android-icon-background.png",
-        "monochromeImage": "./assets/android-icon-monochrome.png"
-      },
-      "predictiveBackGestureEnabled": false
-    },
-    "web": {
-      "favicon": "./assets/favicon.png"
-    },
-    "plugins": [
-      "expo-image",
-      "expo-secure-store",
-      "expo-splash-screen",
-      "expo-font"
-    ],
-    "extra": {
-      "eas": {
-        "projectId": "28fa4c3e-f9c6-451f-9e38-24dc25ce72e6"
-      }
-    },
-    "owner": "adityapreet"
-  }
+  "name": "VidoraHub",
+  "displayName": "VidoraHub",
+  "version": "5.0.0"
 }

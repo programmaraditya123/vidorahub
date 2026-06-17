@@ -1,8 +1,8 @@
-import * as Linking from 'expo-linking';
+import { Linking } from 'react-native';
 import { parseVideoSlug } from '@/utils';
 import type { RootStackParamList, MainStackParamList } from './types';
 
-const prefix = Linking.createURL('/');
+const prefix = 'vidorahub://';
 
 export const linking = {
   prefixes: [prefix, 'vidorahub://', 'https://www.vidorahub.com', 'https://vidorahub.com'],
@@ -64,14 +64,14 @@ export const linking = {
 };
 
 export function buildVideoDeepLink(slug: string): string {
-  return Linking.createURL(`video/${slug}`);
+  return `${prefix}video/${slug}`;
 }
 
 export function buildChannelDeepLink(id: string, tab?: string): string {
-  const base = Linking.createURL(`channel/${id}`);
+  const base = `${prefix}channel/${id}`;
   return tab ? `${base}?tab=${tab}` : base;
 }
 
 export function buildVibeDeepLink(vibeId: string): string {
-  return Linking.createURL(`vibes?v=${vibeId}`);
+  return `${prefix}vibes?v=${vibeId}`;
 }

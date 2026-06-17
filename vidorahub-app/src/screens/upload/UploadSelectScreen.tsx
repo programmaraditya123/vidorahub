@@ -3,8 +3,8 @@ import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import * as ImagePicker from 'expo-image-picker';
-import { Ionicons } from '@expo/vector-icons';
+import { launchImageLibrary } from 'react-native-image-picker';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import { AppBottomNavigationBar, APP_BOTTOM_BAR_HEIGHT } from '@/components/shared/AppBottomNavigationBar';
 import { colors, radius, shadows, spacing, typography } from '@/theme';
 import type { MainStackParamList } from '@/navigation/types';
@@ -22,16 +22,16 @@ export function UploadSelectScreen({ contentType }: UploadSelectScreenProps) {
   const isVibe = contentType === 'vibe';
 
   const pickVideo = useCallback(async () => {
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ['videos'],
+    const result = await launchImageLibrary({
+      mediaType: 'video',
       quality: 1,
-      videoMaxDuration: isVibe ? MAX_VIBE_DURATION_SECONDS : undefined,
+      videoQuality: 'high',
     });
 
-    if (result.canceled || !result.assets[0]) return;
+    if (result.didCancel || !result.assets?.[0]) return;
 
     const asset = result.assets[0];
-    const duration = (asset.duration ?? 0) / 1000;
+    const duration = asset.duration ?? 0;
     const sizeMb = asset.fileSize ? asset.fileSize / (1024 * 1024) : undefined;
 
     if (isVibe && duration > MAX_VIBE_DURATION_SECONDS) {
@@ -46,9 +46,9 @@ export function UploadSelectScreen({ contentType }: UploadSelectScreenProps) {
 
     navigation.navigate('UploadDetails', {
       contentType,
-      videoUri: asset.uri,
+      videoUri: asset.uri ?? '',
       videoFileName: asset.fileName ?? (isVibe ? 'vibe.mp4' : 'video.mp4'),
-      videoContentType: asset.mimeType ?? 'video/mp4',
+      videoContentType: asset.type ?? 'video/mp4',
       duration,
       sizeMb,
     });

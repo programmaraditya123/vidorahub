@@ -33,7 +33,7 @@ function createApiClient(baseURL: string) {
 
       if (status === 503 && original && !original._retry) {
         original._retry = true;
-        await new Promise((r) => setTimeout(r, 1000));
+        await new Promise<void>((resolve) => setTimeout(resolve, 1000));
         return client(original);
       }
 

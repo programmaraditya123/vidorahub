@@ -1,4 +1,4 @@
-﻿import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Modal,
   Pressable,
@@ -12,12 +12,12 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import type { RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import * as ImagePicker from 'expo-image-picker';
-import * as VideoThumbnails from 'expo-video-thumbnails';
-import { Image } from 'expo-image';
-import { useVideoPlayer, VideoView } from 'expo-video';
-import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
+import { launchImageLibrary, type Asset } from 'react-native-image-picker';
+import { createThumbnail } from 'react-native-create-thumbnail';
+import { Image } from '@/components/native/Image';
+import Video, { type VideoRef } from 'react-native-video';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import LinearGradient from 'react-native-linear-gradient';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -59,64 +59,40 @@ type VisualItem = {
   isCustom?: boolean;
 };
 
-type CustomThumbnail = ImagePicker.ImagePickerAsset & {
+type CustomThumbnail = Asset & {
   visualId: string;
 };
 
 const DEFAULT_CATEGORY = 'general';
 
 function UploadPreview({ uri, contentType }: { uri: string; contentType: ContentType }) {
-  const player = useVideoPlayer(uri);
-
   return (
-    <VideoView
-      player={player}
+    <Video
+      source={{ uri }}
       style={contentType === 'vibe' ? styles.vibePreview : styles.videoPreview}
-      nativeControls
-      contentFit={contentType === 'vibe' ? 'cover' : 'contain'}
+      controls
+      paused
+      resizeMode={contentType === 'vibe' ? 'cover' : 'contain'}
     />
   );
 }
 
 function FramePreview({ uri, time }: { uri: string; time: number }) {
-  const player = useVideoPlayer(uri, (videoPlayer) => {
-    videoPlayer.loop = false;
-    videoPlayer.muted = true;
-  });
+  const videoRef = useRef<VideoRef>(null);
 
-  useEffect(() => {
-    const seekPreview = () => {
-      try {
-        player.pause();
-        player.currentTime = Math.max(0, time);
-      } catch {
-        // Keep carousel previews non-blocking if native seeking is unavailable.
-      }
-    };
-
-    seekPreview();
-    const subscription = player.addListener('sourceLoad', seekPreview);
-
-    return () => {
-      subscription?.remove();
-    };
-  }, [player, time]);
-
-  useEffect(() => {
-    try {
-      player.pause();
-      player.muted = true;
-    } catch {
-      // Keep carousel previews silent and non-blocking.
-    }
-  }, [player]);
+  const seekPreview = useCallback(() => {
+    videoRef.current?.seek(Math.max(0, time));
+  }, [time]);
 
   return (
-    <VideoView
-      player={player}
+    <Video
+      ref={videoRef}
+      source={{ uri }}
       style={styles.visualImage}
-      nativeControls={false}
-      contentFit="cover"
+      paused
+      muted
+      resizeMode="cover"
+      onLoad={seekPreview}
     />
   );
 }
@@ -317,18 +293,18 @@ export function UploadContentScreen() {
       return {
         uri: selectedCustomThumbnail.uri,
         fileName: selectedCustomThumbnail.fileName ?? 'thumbnail.jpg',
-        contentType: selectedCustomThumbnail.mimeType ?? 'image/jpeg',
+        contentType: selectedCustomThumbnail.type ?? 'image/jpeg',
       };
     }
 
     if (selectedVisual?.videoUri) {
-      const generated = await VideoThumbnails.getThumbnailAsync(selectedVisual.videoUri, {
-        time: Math.max(0, Math.round((selectedVisual.time ?? 0) * 1000)),
-        quality: 0.86,
+      const generated = await createThumbnail({
+        url: selectedVisual.videoUri,
+        timeStamp: Math.max(0, Math.round((selectedVisual.time ?? 0) * 1000)),
       });
 
       return {
-        uri: generated.uri,
+        uri: generated.path,
         fileName: `${selectedVisual.id}.jpg`,
         contentType: 'image/jpeg',
       };
@@ -338,13 +314,13 @@ export function UploadContentScreen() {
   }, [selectedCustomThumbnail, selectedVisual]);
 
   const pickThumbnail = useCallback(async () => {
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ['images'],
-      allowsMultipleSelection: true,
+    const result = await launchImageLibrary({
+      mediaType: 'photo',
+      selectionLimit: 0,
       quality: 0.9,
     });
 
-    if (!result.canceled && result.assets.length > 0) {
+    if (!result.didCancel && result.assets && result.assets.length > 0) {
       const stamp = Date.now();
       const nextAssets = result.assets.map((asset, index) => ({
         ...asset,

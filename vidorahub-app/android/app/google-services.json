@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "128466992134",
+    "project_id": "kriyana-b28be",
+    "storage_bucket": "kriyana-b28be.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:128466992134:android:588e47b48e29a92ba51787",
+        "android_client_info": {
+          "package_name": "com.vidorahub.mobile"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBhD4EbdAZtjCEseOMBoSWkalGplAqiTHc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,5 +1,5 @@
 import { http } from './client';
-import * as FileSystem from 'expo-file-system/legacy';
+import RNFS from 'react-native-fs';
 import type {
   AuthResponse,
   ProfileData,
@@ -161,22 +161,34 @@ export async function uploadFileToGCS(
   contentType: string,
   onProgress?: (percent: number) => void,
 ) {
-  const uploadTask = FileSystem.createUploadTask(uploadUrl, uri, {
-    httpMethod: 'PUT',
-    uploadType: FileSystem.FileSystemUploadType.BINARY_CONTENT,
+  const filePath = decodeURIComponent(uri.replace('file://', ''));
+  const fileName = filePath.split(/[\\/]/).pop() ?? 'upload';
+
+  const result = await RNFS.uploadFiles({
+    toUrl: uploadUrl,
+    method: 'PUT',
+    binaryStreamOnly: true,
     headers: {
       'Content-Type': contentType,
     },
-  }, (event) => {
-    if (!onProgress || event.totalBytesExpectedToSend <= 0) return;
-    onProgress(
-      Math.round((event.totalBytesSent / event.totalBytesExpectedToSend) * 100),
-    );
-  });
+    files: [
+      {
+        name: 'file',
+        filename: fileName,
+        filepath: filePath,
+        filetype: contentType,
+      },
+    ],
+    progress: (event) => {
+      if (!onProgress || event.totalBytesExpectedToSend <= 0) return;
+      onProgress(
+        Math.round((event.totalBytesSent / event.totalBytesExpectedToSend) * 100),
+      );
+    },
+  }).promise;
 
-  const result = await uploadTask.uploadAsync();
-  if (!result || result.status < 200 || result.status >= 300) {
-    throw new Error(`Upload failed: ${result?.status ?? 'unknown'}`);
+  if (result.statusCode < 200 || result.statusCode >= 300) {
+    throw new Error(`Upload failed: ${result.statusCode}`);
   }
 
   onProgress?.(100);
