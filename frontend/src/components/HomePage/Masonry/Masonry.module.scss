@@ -1,14 +1,25 @@
 .masonry {
   display: grid;
   grid-template-columns: 1fr;
+  gap: 12px;
   margin-bottom: 2.5rem;
   background: white; // inherits white from page-wrapper
+  align-items: stretch;
+  margin-top: 0.5rem;
 }
 
 .item {
   // Ensures each card sits cleanly on the white background
+  display: flex;
   border-radius: 12px;
   overflow: hidden;
+  height: 100%;
+  max-height: 260px;
+
+}
+
+.item > * {
+  width: 100%;
 }
 
 @media (min-width: 768px) {

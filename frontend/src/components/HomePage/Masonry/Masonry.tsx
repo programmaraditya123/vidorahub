@@ -107,9 +107,9 @@ export default function Masonry() {
 
   return (
     <>
-      <div className={`${styles.masonry} masonry-grid`}>
+      <div className={styles.masonry}>
         {renderedVideos.map((video) => (
-          <div key={video._id} className={`${styles.item} masonry-item`}>
+          <div key={video._id} className={styles.item}>
             <VideoCard video={video} />
           </div>
         ))}
@@ -118,7 +118,7 @@ export default function Masonry() {
           Array.from({ length: SKELETON_COUNT }).map((_, i) => (
             <div
               key={`skeleton-${i}`}
-              className={`${styles.item} masonry-item`}
+              className={styles.item}
             >
               <VideoCardSkeleton />
             </div>

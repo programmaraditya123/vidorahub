@@ -1,32 +1,26 @@
 'use client'
 
-import BackgroundLayers from "@/src/components/HomePage/BackgroundLayers/BackgroundLayers";
 import Header from "@/src/components/HomePage/Header/Header";
+import FilterVideos from "@/src/components/HomePage/FilterVideos/FilterVideos";
 import Masonry from "@/src/components/HomePage/Masonry/Masonry";
 import Sidebar from "@/src/components/HomePage/Sidebar/Sidebar";
-// import VibeSelector from "@/src/components/HomePage/VibeSelector/VibeSelector";
 import './page.module.css';
 import { useUserActivity } from "@/src/hooks/ui/Shared/useUserActivity";
 
 
 export default function Home() {
-   useUserActivity()
+  useUserActivity()
   return (
     <>
-      {/* <BackgroundLayers /> */}
-
       <div className="page-wrapper">
         <div className="sidebar-container">
-        <Sidebar />
-
+          <Sidebar />
         </div>
-
         <main className="main-content">
           <Header />
+          <FilterVideos  />
           <Masonry />
         </main>
-
-        {/* <VibeSelector /> */}
       </div>
     </>
   );
