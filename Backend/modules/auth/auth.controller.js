@@ -41,7 +41,7 @@ const userRegister = async(req,res) => {
         //save to db
         const user =  await new userProfile(userData).save()
 
-        await sendWelcomeEmail(email,name)
+        // await sendWelcomeEmail(email,name)
 
         res.status(200).json({
             success:true,
@@ -90,7 +90,7 @@ const userLoginController = async (req,res) => {
 
         const token = await jwt.sign({_id:user._id},process.env.JWT_SECRET,{expiresIn:"7d"})
 
-        await sendLoginEmail(email,user.name)
+        // await sendLoginEmail(email,user.name)
 
 
         return res.status(200).send({
@@ -150,7 +150,7 @@ const googleAuthController = async (req, res) => {
       { expiresIn: "7d" }
     );
 
-    await sendLoginEmail(email,name)
+    // await sendLoginEmail(email,name)
 
     return res.status(200).json({
       success: true,

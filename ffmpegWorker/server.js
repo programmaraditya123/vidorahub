@@ -25,10 +25,14 @@ const app = express();
 app.use(express.json());
 const allowed_origins = [
     "http://localhost:3000",
+    "http://localhost:5173",
     "https://vidorahub-v6qk.vercel.app",
     "https://www.vidorahub.com",
     "https://vidorahub.adi4255saini.workers.dev",
-    "https://vidorahubb-frontend-189065286116.asia-south1.run.app"
+    "https://vidorahubb-frontend-189065286116.asia-south1.run.app",
+    "https://studio.vidorahub.com",
+    "https://dashboard.vidorahub.com",
+
 
 ]
 

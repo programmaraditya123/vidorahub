@@ -10,6 +10,8 @@ const viewsRoute = require('./modules/videoviews/videoviews.route')
 const earningRoute = require('./modules/earning/earning.route')
 const userDataRoute = require('./modules/userdata/userdata.route')
 const storeRoute = require("./modules/store/store.route")
+const dashboardVideoRoute = require('./modules/dashboard/videos/videos.route')
+const dashboardusers = require('./modules/dashboard/users/users.route')
 // const { deleteOldUploadFiles } = require('./modules/videodata/videodata.helper')
 // const fs = require("fs");
 // const path = require("path");
@@ -30,11 +32,15 @@ const allowed_origins = [
     "https://studio.vidorahub.com",
     "https://vidorahub.adi4255saini.workers.dev",
     "https://vidorahubb-frontend-189065286116.asia-south1.run.app",
+    "https://dashboard.vidorahub.com",
+    "https://complaint.vidorahub.com",
+    "http://localhost:5173"
+
 ]
 
 const corsOptions = {
   origin: function (origin, callback) {
-    if (!origin || allowed_origins.includes(origin)) {
+    if (!origin || allowed_origins.includes(origin) || origin === "null") {
       callback(null, true);
     } else {
       callback(new Error("Not allowed by CORS"));
@@ -96,6 +102,12 @@ app.use('/api/v1',userDataRoute)
 
 //this is the store data route
 app.use("/api/v1",storeRoute)
+
+//this are the dashbaord Video routes 
+app.use("/api/v1",dashboardVideoRoute)
+
+//this is the dashboard users routes
+app.use("/api/v1/",dashboardusers)
 
 const PORT = process.env.PORT || 8000;
 

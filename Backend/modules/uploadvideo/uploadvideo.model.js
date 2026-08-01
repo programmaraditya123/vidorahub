@@ -26,6 +26,23 @@ const videoSchema = new mongoose.Schema(
         message: "At least one tag is required",
       },
     },
+    aitags: {
+      type: [String],
+      default: []
+    },
+    aitagsUpdatedAt: {
+      type: Date,
+
+    },
+    tagIteration: {
+      type: Number,
+      default: 0
+    },
+    isPaused: {
+      type: Boolean,
+      default: false,
+
+    },
 
     thumbnailUrl: {
       type: String,
@@ -33,7 +50,7 @@ const videoSchema = new mongoose.Schema(
     },
 
     duration: {
-      type: Number,  
+      type: Number,
       default: 0,
     },
 
@@ -42,10 +59,10 @@ const videoSchema = new mongoose.Schema(
       enum: ["public", "private", "unlisted"],
       default: "public",
     },
-    contentType : {
-      type : String,
-      enum : ["video","vibe"],
-      default : "video"
+    contentType: {
+      type: String,
+      enum: ["video", "vibe"],
+      default: "video"
 
     },
 
@@ -59,11 +76,11 @@ const videoSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "userProfile",
       required: true,
-      index:true
+      index: true
     },
-    isDeleted : {
-      type : Boolean,
-      default : false,
+    isDeleted: {
+      type: Boolean,
+      default: false,
     },
 
     stats: {
@@ -87,14 +104,14 @@ const videoSchema = new mongoose.Schema(
 
     videoUrl: {
       type: String,
-      required: true, 
+      required: true,
     },
-    hlsUl : {
-      type : String
+    hlsUl: {
+      type: String
 
     },
-    videoSerialNumber : {
-      type : Number,
+    videoSerialNumber: {
+      type: Number,
 
     },
   },
