@@ -107,7 +107,7 @@ app.use("/api/v1",storeRoute)
 app.use("/api/v1",dashboardVideoRoute)
 
 //this is the dashboard users routes
-app.use("/api/v1/",dashboardusers)
+app.use("/api/v1",dashboardusers)
 
 const PORT = process.env.PORT || 8000;
 
