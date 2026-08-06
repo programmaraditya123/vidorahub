@@ -219,6 +219,12 @@
 
 // ─── BUTTON ───────────────────────────────────────────────────────────────────
 
+.googleAuth {
+  display: flex;
+  justify-content: center;
+  min-height: 40px;
+}
+
 .signupBtn {
   margin-top: 8px;
   background: linear-gradient(90deg, #7c3aed, #a855f7);

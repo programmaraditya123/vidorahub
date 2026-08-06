@@ -3,11 +3,14 @@
 import { useState, useCallback } from "react";
 import styles from "./SignupPage.module.scss";
 import { useRouter } from "next/navigation";
-import { userRegister } from "@/src/lib/auth/auth";
+import { googleLogin, userRegister } from "@/src/lib/auth/auth";
 import { useToast } from "@/src/hooks/ui/ToastProvider/ToastProvider";
 import Loader from "@/src/components/ui/loader/Loader";
 import Link from "next/link";
 import VidorahubIcon from "@/src/icons/VidorahubIcon";
+import { GoogleLogin, type CredentialResponse } from "@react-oauth/google";
+
+const AUTH_ROUTES = ["/login", "/signup"];
 
 export default function SignupPage() {
   const router = useRouter();
@@ -46,6 +49,44 @@ export default function SignupPage() {
       }
     },
     [name, email, password, loading, router, success, toastError]
+  );
+
+  const handleGoogleSignup = useCallback(
+    async (credentialResponse: CredentialResponse) => {
+      if (!credentialResponse.credential || loading) return;
+
+      setLoading(true);
+      try {
+        const res = await googleLogin({ token: credentialResponse.credential });
+
+        if (!res.success) {
+          toastError(res.message || "Google signup failed");
+          return;
+        }
+
+        localStorage.setItem("token", res.token);
+        localStorage.setItem("userName", res.user?.name ?? "");
+        localStorage.setItem(
+          "userSerialNumber",
+          res.user?.userSerialNumber ?? "",
+        );
+
+        success("Signed up with Google!");
+
+        const savedPath = sessionStorage.getItem("redirectAfterLogin");
+        sessionStorage.removeItem("redirectAfterLogin");
+
+        const destination =
+          savedPath && !AUTH_ROUTES.includes(savedPath) ? savedPath : "/";
+
+        router.replace(destination);
+      } catch (err: any) {
+        toastError(err.message || "Google signup failed");
+      } finally {
+        setLoading(false);
+      }
+    },
+    [loading, router, success, toastError],
   );
 
   return (
@@ -107,6 +148,13 @@ export default function SignupPage() {
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                />
+              </div>
+
+              <div className={styles.googleAuth}>
+                <GoogleLogin
+                  onSuccess={handleGoogleSignup}
+                  onError={() => toastError("Google signup failed")}
                 />
               </div>
 

@@ -40,7 +40,6 @@ export function VideoCard({ video, onPress, width }: VideoCardProps) {
           recyclingKey={video.thumbnailUrl ?? video._id}
           transition={0}
         />
-        <View style={styles.thumbnailVignette} />
         {video.duration ? (
           <View style={styles.durationBadge}>
             <Text style={styles.durationText}>
@@ -90,14 +89,6 @@ const styles = StyleSheet.create({
   thumbnail: {
     width: '100%',
     height: '100%',
-  },
-  thumbnailVignette: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    bottom: 0,
-    height: '45%',
-    backgroundColor: 'rgba(15, 5, 30, 0.12)',
   },
   durationBadge: {
     position: 'absolute',

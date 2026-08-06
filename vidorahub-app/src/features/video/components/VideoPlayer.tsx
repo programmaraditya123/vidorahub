@@ -8,6 +8,7 @@ import {
   LayoutChangeEvent,
   Modal,
   Platform,
+  StatusBar,
 } from 'react-native';
 import Video, {
   type OnLoadData,
@@ -571,23 +572,20 @@ export function VideoPlayer({ video, autoPlay = true }: VideoPlayerProps) {
 
   return (
     <View style={styles.wrapper}>
-      {renderPlayerSurface(false)}
+      <StatusBar hidden={isFullscreen} />
+      {isFullscreen ? null : renderPlayerSurface(false)}
       <Modal
         visible={isFullscreen}
         animationType="fade"
         supportedOrientations={['portrait', 'landscape', 'landscape-left', 'landscape-right']}
+        presentationStyle="fullScreen"
+        statusBarTranslucent
+        navigationBarTranslucent
+        hardwareAccelerated
         onRequestClose={exitFullscreen}
       >
         <View style={styles.fullscreenModal}>
-          <Pressable
-            style={styles.fullscreenCloseButton}
-            onPress={exitFullscreen}
-            accessibilityRole="button"
-            accessibilityLabel="Exit fullscreen"
-          >
-            <Ionicons name="close" size={22} color={colors.white} />
-          </Pressable>
-          <Text style={styles.fullscreenHint}>Rotate your device for fullscreen playback</Text>
+          {renderPlayerSurface(true)}
         </View>
       </Modal>
     </View>
@@ -616,6 +614,7 @@ const styles = StyleSheet.create({
   fullscreenPlayer: {
     flex: 1,
     width: '100%',
+    position: 'relative',
     backgroundColor: colors.black,
   },
   inner: {
@@ -733,27 +732,6 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255,255,255,0.18)',
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  fullscreenCloseButton: {
-    position: 'absolute',
-    right: spacing.lg,
-    top: spacing.xl,
-    zIndex: 2,
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: 'rgba(0,0,0,0.55)',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.18)',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  fullscreenHint: {
-    paddingHorizontal: spacing.xl,
-    color: colors.white,
-    fontSize: typography.sizes.md,
-    fontWeight: '700',
-    textAlign: 'center',
   },
   qualityText: {
     fontSize: typography.sizes.xs,

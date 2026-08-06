@@ -3,12 +3,12 @@
 import { useState, useCallback } from "react";
 import styles from "./LoginPage.module.scss";
 import { useRouter } from "next/navigation";
-import { userLogin } from "@/src/lib/auth/auth";
+import { googleLogin, userLogin } from "@/src/lib/auth/auth";
 import { useToast } from "@/src/hooks/ui/ToastProvider/ToastProvider";
 import Loader from "@/src/components/ui/loader/Loader";
 import VidorahubIcon from "@/src/icons/VidorahubIcon";
 import Link from "next/link";
-import { GoogleLogin } from "@react-oauth/google";
+import { GoogleLogin, type CredentialResponse } from "@react-oauth/google";
 
 const AUTH_ROUTES = ["/login", "/signup"];
 
@@ -59,20 +59,13 @@ export default function LoginPage() {
     [email, password, loading, router, success, toastError],
   );
 
-  const handleGoogleLogin = async (credentialResponse: any) => {
+  const handleGoogleLogin = async (credentialResponse: CredentialResponse) => {
+    if (!credentialResponse.credential || loading) return;
+
     try {
       setLoading(true);
 
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}api/v1/google-login`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ token: credentialResponse.credential }),
-        },
-      );
-
-      const data = await res.json();
+      const data = await googleLogin({ token: credentialResponse.credential });
 
       if (!data.success) {
         toastError(data.message || "Google login failed");

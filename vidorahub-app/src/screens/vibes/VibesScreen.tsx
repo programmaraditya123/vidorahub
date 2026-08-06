@@ -1,6 +1,5 @@
 import React, { useState, useCallback, useMemo } from 'react';
-import { AppState, View, StyleSheet, useWindowDimensions, Text } from 'react-native';
-import { FlashList } from '@shopify/flash-list';
+import { AppState, View, StyleSheet, useWindowDimensions, Text, FlatList } from 'react-native';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { useRoute, useNavigation, useIsFocused } from '@react-navigation/native';
 import type { RouteProp } from '@react-navigation/native';
@@ -31,7 +30,8 @@ export function VibesScreen() {
   useFocusEffect(
     useCallback(() => {
       logScreenView('Vibes');
-    }, []),
+      setMuted(false);
+    }, [setMuted]),
   );
 
   React.useEffect(() => {
@@ -57,10 +57,11 @@ export function VibesScreen() {
   const initialIndex = initialVibeId
     ? vibes.findIndex((v) => v._id === initialVibeId)
     : 0;
+  const listInitialIndex = initialIndex > 0 ? initialIndex : 0;
 
   const handleViewableItemsChanged = useCallback(
     ({ viewableItems }: { viewableItems: Array<{ index: number | null }> }) => {
-      const index = viewableItems[0]?.index;
+      const index = viewableItems.find((item) => item.index != null)?.index;
       if (index != null) setActiveIndex(index);
     },
     [],
@@ -71,6 +72,10 @@ export function VibesScreen() {
     [],
   );
 
+  React.useEffect(() => {
+    setActiveIndex(listInitialIndex);
+  }, [listInitialIndex]);
+
   if (isLoading && !vibes.length) {
     return <Loader />;
   }
@@ -78,7 +83,7 @@ export function VibesScreen() {
   return (
     <View style={styles.container}>
       {vibes.length ? (
-        <FlashList
+        <FlatList
           data={vibes}
           keyExtractor={(item) => item._id}
           renderItem={({ item, index }) => (
@@ -88,16 +93,31 @@ export function VibesScreen() {
               isMuted={muted}
               slideHeight={slideHeight}
               onToggleMute={() => setMuted(!muted)}
-              onCreatorPress={(id) => navigation.navigate('Channel', { id })}
+              onCreatorPress={(id) => {
+                if (id) navigation.navigate('Channel', { id });
+              }}
             />
           )}
           pagingEnabled
           snapToInterval={slideHeight}
+          snapToAlignment="start"
           decelerationRate="fast"
           showsVerticalScrollIndicator={false}
           onViewableItemsChanged={handleViewableItemsChanged}
           viewabilityConfig={viewabilityConfig}
-          initialScrollIndex={initialIndex > 0 ? initialIndex : undefined}
+          initialScrollIndex={listInitialIndex}
+          getItemLayout={(_, index) => ({
+            length: slideHeight,
+            offset: slideHeight * index,
+            index,
+          })}
+          initialNumToRender={4}
+          maxToRenderPerBatch={4}
+          windowSize={5}
+          removeClippedSubviews={false}
+          onScrollToIndexFailed={({ index }) => {
+            setActiveIndex(Math.max(0, Math.min(index, vibes.length - 1)));
+          }}
           onEndReached={() => {
             if (hasNextPage && !isFetchingNextPage) fetchNextPage();
           }}

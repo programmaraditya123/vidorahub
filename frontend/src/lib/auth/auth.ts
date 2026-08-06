@@ -26,6 +26,10 @@ export type LoginResponse = {
     user?:{email:string,name:string,userSerialNumber:string},
 }
 
+export type GoogleLoginPayload = {
+    token:string
+}
+
 export async function userRegister(payload:RegisterPayload){
     const {data} = await http.post<RegisterResponse>("api/v1/register",payload)
     return data
@@ -34,5 +38,10 @@ export async function userRegister(payload:RegisterPayload){
 
 export async function userLogin(payload:LoginPayload){
     const {data} = await http.post<LoginResponse>("/api/v1/userlogin",payload)
+    return data
+}
+
+export async function googleLogin(payload:GoogleLoginPayload){
+    const {data} = await http.post<LoginResponse>("/api/v1/google-login",payload)
     return data
 }

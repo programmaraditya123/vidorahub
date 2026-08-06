@@ -4,6 +4,7 @@ import {
   Text,
   StyleSheet,
   Pressable,
+  Platform,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -31,6 +32,31 @@ type VibeSlideProps = {
   onCreatorPress: (creatorId: string) => void;
 };
 
+function isRemoteOrLocalUri(uri?: string | null): boolean {
+  if (!uri) return false;
+  return /^(https?:\/\/|file:\/\/|content:\/\/)/i.test(uri);
+}
+
+function buildVibeMediaUri(vibe: VibeItem): string {
+  const hlsPath = vibe.hlsUl?.trim();
+  if (hlsPath) {
+    if (isRemoteOrLocalUri(hlsPath)) {
+      return hlsPath.endsWith('.m3u8')
+        ? hlsPath
+        : `${hlsPath.replace(/\/$/, '')}/master.m3u8`;
+    }
+
+    return `${config.gcsBaseUrl.replace(/\/$/, '')}/${hlsPath.replace(/^\/|\/$/g, '')}/master.m3u8`;
+  }
+
+  const videoPath = vibe.videoUrl?.trim();
+  if (isRemoteOrLocalUri(videoPath)) return videoPath;
+
+  return videoPath
+    ? `${config.gcsBaseUrl.replace(/\/$/, '')}/${videoPath.replace(/^\//, '')}`
+    : '';
+}
+
 export function VibeSlide({
   vibe,
   isActive,
@@ -49,7 +75,7 @@ export function VibeSlide({
   const [dislikeCount, setDislikeCount] = useState(0);
   const [shareOpen, setShareOpen] = useState(false);
   const [following, setFollowing] = useState(false);
-  const [subscriberCount, setSubscriberCount] = useState(vibe.uploader.subscriber);
+  const [subscriberCount, setSubscriberCount] = useState(vibe.uploader?.subscriber ?? 0);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [authMessage, setAuthMessage] = useState('Sign in to continue.');
 
@@ -57,11 +83,9 @@ export function VibeSlide({
   const user = useAuthStore((s) => s.user);
   const userSerialNumber = user?.userSerialNumber ? Number(user.userSerialNumber) : 0;
   const videoSerialNumber = vibe.videoSerialNumber ?? 0;
-  const creatorSerialNumber = vibe.uploader.userSerialNumber;
+  const creatorSerialNumber = vibe.uploader?.userSerialNumber ?? 0;
 
-  const sourceUri = vibe.hlsUl
-    ? `${config.gcsBaseUrl}/${vibe.hlsUl}/master.m3u8`
-    : vibe.videoUrl;
+  const sourceUri = useMemo(() => buildVibeMediaUri(vibe), [vibe]);
   const shareLink = `https://www.vidorahub.com/vibes?v=${vibe._id}`;
 
   const { data: reactions } = useReactionsQuery(
@@ -70,17 +94,22 @@ export function VibeSlide({
   );
   const reactionMutation = useReactionMutation();
   const { data: followData } = useFollowQuery(
-    vibe.uploader._id,
+    vibe.uploader?._id ?? '',
     userSerialNumber,
     creatorSerialNumber,
-    isAuthenticated && userSerialNumber > 0,
+    isAuthenticated && userSerialNumber > 0 && creatorSerialNumber > 0,
   );
-  const followMutation = useFollowMutation(vibe.uploader._id);
+  const followMutation = useFollowMutation(vibe.uploader?._id ?? '');
 
   const uploaderAvatar = useMemo(
-    () => vibe.uploader.profilePicture ?? vibe.uploader.profilePicUrl,
-    [vibe.uploader.profilePicUrl, vibe.uploader.profilePicture],
+    () => vibe.uploader?.profilePicture ?? vibe.uploader?.profilePicUrl,
+    [vibe.uploader?.profilePicUrl, vibe.uploader?.profilePicture],
   );
+
+  useEffect(() => {
+    setIsReady(false);
+    setSubscriberCount(vibe.uploader?.subscriber ?? 0);
+  }, [vibe._id, vibe.uploader?.subscriber]);
 
   useEffect(() => {
     if (reactions) {
@@ -155,7 +184,7 @@ export function VibeSlide({
   };
 
   const toggleSubscribe = async () => {
-    if (!isAuthenticated || userSerialNumber <= 0) {
+    if (!isAuthenticated || userSerialNumber <= 0 || creatorSerialNumber <= 0) {
       requireAuth('Sign in to subscribe to this channel.');
       return;
     }
@@ -179,25 +208,35 @@ export function VibeSlide({
     }
   };
 
+  const viewCount = vibe.stats?.views ?? 0;
+
   return (
-    <Pressable style={[styles.slide, { height: slideHeight }]} onPress={handleToggleMute}>
+    <View style={[styles.slide, { height: slideHeight }]}>
       {!isReady && vibe.thumbnailUrl ? (
         <Image source={{ uri: vibe.thumbnailUrl }} style={StyleSheet.absoluteFill} contentFit="cover" />
       ) : null}
-      {!isReady ? (
+      {!isReady && sourceUri ? (
         <View style={styles.skeleton} pointerEvents="none" />
       ) : null}
-      <Video
-        ref={videoRef}
-        source={{ uri: sourceUri }}
-        style={styles.video}
-        paused={!isActive}
-        muted={isMuted}
-        repeat
-        controls={false}
-        resizeMode="contain"
-        onReadyForDisplay={() => setIsReady(true)}
-      />
+      {sourceUri ? (
+        <Video
+          ref={videoRef}
+          source={{ uri: sourceUri, type: vibe.hlsUl ? 'm3u8' : undefined }}
+          style={styles.video}
+          paused={!isActive}
+          muted={isMuted}
+          volume={isMuted ? 0 : 1}
+          repeat
+          controls={false}
+          resizeMode="contain"
+          playInBackground={false}
+          playWhenInactive={false}
+          ignoreSilentSwitch="ignore"
+          useTextureView={Platform.OS === 'android'}
+          onLoad={() => setIsReady(true)}
+          onReadyForDisplay={() => setIsReady(true)}
+        />
+      ) : null}
 
       <LinearGradient
         colors={['transparent', 'rgba(0,0,0,0.55)', 'rgba(0,0,0,0.92)']}
@@ -216,7 +255,12 @@ export function VibeSlide({
       </View>
 
       <View style={styles.actionRail}>
-        <ActionButton icon="eye-outline" label={formatViews(vibe.stats.views)} />
+        <ActionButton
+          icon={isMuted ? 'volume-mute' : 'volume-high'}
+          label={isMuted ? 'Muted' : 'Sound'}
+          onPress={handleToggleMute}
+        />
+        <ActionButton icon="eye-outline" label={formatViews(viewCount)} />
         <ActionButton
           icon={liked ? 'heart' : 'heart-outline'}
           label={formatViews(likeCount)}
@@ -236,14 +280,14 @@ export function VibeSlide({
         <View style={styles.metaCard}>
           <Pressable
             style={styles.creatorLeft}
-            onPress={() => onCreatorPress(vibe.uploader._id)}
+            onPress={() => onCreatorPress(vibe.uploader?._id ?? '')}
             accessibilityRole="button"
-            accessibilityLabel={`Open ${vibe.uploader.name} channel`}
+            accessibilityLabel={`Open ${vibe.uploader?.name ?? 'Creator'} channel`}
           >
-            <Avatar name={vibe.uploader.name} uri={uploaderAvatar} size={42} />
+            <Avatar name={vibe.uploader?.name ?? 'Creator'} uri={uploaderAvatar} size={42} />
             <View style={styles.creatorInfo}>
               <Text style={styles.creatorName} numberOfLines={1}>
-                {vibe.uploader.name}
+                {vibe.uploader?.name ?? 'Creator'}
               </Text>
               <Text style={styles.subscribers}>{formatViews(subscriberCount)} subscribers</Text>
             </View>
@@ -290,7 +334,7 @@ export function VibeSlide({
         }}
         message={authMessage}
       />
-    </Pressable>
+    </View>
   );
 }
 
