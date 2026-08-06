@@ -74,7 +74,15 @@ $text-faint:  #9ca3af;
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-top: 5rem;
+  margin-top: 2rem;
+  
+ 
+}
+@media screen and (min-width : 768px) {
+  .container{
+    margin-top: 1rem; 
+    margin-left : 6rem;
+  }
 }
 
 /* ================= GLASS ================= */
@@ -170,6 +178,23 @@ $text-faint:  #9ca3af;
   }
 
   @media (min-width: 768px) { display: flex; }
+}
+
+.activeNavLink {
+  color: $primary !important;
+  position: relative;
+
+  &::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -0.55rem;
+    height: 2px;
+    border-radius: 999px;
+    background: $primary-grad;
+    box-shadow: 0 2px 8px rgba(124, 58, 237, 0.45);
+  }
 }
 
 .headerRight {
@@ -274,6 +299,10 @@ $text-faint:  #9ca3af;
 .logoutMobile {
   font-weight: 700;
   a, p { color: #ef4444; text-decoration: none; }
+}
+
+.activeMobileLink {
+  color: $primary !important;
 }
 
 /* ================= MAIN ================= */

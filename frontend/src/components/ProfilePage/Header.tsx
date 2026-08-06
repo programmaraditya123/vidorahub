@@ -4,14 +4,17 @@ import { useEffect, useRef, useState } from "react";
 import VidorahubIcon from "@/src/icons/VidorahubIcon";
 import styles from "../../../app/profile/Profile.module.scss";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 export default function Header() {
   const router = useRouter();
+  const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
   const [token, setToken] = useState<string | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const menuBtnRef = useRef<HTMLButtonElement>(null);
+  const isSettings = pathname === "/profile/setting";
+  const isProfile = pathname === "/profile"
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -67,6 +70,7 @@ export default function Header() {
 
         {/* Desktop Nav */}
         <nav className={styles.nav}>
+          <Link href={'/profile'} className={isProfile ? styles.activeNavLink : ""}>Profile</Link>
           <Link
             href={`https://studio.vidorahub.com/login/${token}`}
             target="_blank"
@@ -76,6 +80,12 @@ export default function Header() {
           <a onClick={handleEarn}>Earning</a>
           <a onClick={handleUpload}>Upload</a>
           <a onClick={handleLogout}>Logout</a>
+          <Link
+            href="/profile/setting"
+            className={isSettings ? styles.activeNavLink : ""}
+          >
+            Setting
+          </Link>
         </nav>
       </div>
 
@@ -108,6 +118,12 @@ export default function Header() {
           <a onClick={handleLogout} className={styles.logoutMobile}>
             Logout
           </a>
+          <Link
+            href="/profile/setting"
+            className={`${styles.logoutMobile} ${isSettings ? styles.activeMobileLink : ""}`}
+          >
+            Setting
+          </Link>
         </div>
       )}
     </header>
