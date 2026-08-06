@@ -8,7 +8,7 @@ app = FastAPI(
 
 @app.get("/")
 def read_root() -> dict[str, str]:
-    return {"message": "FastAPI microservice is running"}
+    return {"message": "FastAPI microservice is running built by aditya"}
 
 
 @app.get("/health")
