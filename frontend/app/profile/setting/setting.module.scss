@@ -243,6 +243,12 @@ $danger: #dc2626;
   padding: 0.45rem 0.9rem;
   font-weight: 700;
   cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease;
+
+  &:hover {
+    background: #ffffff;
+    border-color: rgba(124, 58, 237, 0.38);
+  }
 }
 
 .actionList {
@@ -274,6 +280,12 @@ $danger: #dc2626;
     transform: translateY(-1px);
   }
 
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.68;
+    transform: none;
+  }
+
   :global(.material-symbols-outlined) {
     color: $primary;
     font-size: 1.45rem;
@@ -298,6 +310,42 @@ $danger: #dc2626;
   color: $primary;
   font-size: 0.75rem;
   font-weight: 800;
+}
+
+.activeMeta {
+  display: inline-flex;
+  width: fit-content;
+  margin-top: 0.75rem;
+  border-radius: 999px;
+  padding: 0.34rem 0.7rem;
+  background: rgba(124, 58, 237, 0.09);
+  color: $primary;
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.inlineNotice {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.65rem;
+  align-items: center;
+  margin-bottom: 1rem;
+  border: 1px solid rgba(220, 38, 38, 0.16);
+  border-radius: 12px;
+  padding: 0.85rem 1rem;
+  background: rgba(239, 68, 68, 0.05);
+  color: $danger;
+
+  p {
+    margin: 0;
+    color: $danger;
+    font-size: 0.82rem;
+    line-height: 1.45;
+  }
+
+  :global(.material-symbols-outlined) {
+    font-size: 1.2rem;
+  }
 }
 
 .dangerItem {
@@ -440,7 +488,87 @@ $danger: #dc2626;
   color: #ffffff;
   font-weight: 800;
   background: $primary-grad;
+  background-size: cover;
+  background-position: center;
   box-shadow: 0 3px 12px rgba(124, 58, 237, 0.24);
+}
+
+.accountSummary {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 0.85rem;
+  border: 1px solid $border;
+  border-radius: 14px;
+  padding: 0.9rem;
+  background: $bg-muted;
+
+  b {
+    display: block;
+    color: $text;
+    font-size: 0.92rem;
+    margin-bottom: 0.15rem;
+  }
+
+  p {
+    margin: 0;
+    color: $text-muted;
+    font-size: 0.8rem;
+  }
+}
+
+.emptyState {
+  border: 1px dashed rgba(124, 58, 237, 0.25);
+  border-radius: 14px;
+  padding: 1rem;
+  background: $bg-subtle;
+  color: $text-muted;
+  font-size: 0.86rem;
+  text-align: center;
+}
+
+.profileForm {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+
+  label {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    color: $text;
+    font-size: 0.82rem;
+    font-weight: 800;
+  }
+
+  input {
+    width: 100%;
+    border: 1px solid $border;
+    border-radius: 12px;
+    padding: 0.78rem 0.85rem;
+    background: #ffffff;
+    color: $text;
+    font: inherit;
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+    &:focus {
+      border-color: rgba(124, 58, 237, 0.45);
+      box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.08);
+    }
+  }
+}
+
+.checkboxLabel {
+  flex-direction: row !important;
+  align-items: center;
+  cursor: pointer;
+
+  input {
+    width: 1rem;
+    height: 1rem;
+    accent-color: $primary;
+  }
 }
 
 .modalActions {
@@ -460,6 +588,13 @@ $danger: #dc2626;
 
   &:hover {
     transform: translateY(-1px);
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.65;
+    transform: none;
+    box-shadow: none;
   }
 }
 

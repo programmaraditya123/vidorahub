@@ -12,9 +12,8 @@ const userDataRoute = require('./modules/userdata/userdata.route')
 const storeRoute = require("./modules/store/store.route")
 const dashboardVideoRoute = require('./modules/dashboard/videos/videos.route')
 const dashboardusers = require('./modules/dashboard/users/users.route')
-// const { deleteOldUploadFiles } = require('./modules/videodata/videodata.helper')
-// const fs = require("fs");
-// const path = require("path");
+const accountProfiles = require('./modules/accountprofiles/accountprofiles.route')
+
 const dns = require("dns");
 
 dns.setDefaultResultOrder("ipv4first");
@@ -106,8 +105,11 @@ app.use("/api/v1",storeRoute)
 //this are the dashbaord Video routes 
 app.use("/api/v1",dashboardVideoRoute)
 
-//this is the dashboard users routes
+//this are the dashboard users routes
 app.use("/api/v1",dashboardusers)
+
+//this are the accountprofiles routes
+app.use("/api/v1",accountProfiles)
 
 const PORT = process.env.PORT || 8000;
 
