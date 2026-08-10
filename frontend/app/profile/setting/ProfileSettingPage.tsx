@@ -6,6 +6,7 @@ import Link from "next/link";
 import Header from "@/src/components/ProfilePage/Header";
 import Footer from "@/src/components/ProfilePage/Footer";
 import Sidebar from "@/src/components/HomePage/Sidebar/Sidebar";
+import ProfileDatePicker from "@/src/components/shared/ProfileDatePicker/ProfileDatePicker";
 import { useToast } from "@/src/hooks/ui/ToastProvider/ToastProvider";
 import {
   createAccountProfile,
@@ -497,15 +498,11 @@ export default function ProfileSettingPage() {
               />
             </label>
 
-            <label>
-              <span>Date of birth</span>
-              <input
-                type="date"
-                value={createDateOfBirth}
-                max={new Date().toISOString().split("T")[0]}
-                onChange={(event) => setCreateDateOfBirth(event.target.value)}
-              />
-            </label>
+            <ProfileDatePicker
+              value={createDateOfBirth}
+              max={new Date().toISOString().split("T")[0]}
+              onChange={setCreateDateOfBirth}
+            />
 
             <label>
               <span>PIN</span>

@@ -1,0 +1,515 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(124, 58, 237, 0.2), transparent 34%),
+    linear-gradient(180deg, rgba(8, 10, 18, 0.94), rgba(10, 12, 20, 0.98));
+  backdrop-filter: blur(8px);
+}
+
+.panel {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  max-height: 100vh;
+  overflow-y: auto;
+  border-radius: 0;
+  border: 0;
+  background: rgba(15, 18, 30, 0.72);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.38);
+  padding: 44px 24px;
+  color: #ffffff;
+
+  h2 {
+    margin: 18px 0 8px;
+    font-size: 2.8rem;
+    line-height: 1.05;
+    font-weight: 800;
+    letter-spacing: 0;
+    text-align: center;
+  }
+}
+
+.watchPanel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.checkingPanel {
+  gap: 18px;
+}
+
+.loader {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 3px solid rgba(255, 255, 255, 0.18);
+  border-top-color: #ffffff;
+  animation: spin 0.8s linear infinite;
+}
+
+.brandMark {
+  font-size: 1.35rem;
+  font-weight: 900;
+  color: #ffffff;
+}
+
+.closeButton {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #e5e7eb;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.16);
+    color: #ffffff;
+  }
+}
+
+.badgeRow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 14px;
+  padding: 0 44px;
+}
+
+.guestBadge,
+.accountBadge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 30px;
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0;
+}
+
+.guestBadge {
+  border: 1px solid rgba(245, 158, 11, 0.32);
+  background: #fff7ed;
+  color: #9a3412;
+}
+
+.accountBadge {
+  border: 1px solid rgba(20, 184, 166, 0.32);
+  background: #ecfdf5;
+  color: #0f766e;
+}
+
+.copy {
+  margin: 0;
+  max-width: 560px;
+  color: #b8c0d4;
+  line-height: 1.6;
+  text-align: center;
+}
+
+.notice {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  margin-top: 18px;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(220, 38, 38, 0.18);
+  background: #fef2f2;
+  color: #991b1b;
+
+  p {
+    margin: 0;
+    line-height: 1.45;
+  }
+}
+
+.profileGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, 150px);
+  justify-content: center;
+  gap: 26px;
+  width: 100%;
+  max-width: 860px;
+  margin-top: 34px;
+}
+
+.profileCard {
+  position: relative;
+  display: flex;
+  box-sizing: border-box;
+  width: 150px;
+  height: 184px;
+  min-height: 184px;
+  overflow: hidden;
+  padding: 10px 8px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: #ffffff;
+  cursor: pointer;
+  text-align: center;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+
+  strong {
+    max-width: calc(100% - 24px);
+    overflow-wrap: anywhere;
+    font-size: 1rem;
+    line-height: 1.2;
+    font-weight: 700;
+  }
+
+  small {
+    color: #a8b0c4;
+    font-size: 0.78rem;
+    line-height: 1.2;
+    text-transform: capitalize;
+  }
+
+  &:hover {
+    transform: translateY(-5px);
+  }
+
+  &:hover .avatar,
+  &:hover .addAvatar {
+    border-color: #ffffff;
+  }
+}
+
+.selectedProfile {
+  .avatar,
+  .addAvatar {
+    border-color: #ffffff;
+    box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.56);
+  }
+}
+
+.avatar,
+.addAvatar {
+  display: grid;
+  place-items: center;
+  width: 112px;
+  height: 112px;
+  border-radius: 50%;
+  border: 3px solid rgba(255, 255, 255, 0.18);
+  background-color: #202435;
+  background-position: center;
+  background-size: cover;
+  color: #ffffff;
+  font-size: 2.4rem;
+  font-weight: 800;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.addAvatar {
+  border-style: dashed;
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+}
+
+.addProfileCard {
+  background: transparent;
+  gap: 8px;
+
+  strong,
+  small {
+    max-width: 100%;
+  }
+}
+
+.checkIcon {
+  position: absolute;
+  top: 22px;
+  right: 22px;
+  color: #22c55e;
+}
+
+.emptyState {
+  display: grid;
+  min-height: 168px;
+  place-items: center;
+  grid-column: 1 / -1;
+  border: 1px dashed rgba(255, 255, 255, 0.18);
+  border-radius: 8px;
+  color: #a8b0c4;
+}
+
+.checkboxLabel {
+  display: flex !important;
+  min-height: 42px;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px !important;
+
+  input {
+    flex: 0 0 auto;
+    width: 1rem;
+    height: 1rem;
+    min-height: auto;
+    accent-color: #7c3aed;
+  }
+}
+
+.actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.primaryButton,
+.secondaryButton {
+  min-height: 44px;
+  border-radius: 8px;
+  padding: 0 18px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: opacity 0.2s ease, transform 0.2s ease, background 0.2s ease;
+
+  &:hover:not(:disabled) {
+    transform: translateY(-1px);
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.62;
+  }
+}
+
+.primaryButton {
+  border: 1px solid #7c3aed;
+  background: #7c3aed;
+  color: #ffffff;
+}
+
+.secondaryButton {
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  background: transparent;
+  color: #ffffff;
+}
+
+.createModalOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+  background: rgba(4, 6, 14, 0.62);
+  backdrop-filter: blur(10px);
+}
+
+.createModal {
+  box-sizing: border-box;
+  display: grid;
+  gap: 16px;
+  width: min(430px, 100%);
+  max-height: calc(100vh - 36px);
+  overflow-y: auto;
+  overflow-x: hidden;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: #111827;
+  color: #ffffff;
+  padding: 20px;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.44);
+
+  label {
+    box-sizing: border-box;
+    display: grid;
+    gap: 6px;
+    min-width: 0;
+
+    span {
+      font-size: 0.78rem;
+      font-weight: 800;
+      color: #d8dce8;
+    }
+  }
+
+  input {
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 0;
+    min-height: 42px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(8, 10, 18, 0.72);
+    color: #ffffff;
+    padding: 0 12px;
+    outline: none;
+
+    &:focus {
+      border-color: #7c3aed;
+      box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.16);
+    }
+  }
+
+  .checkboxLabel {
+    display: inline-flex !important;
+    width: fit-content;
+    min-height: auto;
+    align-items: center;
+    gap: 8px !important;
+
+    input {
+      width: 14px;
+      min-width: 14px;
+      height: 14px;
+      min-height: 14px;
+      padding: 0;
+      border-radius: 3px;
+      accent-color: #7c3aed;
+      box-shadow: none;
+    }
+
+    span {
+      color: #d8dce8;
+      line-height: 1;
+    }
+  }
+}
+
+.createModalHeader {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 12px;
+  align-items: start;
+
+  h3 {
+    margin: 0;
+    font-size: 1.25rem;
+    line-height: 1.2;
+  }
+
+  p {
+    margin: 6px 0 0;
+    color: #a8b0c4;
+    font-size: 0.86rem;
+    line-height: 1.45;
+  }
+}
+
+.createModalClose {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+  cursor: pointer;
+
+  :global(.material-symbols-outlined) {
+    font-size: 1.12rem;
+  }
+}
+
+.createModalActions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  min-width: 0;
+
+  button {
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 0;
+  }
+}
+
+@media (max-width: 680px) {
+  .overlay {
+    align-items: stretch;
+    padding: 0;
+  }
+
+  .panel {
+    width: 100%;
+    min-height: 100vh;
+    max-height: 100vh;
+    border-radius: 0;
+    padding: 22px 16px 18px;
+  }
+
+  .panel h2 {
+    font-size: 1.55rem;
+  }
+
+  .profileGrid {
+    grid-template-columns: repeat(2, 132px);
+    gap: 18px;
+  }
+
+  .profileCard {
+    width: 132px;
+    height: 146px;
+    min-height: 146px;
+    gap: 7px;
+    padding: 8px 6px;
+  }
+
+  .avatar,
+  .addAvatar {
+    width: 82px;
+    height: 82px;
+    font-size: 2rem;
+  }
+
+  .addProfileCard .addAvatar {
+    width: 72px;
+    height: 72px;
+    font-size: 1.7rem;
+  }
+
+  .profileCard strong {
+    font-size: 0.9rem;
+  }
+
+  .profileCard small {
+    font-size: 0.72rem;
+  }
+
+  .actions {
+    flex-direction: column-reverse;
+  }
+
+  .primaryButton,
+  .secondaryButton {
+    width: 100%;
+  }
+
+  .createModalActions {
+    grid-template-columns: 1fr;
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

@@ -4,6 +4,7 @@ import Header from "@/src/components/HomePage/Header/Header";
 import FilterVideos from "@/src/components/HomePage/FilterVideos/FilterVideos";
 import Masonry from "@/src/components/HomePage/Masonry/Masonry";
 import Sidebar from "@/src/components/HomePage/Sidebar/Sidebar";
+import HomeStarter from "@/src/components/HomePage/HomeStarter/HomeStarter";
 import './page.module.css';
 import { useUserActivity } from "@/src/hooks/ui/Shared/useUserActivity";
 
@@ -22,6 +23,7 @@ export default function Home() {
           <Masonry />
         </main>
       </div>
+      <HomeStarter />
     </>
   );
 }

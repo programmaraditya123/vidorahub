@@ -6,6 +6,8 @@ import styles from "../../../app/profile/Profile.module.scss";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 
+const AUTH_CHANGED_EVENT = "vidorahub:auth-changed";
+
 export default function Header() {
   const router = useRouter();
   const pathname = usePathname();
@@ -20,6 +22,10 @@ export default function Header() {
     localStorage.removeItem("token");
     localStorage.removeItem("userName");
     localStorage.removeItem("userSerialNumber");
+    localStorage.removeItem("ppurl")
+    localStorage.removeItem("activeProfileId")
+    localStorage.clear()
+    window.dispatchEvent(new Event(AUTH_CHANGED_EVENT));
     router.replace("/");
   };
 

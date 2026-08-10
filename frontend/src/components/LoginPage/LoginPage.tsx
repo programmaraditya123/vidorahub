@@ -3,7 +3,7 @@
 import { useState, useCallback } from "react";
 import styles from "./LoginPage.module.scss";
 import { useRouter } from "next/navigation";
-import { googleLogin, userLogin } from "@/src/lib/auth/auth";
+import { checkSession, googleLogin, userLogin } from "@/src/lib/auth/auth";
 import { useToast } from "@/src/hooks/ui/ToastProvider/ToastProvider";
 import Loader from "@/src/components/ui/loader/Loader";
 import VidorahubIcon from "@/src/icons/VidorahubIcon";
@@ -11,6 +11,31 @@ import Link from "next/link";
 import { GoogleLogin, type CredentialResponse } from "@react-oauth/google";
 
 const AUTH_ROUTES = ["/login", "/signup"];
+const AUTH_CHANGED_EVENT = "vidorahub:auth-changed";
+
+function setOptionalStorageValue(key: string, value?: string | null) {
+  if (value) {
+    localStorage.setItem(key, value);
+    return;
+  }
+
+  localStorage.removeItem(key);
+}
+
+async function syncSessionProfile() {
+  try {
+    const session = await checkSession();
+
+    setOptionalStorageValue("userName", session.user?.name);
+    setOptionalStorageValue("ppurl", session.user?.profilePicUrl);
+  } catch {
+    setOptionalStorageValue("ppurl", null);
+  }
+}
+
+function notifyAuthChanged() {
+  window.dispatchEvent(new Event(AUTH_CHANGED_EVENT));
+}
 
 export default function LoginPage() {
   const router = useRouter();
@@ -40,6 +65,9 @@ export default function LoginPage() {
           "userSerialNumber",
           res.user?.userSerialNumber ?? "",
         );
+        setOptionalStorageValue("ppurl", res.user?.profilePicUrl);
+        await syncSessionProfile();
+        notifyAuthChanged();
 
         success("Logged in successfully!");
 
@@ -78,6 +106,9 @@ export default function LoginPage() {
         "userSerialNumber",
         data.user?.userSerialNumber ?? "",
       );
+      setOptionalStorageValue("ppurl", data.user?.profilePicUrl);
+      await syncSessionProfile();
+      notifyAuthChanged();
 
       success("Logged in with Google!");
 
