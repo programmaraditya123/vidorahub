@@ -15,3 +15,10 @@ uvicorn app.main:app --reload
 
 - `GET /`
 - `GET /health`
+- `GET /model/recommendations?content_type=video&tags=ai&tags=technology&watched_video_ids=<video-id>`
+
+Set `MONGODB_KEY` or `MONGO_URI` before calling recommendation routes. Optional env values:
+
+- `MONGO_DB_NAME` defaults to `test`
+- `VIDEOS_COLLECTION` defaults to `videos`
+- `RECOMMENDER_CACHE_TTL_SECONDS` defaults to `300`

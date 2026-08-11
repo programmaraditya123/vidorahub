@@ -5,6 +5,9 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 
+from app import config  # noqa: F401
+from app.model.router import router as model_router
+
 logger = logging.getLogger("uvicorn.error")
 
 APP_NAME = os.getenv("APP_NAME", "Vidorahub Microservice")
@@ -30,7 +33,7 @@ def create_app() -> FastAPI:
         openapi_url="/openapi.json" if docs_enabled else None,
     )
 
-    allowed_origins = _csv_env("CORS_ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:5173")
+    allowed_origins = _csv_env("CORS_ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:5173,https://www.vidorahub.com")
     app.add_middleware(
         CORSMiddleware,
         allow_origins=allowed_origins,
@@ -41,6 +44,7 @@ def create_app() -> FastAPI:
 
     allowed_hosts = _csv_env("ALLOWED_HOSTS", "*")
     app.add_middleware(TrustedHostMiddleware, allowed_hosts=allowed_hosts)
+    app.include_router(model_router)
 
     return app
 

@@ -1,2 +1,6 @@
 fastapi[standard]
 uvicorn[standard]==0.35.0
+pymongo==4.14.0
+scikit-learn==1.7.1
+pydantic
+python-dotenv==1.1.1
