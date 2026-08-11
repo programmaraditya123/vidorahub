@@ -69,7 +69,7 @@ def get_recommendations(
             limit=limit,
         )
     except RuntimeError as exc:
-        raise HTTPException(status_code=500, detail=str(exc)) from exc
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
 
     items = [
         RecommendationResponseItem(
