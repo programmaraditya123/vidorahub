@@ -13,7 +13,7 @@ const storeRoute = require("./modules/store/store.route")
 const dashboardVideoRoute = require('./modules/dashboard/videos/videos.route')
 const dashboardusers = require('./modules/dashboard/users/users.route')
 const accountProfiles = require('./modules/accountprofiles/accountprofiles.route')
-
+const recommendation = require('./modules/recommendation/recommendation.route')
 const dns = require("dns");
 
 dns.setDefaultResultOrder("ipv4first");
@@ -110,6 +110,9 @@ app.use("/api/v1",dashboardusers)
 
 //this are the accountprofiles routes
 app.use("/api/v1",accountProfiles)
+
+//this are the routes for recommmendation 
+app.use("/api/v1",recommendation)
 
 const PORT = process.env.PORT || 8000;
 
