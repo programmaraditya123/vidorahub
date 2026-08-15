@@ -1,6 +1,7 @@
 const express = require('express')
 const cors = require('cors')
 const {connectdb} = require('./config/db')
+const { default: client } = require('./config/redis');
 const authRoute = require('./modules/auth/auth.route')
 const uploadRoute = require('./modules/uploadvideo/uploadvideo.route')
 const videoDataRoute = require('./modules/videodata/videodata.route')
@@ -20,6 +21,7 @@ dns.setDefaultResultOrder("ipv4first");
 
 const app = express()
 
+client;
 connectdb()
 db;
 
