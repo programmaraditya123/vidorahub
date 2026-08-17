@@ -1,0 +1,141 @@
+.section {
+  padding: 0.4rem 0 0.9rem 1rem;
+  background: #ffffff;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.2rem 1rem 0.65rem 0;
+}
+
+.header h2 {
+  margin: 0;
+  color: #241c2f;
+  font-size: 1.05rem;
+  font-weight: 900;
+  line-height: 1.2;
+}
+
+.row {
+  display: flex;
+  gap: 0.75rem;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0 1rem 0.2rem 0;
+  scrollbar-width: none;
+  scroll-snap-type: x proximity;
+  overscroll-behavior-x: contain;
+}
+
+.row::-webkit-scrollbar {
+  display: none;
+}
+
+.card {
+  flex: 0 0 138px;
+  min-width: 138px;
+  cursor: pointer;
+  scroll-snap-align: start;
+}
+
+.thumbnail {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 9 / 16;
+  overflow: hidden;
+  border-radius: 8px;
+  background: #f1eef7;
+}
+
+.image {
+  object-fit: cover;
+  transition: transform 0.22s ease;
+}
+
+.card:hover .image {
+  transform: scale(1.035);
+}
+
+.title {
+  display: -webkit-box;
+  margin: 0.45rem 0 0;
+  overflow: hidden;
+  color: #241c2f;
+  font-size: 0.84rem;
+  font-weight: 800;
+  line-height: 1.25;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.meta {
+  margin: 0.25rem 0 0;
+  overflow: hidden;
+  color: rgba(79, 70, 92, 0.66);
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1.25;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.skeleton {
+  flex: 0 0 138px;
+  min-width: 138px;
+  aspect-ratio: 9 / 16;
+  border-radius: 8px;
+  background: linear-gradient(110deg, #f2eff8 25%, #faf9fd 50%, #f2eff8 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.25s infinite linear;
+}
+
+.stateMessage {
+  margin: 0 1rem 0.75rem 0;
+  color: rgba(79, 70, 92, 0.72);
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+@media (min-width: 768px) {
+  .section {
+    padding-left: 1rem;
+  }
+
+  .card,
+  .skeleton {
+    flex-basis: 156px;
+    min-width: 156px;
+  }
+}
+
+@media (min-width: 1200px) {
+  .card,
+  .skeleton {
+    flex-basis: 172px;
+    min-width: 172px;
+  }
+}
+
+@media (max-width: 520px) {
+  .section {
+    padding-left: 0.8rem;
+  }
+
+  .card,
+  .skeleton {
+    flex-basis: 128px;
+    min-width: 128px;
+  }
+}

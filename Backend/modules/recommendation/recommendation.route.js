@@ -1,9 +1,12 @@
 const express = require("express");
-const { getHomeFeed } = require("./recommendation.controller");
+const { getHomeVideoFeed, getHomeVibesFeed } = require("./recommendation.controller");
 const {requireSignIn} = require('../auth/auth.middleware')
 
 const router = express.Router()
 
-router.get('/getHomeFeed',getHomeFeed)
+router.get('/getHomeVideoFeed',getHomeVideoFeed)
+router.post('/getHomeVideoFeed',getHomeVideoFeed)
+
+router.post('/getHomeVibesFeed',getHomeVibesFeed)
 
 module.exports = router;

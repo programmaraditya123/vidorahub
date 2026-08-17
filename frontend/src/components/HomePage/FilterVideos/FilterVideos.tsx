@@ -1,7 +1,5 @@
 "use client";
 
-import { useState } from "react";
-
 import styles from "./FilterVideos.module.scss";
 
 const topics = [
@@ -25,9 +23,12 @@ const topics = [
   "Fitness",
 ];
 
-const FilterVideos = () => {
-  const [selectedTopic, setSelectedTopic] = useState("All");
+type FilterVideosProps = {
+  selectedTopic: string;
+  onTopicChange: (topic: string) => void;
+};
 
+const FilterVideos = ({ selectedTopic, onTopicChange }: FilterVideosProps) => {
   return (
     <nav className={styles.filterBar} aria-label="Video filters">
       <div className={styles.scroller} role="list">
@@ -40,7 +41,7 @@ const FilterVideos = () => {
               type="button"
               className={`${styles.pill} ${isSelected ? styles.selected : ""}`}
               aria-pressed={isSelected}
-              onClick={() => setSelectedTopic(topic)}
+              onClick={() => onTopicChange(topic)}
             >
               {topic}
             </button>

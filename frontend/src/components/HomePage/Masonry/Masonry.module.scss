@@ -22,6 +22,38 @@
   width: 100%;
 }
 
+.fullRow {
+  grid-column: 1 / -1;
+  min-width: 0;
+}
+
+.categoryBreak {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  margin: 0.35rem 0 0.2rem;
+  color: rgba(79, 70, 92, 0.56);
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+.categoryBreak::before,
+.categoryBreak::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: rgba(79, 70, 92, 0.18);
+}
+
+.stateMessage {
+  margin: 1.25rem 1rem;
+  color: rgba(79, 70, 92, 0.72);
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
 @media (min-width: 768px) {
   .masonry {
     grid-template-columns: repeat(2, 1fr);

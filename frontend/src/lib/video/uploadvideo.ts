@@ -66,6 +66,68 @@ export async function getVideos({ page = 1, limit = 20 }: GetVideosParams = {}) 
   return response.data;
 }
 
+export type HomeFeedVideo = {
+  _id: string;
+  title?: string;
+  videoUrl?: string;
+  thumbnailUrl?: string;
+  duration?: string | number;
+  createdAt?: string;
+  stats?: {
+    views?: number;
+  };
+  uploader?: {
+    _id?: string;
+    name?: string;
+    profilePicUrl?: string;
+  };
+};
+
+export type HomeVideoFeedResponse = {
+  success?: boolean;
+  message?: string;
+  length?: number;
+  primary?: HomeFeedVideo[];
+  secondary?: HomeFeedVideo[];
+  hasMore?: boolean;
+  redisSet?: number;
+  primarySet?: number;
+  secondarySet?: number;
+};
+
+interface GetHomeVideoFeedParams {
+  category?: string;
+  page?: number;
+}
+
+export async function getHomeVideoFeed({
+  category,
+  page = 1,
+}: GetHomeVideoFeedParams = {}): Promise<HomeVideoFeedResponse> {
+  const payload: GetHomeVideoFeedParams = {
+    category: category?.trim().toLowerCase() || "all",
+    page,
+  };
+
+  const response = await http.post("/api/v1/getHomeVideoFeed", payload);
+
+  return response.data;
+}
+
+export async function getHomeVibesFeed({
+  category,
+  page = 1,
+}: GetHomeVideoFeedParams = {}): Promise<HomeVideoFeedResponse> {
+  const payload: GetHomeVideoFeedParams = {
+    category: category?.trim().toLowerCase() || "all",
+    page,
+  };
+
+  const response = await http.post("/api/v1/getHomeVibesFeed", payload);
+
+  return response.data;
+}
+
 
 
 
