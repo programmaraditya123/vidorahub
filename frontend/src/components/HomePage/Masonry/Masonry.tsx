@@ -166,6 +166,7 @@ export default function Masonry({ selectedCategory, afterFirstRow }: MasonryProp
   const secondaryCount = secondaryVideos.length;
   const hasVideos = renderedVideos.length > 0;
   const showCategoryBreak = !isAllCategory && secondaryCount > 0;
+  const showSkeletons = loading || (!error && !hasVideos);
 
   useEffect(() => {
     const trigger = triggerRef.current;
@@ -196,10 +197,6 @@ export default function Masonry({ selectedCategory, afterFirstRow }: MasonryProp
     <>
       {error && <p className={styles.stateMessage}>{error}</p>}
 
-      {!loading && !error && !hasVideos && (
-        <p className={styles.stateMessage}>No videos available right now.</p>
-      )}
-
       <div className={styles.masonry}>
         {renderedVideos.map((video, index) => (
           <Fragment key={video._id}>
@@ -207,7 +204,7 @@ export default function Masonry({ selectedCategory, afterFirstRow }: MasonryProp
               index === 0 || renderedVideos[index - 1]?.section !== "secondary"
             ) && (
               <div className={styles.categoryBreak}>
-                <span>No more videos in this category</span>
+                <span>No more here — let’s find something you’ll love</span>
               </div>
             )}
 
@@ -224,7 +221,7 @@ export default function Masonry({ selectedCategory, afterFirstRow }: MasonryProp
           </Fragment>
         ))}
 
-        {loading &&
+        {showSkeletons &&
           Array.from({ length: SKELETON_COUNT }).map((_, i) => (
             <div
               key={`skeleton-${i}`}
