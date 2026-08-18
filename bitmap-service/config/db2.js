@@ -1,3 +1,5 @@
+//This db is using DATAAPI client not native cassandra driver
+
 const { DataAPIClient } = require("@datastax/astra-db-ts");
 require("dotenv").config();
 
@@ -15,6 +17,34 @@ async function testConnection() {
   }
 }
 
+async function initAstra() {
+    try {
+        await db.createCollection("category_select_events");
+
+        console.log(
+            "✅ category_select_events collection created"
+        );
+    } catch (error) {
+
+        // Collection already exists
+        if (
+            error.message?.includes("already exists")
+        ) {
+            console.log(
+                "✅ category_select_events already exists"
+            );
+        } else {
+            console.error(
+                "❌ Astra initialization failed:",
+                error
+            );
+
+            throw error;
+        }
+      }
+    }
+
 testConnection();
+initAstra();
 
 module.exports = db;
