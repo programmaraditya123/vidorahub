@@ -47,11 +47,7 @@ const UserActivityController = async (req, res) => {
     // ---------------------------------------------
     // Identity
     //
-    // Logged in:
-    //   userId + profileId + deviceId + sessionId
-    //
-    // Anonymous:
-    //   deviceId + sessionId
+    // One activity document per device + session
     // ---------------------------------------------
 
     const identityFilter = {
@@ -60,50 +56,45 @@ const UserActivityController = async (req, res) => {
     };
 
     // ---------------------------------------------
-    // Build update
+    // Build $set
     // ---------------------------------------------
 
-    const update = {
-      $inc: {
-        total_time_spent: timeSpent,
-      },
-
-      $set: {
-        event_time: new Date(),
-        last_event_id: eventId,
-      },
-
-      $setOnInsert: {
-        device_id: deviceId,
-        session_id: sessionId,
-        total_time_spent: 0,
-        created_at: new Date(),
-      },
+    const setData = {
+      event_time: new Date(),
+      last_event_id: eventId,
     };
 
-    // ---------------------------------------------
-    // Add userId when available
-    // ---------------------------------------------
-
     if (userId) {
-      update.$set.user_id = userId;
+      setData.user_id = userId;
     }
-
-    // ---------------------------------------------
-    // Add profileId when available
-    // ---------------------------------------------
 
     if (profileId) {
-      update.$set.profile_id = profileId;
+      setData.profile_id = profileId;
     }
 
     // ---------------------------------------------
-    // Update activity
+    // Update
+    //
+    // IMPORTANT:
+    // total_time_spent is ONLY handled by $inc.
+    // Do NOT put it inside $setOnInsert.
     // ---------------------------------------------
 
     await collection.updateOne(
       identityFilter,
-      update,
+      {
+        $inc: {
+          total_time_spent: timeSpent,
+        },
+
+        $set: setData,
+
+        $setOnInsert: {
+          device_id: deviceId,
+          session_id: sessionId,
+          created_at: new Date(),
+        },
+      },
       {
         upsert: true,
       }
@@ -113,7 +104,10 @@ const UserActivityController = async (req, res) => {
       success: true,
     });
   } catch (error) {
-    console.error("UserActivityController error:", error);
+    console.log(
+      "UserActivityController error:",
+      error
+    );
 
     return res.status(500).json({
       success: false,
