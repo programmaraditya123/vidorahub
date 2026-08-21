@@ -57,21 +57,13 @@ const getHomeVideoFeed = async (req, res) => {
         }
     }
 
-    // const startIndex = (page - 1) * batchSize;
-    // const endIndex = startIndex + batchSize - 1;
-
-    // const primaryVideoIds = await client.zRange(primarykey, startIndex, endIndex)
-    // const secondaryVideoIds = await client.zRange(secondarykey, startIndex, endIndex)
-
-
-    // console.log("videoIds", VideoIds)
 
     const primaryredisIds = await client.zRange(primarykey, 0, -1);
     const secondaryredisIds = await client.zRange(secondarykey, 0, -1)
 
     const redisIds = [...primaryredisIds, ...secondaryredisIds]
 
-    if (redisIds.length > 0) {
+    if (primaryIds.length > 0 || secondaryIds.length > 0) {
         const mongoprimaryVideos = await Video.find({
             _id: { $in: primaryIds },
             isDeleted: false,
@@ -288,7 +280,7 @@ const getHomeVibesFeed = async (req, res) => {
 
     const redisIds = [...primaryredisIds, ...secondaryredisIds]
 
-    if (redisIds.length > 0) {
+    if (primaryIds.length > 0 || secondaryIds.length > 0) {
         const mongoprimaryVideos = await Video.find({
             _id: { $in: primaryIds },
             isDeleted: false,

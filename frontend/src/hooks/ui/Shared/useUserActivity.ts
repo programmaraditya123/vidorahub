@@ -1,35 +1,30 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import useUserCredential from "./useUserCredential";
 
-const API_URL = "https://about-vidorahub-ffmpeg-worker.onrender.com/api/v1/useractivity";
+const API_URL =
+  "https://about-vidorahub-ffmpeg-worker.onrender.com/api/v1/useractivity";
 
 const IDLE_THRESHOLD_MS = 30_000;
 const TRACK_INTERVAL_MS = 5_000;
 const SEND_INTERVAL_MS = 15_000;
 const TIME_INCREMENT_S = 5;
 
-const generateId = (): string =>
-  crypto.randomUUID?.() ??
-  "xxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
-    const r = (Math.random() * 16) | 0;
-    return (c === "x" ? r : (r & 0x3) | 0x8).toString(16);
-  });
+const ACTIVITY_EVENTS: (keyof WindowEventMap)[] = [
+  "mousemove",
+  "keydown",
+  "scroll",
+  "click",
+];
 
-const getOrCreateId = (key: string): string => {
-  let id = localStorage.getItem(key);
-  if (!id) {
-    id = generateId();
-    localStorage.setItem(key, id);
-  }
-  return id;
-};
+// --------------------------------------------------
+// Module-level state
+// --------------------------------------------------
 
-const ACTIVITY_EVENTS: (keyof WindowEventMap)[] = ["mousemove", "keydown", "scroll", "click"];
-
-// ✅ Module-level state — not affected by React re-renders or Strict Mode
 let trackInterval: ReturnType<typeof setInterval> | null = null;
 let sendInterval: ReturnType<typeof setInterval> | null = null;
+
 let timeSpent = 0;
 let lastActivityTime = Date.now();
 
@@ -37,178 +32,281 @@ const markActive = () => {
   lastActivityTime = Date.now();
 };
 
-const sendData = (userId: string) => {
+// --------------------------------------------------
+// Types
+// --------------------------------------------------
+
+interface ActivityCredentials {
+  userId: string | null;
+  profileId : string | null;
+  sessionId: string;
+  eventId: string;
+  deviceId: string;
+}
+
+// --------------------------------------------------
+// Send activity
+// --------------------------------------------------
+
+const sendData = (credentials: ActivityCredentials) => {
   if (timeSpent <= 0) return;
+
+  const payload = {
+    userId: credentials.userId,
+
+    sessionId: credentials.sessionId,
+    eventId: credentials.eventId,
+    deviceId: credentials.deviceId,
+
+    totalTimeSpent: timeSpent,
+  };
 
   navigator.sendBeacon(
     API_URL,
-    new Blob([JSON.stringify({ userId, totalTimeSpent: timeSpent })], {
+    new Blob([JSON.stringify(payload)], {
       type: "application/json",
     })
   );
 
   timeSpent = 0;
+
   localStorage.setItem("timespent", "0");
 };
 
-const startTracking = (userId: string) => {
-  // ✅ Already running — don't double-register
+// --------------------------------------------------
+// Start tracking
+// --------------------------------------------------
+
+const startTracking = (credentials: ActivityCredentials) => {
+  // Already running
   if (trackInterval || sendInterval) return;
 
-  ACTIVITY_EVENTS.forEach((e) =>
-    window.addEventListener(e, markActive, { passive: true })
-  );
+  ACTIVITY_EVENTS.forEach((event) => {
+    window.addEventListener(event, markActive, {
+      passive: true,
+    });
+  });
+
+  // -----------------------------------------------
+  // Track active time
+  // -----------------------------------------------
 
   trackInterval = setInterval(() => {
-    const isIdle = Date.now() - lastActivityTime > IDLE_THRESHOLD_MS;
+    const isIdle =
+      Date.now() - lastActivityTime > IDLE_THRESHOLD_MS;
+
     if (isIdle) return;
 
     timeSpent += TIME_INCREMENT_S;
-    localStorage.setItem("timespent", String(timeSpent));
+
+    localStorage.setItem(
+      "timespent",
+      String(timeSpent)
+    );
   }, TRACK_INTERVAL_MS);
 
-  sendInterval = setInterval(() => sendData(userId), SEND_INTERVAL_MS);
+  // -----------------------------------------------
+  // Send activity periodically
+  // -----------------------------------------------
 
-  window.addEventListener("beforeunload", () => sendData(userId));
+  sendInterval = setInterval(() => {
+    sendData(credentials);
+  }, SEND_INTERVAL_MS);
+
+  // -----------------------------------------------
+  // Flush when leaving page
+  // -----------------------------------------------
+
+  window.addEventListener("beforeunload", () => {
+    sendData(credentials);
+  });
 };
 
-const stopTracking = (userId: string) => {
-  sendData(userId); // flush before stopping
+// --------------------------------------------------
+// Stop tracking
+// --------------------------------------------------
 
-  if (trackInterval) { clearInterval(trackInterval); trackInterval = null; }
-  if (sendInterval) { clearInterval(sendInterval); sendInterval = null; }
+const stopTracking = (credentials: ActivityCredentials) => {
+  // Flush remaining activity
+  sendData(credentials);
 
-  ACTIVITY_EVENTS.forEach((e) => window.removeEventListener(e, markActive));
+  if (trackInterval) {
+    clearInterval(trackInterval);
+    trackInterval = null;
+  }
+
+  if (sendInterval) {
+    clearInterval(sendInterval);
+    sendInterval = null;
+  }
+
+  ACTIVITY_EVENTS.forEach((event) => {
+    window.removeEventListener(event, markActive);
+  });
 };
+
+// --------------------------------------------------
+// Hook
+// --------------------------------------------------
 
 export const useUserActivity = (): void => {
-  const userIdRef = useRef<string | null>(null);
+  const credentials = useUserCredential();
+
+  const credentialsRef = useRef<ActivityCredentials | null>(null);
 
   useEffect(() => {
-    userIdRef.current = getOrCreateId("user_id");
-    getOrCreateId("activity_id");
+    if (!credentials.isInitialized) {
+      return;
+    }
 
-    timeSpent = Number(localStorage.getItem("timespent") ?? 0);
+    /**
+     * userId should come from your JWT/authentication
+     * system, NOT localStorage-generated IDs.
+     *
+     * Replace this with your actual authenticated user ID.
+     */
+    const userId = localStorage.getItem("userId") ?? null;
 
-    startTracking(userIdRef.current);
+    const profile_id = localStorage.getItem("activeProfileId") ?? null;
+
+    if (
+      !credentials.sessionId ||
+      !credentials.eventId ||
+      !credentials.deviceId
+    ) {
+      return;
+    }
+
+    const activityCredentials: ActivityCredentials = {
+      userId,
+      profileId : profile_id,
+      sessionId: credentials.sessionId,
+      eventId: credentials.eventId,
+      deviceId: credentials.deviceId,
+    };
+
+    credentialsRef.current = activityCredentials;
+
+    timeSpent = Number(
+      localStorage.getItem("timespent") ?? 0
+    );
+
+    lastActivityTime = Date.now();
+
+    startTracking(activityCredentials);
 
     return () => {
-      if (userIdRef.current) stopTracking(userIdRef.current);
-    };
-  }, []);
-};
+      if (credentialsRef.current) {
+        stopTracking(credentialsRef.current);
+      }
 
+      credentialsRef.current = null;
+    };
+  }, [
+    credentials.isInitialized,
+    credentials.sessionId,
+    credentials.eventId,
+    credentials.deviceId,
+  ]);
+};
 
 
 // "use client";
 
-// import { useEffect } from "react";
+// import { useEffect, useRef } from "react";
 
 // const API_URL = "https://about-vidorahub-ffmpeg-worker.onrender.com/api/v1/useractivity";
-// // const API_URL = "http://localhost:4000/api/v1/useractivity"
 
+// const IDLE_THRESHOLD_MS = 30_000;
+// const TRACK_INTERVAL_MS = 5_000;
+// const SEND_INTERVAL_MS = 15_000;
+// const TIME_INCREMENT_S = 5;
 
-// // ✅ ID generator
-// const generateId = () => {
-//     return "xxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
-//         const r = (Math.random() * 16) | 0;
-//         const v = c === "x" ? r : (r & 0x3) | 0x8;
-//         return v.toString(16);
-//     });
+// const generateId = (): string =>
+//   crypto.randomUUID?.() ??
+//   "xxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
+//     const r = (Math.random() * 16) | 0;
+//     return (c === "x" ? r : (r & 0x3) | 0x8).toString(16);
+//   });
+
+// const getOrCreateId = (key: string): string => {
+//   let id = localStorage.getItem(key);
+//   if (!id) {
+//     id = generateId();
+//     localStorage.setItem(key, id);
+//   }
+//   return id;
 // };
 
-// export const useUserActivity = () => {
-//     useEffect(() => {
-//         // ✅ userId (used as session key)
-//         let userId = localStorage.getItem("user_id");
-//         if (!userId) {
-//             userId = generateId();
-//             localStorage.setItem("user_id", userId);
-//         }
+// const ACTIVITY_EVENTS: (keyof WindowEventMap)[] = ["mousemove", "keydown", "scroll", "click"];
 
-//         // ✅ activityId (just for tracking, not cleared)
-//         let activityId = localStorage.getItem("activity_id");
-//         if (!activityId) {
-//             activityId = generateId();
-//             localStorage.setItem("activity_id", activityId);
-//         }
+// // ✅ Module-level state — not affected by React re-renders or Strict Mode
+// let trackInterval: ReturnType<typeof setInterval> | null = null;
+// let sendInterval: ReturnType<typeof setInterval> | null = null;
+// let timeSpent = 0;
+// let lastActivityTime = Date.now();
 
-//         let timeSpent = Number(localStorage.getItem("timespent") || 0);
-//         let lastActivityTime = Date.now();
+// const markActive = () => {
+//   lastActivityTime = Date.now();
+// };
 
-//         const markActive = () => {
-//             lastActivityTime = Date.now();
-//         };
+// const sendData = (userId: string) => {
+//   if (timeSpent <= 0) return;
 
-//         const events: (keyof WindowEventMap)[] = [
-//             "mousemove",
-//             "keydown",
-//             "scroll",
-//             "click",
-//         ];
+//   navigator.sendBeacon(
+//     API_URL,
+//     new Blob([JSON.stringify({ userId, totalTimeSpent: timeSpent })], {
+//       type: "application/json",
+//     })
+//   );
 
-//         events.forEach((event) =>
-//             window.addEventListener(event, markActive)
-//         );
+//   timeSpent = 0;
+//   localStorage.setItem("timespent", "0");
+// };
 
-//         // ✅ track active time
-//         const interval = setInterval(() => {
-//             const now = Date.now();
-//             const isIdle = now - lastActivityTime > 30000;
+// const startTracking = (userId: string) => {
+//   // ✅ Already running — don't double-register
+//   if (trackInterval || sendInterval) return;
 
-//             if (!isIdle) {
-//                 timeSpent += 5;
-//                 localStorage.setItem("timespent", timeSpent.toString());
-//             }
-//         }, 5000);
+//   ACTIVITY_EVENTS.forEach((e) =>
+//     window.addEventListener(e, markActive, { passive: true })
+//   );
 
-//         // ✅ send delta & reset time
-//         const sendData = () => {
-//             const currentTime = Number(localStorage.getItem("timespent") || 0);
+//   trackInterval = setInterval(() => {
+//     const isIdle = Date.now() - lastActivityTime > IDLE_THRESHOLD_MS;
+//     if (isIdle) return;
 
-//             if (currentTime > 0) {
-//                 navigator.sendBeacon(
-//                     API_URL,
-//                     new Blob(
-//                         [
-//                             JSON.stringify({
-//                                 userId,
-//                                 totalTimeSpent: currentTime,
-//                             }),
-//                         ],
-//                         { type: "application/json" }
-//                     )
-//                 );
+//     timeSpent += TIME_INCREMENT_S;
+//     localStorage.setItem("timespent", String(timeSpent));
+//   }, TRACK_INTERVAL_MS);
 
-//                 // ✅ RESET ONLY TIME (important)
-//                 localStorage.setItem("timespent", "0");
-//                 timeSpent = 0;
+//   sendInterval = setInterval(() => sendData(userId), SEND_INTERVAL_MS);
 
-//                 // console.log("📡 Sent:", currentTime);
-//             }
-//         };
+//   window.addEventListener("beforeunload", () => sendData(userId));
+// };
 
-//         // ✅ AUTO SEND every 2 min
-//         const sendInterval = setInterval(() => {
-//             sendData();
-//         }, 15000);
+// const stopTracking = (userId: string) => {
+//   sendData(userId); // flush before stopping
 
-//         // ✅ send remaining on close
-//         const handleUnload = () => {
-//             sendData(); // no reload check needed now
-//         };
+//   if (trackInterval) { clearInterval(trackInterval); trackInterval = null; }
+//   if (sendInterval) { clearInterval(sendInterval); sendInterval = null; }
 
-//         window.addEventListener("beforeunload", handleUnload);
+//   ACTIVITY_EVENTS.forEach((e) => window.removeEventListener(e, markActive));
+// };
 
-//         return () => {
-//             clearInterval(interval);
-//             clearInterval(sendInterval);
+// export const useUserActivity = (): void => {
+//   const userIdRef = useRef<string | null>(null);
 
-//             events.forEach((event) =>
-//                 window.removeEventListener(event, markActive)
-//             );
+//   useEffect(() => {
+//     userIdRef.current = getOrCreateId("user_id");
+//     getOrCreateId("activity_id");
 
-//             window.removeEventListener("beforeunload", handleUnload);
-//         };
-//     }, []);
+//     timeSpent = Number(localStorage.getItem("timespent") ?? 0);
+
+//     startTracking(userIdRef.current);
+
+//     return () => {
+//       if (userIdRef.current) stopTracking(userIdRef.current);
+//     };
+//   }, []);
 // };

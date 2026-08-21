@@ -23,7 +23,8 @@ export type LoginResponse = {
     success:boolean,
     token:string,
     message?:string,
-    user?:{email:string,name:string,userSerialNumber:string,profilePicUrl?:string},
+    user?:{email:string,name:string,userSerialNumber:string,profilePicUrl?:string,userId?:string,},
+
 }
 
 export type GoogleLoginPayload = {

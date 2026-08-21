@@ -99,7 +99,8 @@ const userLoginController = async (req,res) => {
             user:{
                 name:user.name,
                 email:user.email,
-                userSerialNumber : user.userSerialNumber
+                userSerialNumber : user.userSerialNumber,
+                userId : user._id
             },
             token
         })
@@ -159,6 +160,7 @@ const googleAuthController = async (req, res) => {
         name: user.name,
         email: user.email,
         userSerialNumber: user.userSerialNumber,
+        userId : user._id,
       },
       token: jwtToken,
     });

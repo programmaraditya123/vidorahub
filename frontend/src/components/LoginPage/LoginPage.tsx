@@ -65,6 +65,7 @@ export default function LoginPage() {
           "userSerialNumber",
           res.user?.userSerialNumber ?? "",
         );
+        localStorage.setItem("userId",res.user?.userId ?? "")
         setOptionalStorageValue("ppurl", res.user?.profilePicUrl);
         await syncSessionProfile();
         notifyAuthChanged();
@@ -106,6 +107,7 @@ export default function LoginPage() {
         "userSerialNumber",
         data.user?.userSerialNumber ?? "",
       );
+      localStorage.setItem("userId",data.user?.userId ?? "")
       setOptionalStorageValue("ppurl", data.user?.profilePicUrl);
       await syncSessionProfile();
       notifyAuthChanged();

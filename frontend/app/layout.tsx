@@ -5,6 +5,7 @@ import ReduxProvider from "@/src/redux/provider";
 import SpeedInsightsClient from "./SpeedInsightsClient";
 import WelcomeModal from "@/src/components/shared/WelcomeModal/WelcomeModal";
 import { GoogleOAuthProvider } from "@react-oauth/google";
+import UserCredentialProvider from "./userCredentials";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.vidorahub.com"),
@@ -12,7 +13,7 @@ export const metadata: Metadata = {
   title: "VidoraHub – Discover, Watch & Share Videos That Matter",
   description: "VidoraHub is a next-generation video sharing platform.",
 
- 
+
 
   icons: {
     icon: "/favicon.ico",
@@ -36,7 +37,7 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  viewportFit: "cover", 
+  viewportFit: "cover",
 };
 
 export default function RootLayout({
@@ -51,15 +52,17 @@ export default function RootLayout({
 
         <div className="app-container">
 
-        <ReduxProvider>
-          <ToastProvider>
-            <WelcomeModal />
-            <GoogleOAuthProvider clientId={process.env.GOOGLE_CLIENT_ID!}>
-              {children}
-            </GoogleOAuthProvider>
-            <SpeedInsightsClient />
-          </ToastProvider>
-        </ReduxProvider>
+          <ReduxProvider>
+            <ToastProvider>
+              <WelcomeModal />
+              <GoogleOAuthProvider clientId={process.env.GOOGLE_CLIENT_ID!}>
+                <UserCredentialProvider />
+
+                {children}
+              </GoogleOAuthProvider>
+              <SpeedInsightsClient />
+            </ToastProvider>
+          </ReduxProvider>
         </div>
       </body>
     </html>
