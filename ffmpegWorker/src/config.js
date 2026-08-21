@@ -8,8 +8,8 @@ console.log("00000",process.env.REDIS_PASSWORD)
 const connection =new Redis({
     username: 'default',
     password: process.env.REDIS_PASSWORD,
-    host: 'redis-10702.c80.us-east-1-2.ec2.redns.redis-cloud.com',
-    port: 10702,
+    host: 'redis-16843.crce286.ap-south-1-1.ec2.cloud.redislabs.com',
+    port: 16843,
     maxRetriesPerRequest:null,
     retryStrategy: (times) => Math.min(times * 50, 2000),
     
