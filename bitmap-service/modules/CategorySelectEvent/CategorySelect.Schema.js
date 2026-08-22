@@ -8,6 +8,9 @@ const validateCategorySelectEvent = (data) => {
     if (!data.categorySelected) {
         throw new Error("categorySelected is required");
     }
+    if (!data.deviceId) {
+        throw new Error("deviceId  is required");
+    }
 
     if (
         data.userId !== null &&
@@ -36,6 +39,7 @@ const validateCategorySelectEvent = (data) => {
     return {
         eventId: data.eventId,
         categorySelected: data.categorySelected,
+        deviceId : data.deviceId,
 
         userId: data.userId ?? null,
         profileId: data.profileId ?? null,

@@ -1,5 +1,7 @@
 "use client";
 
+import useUserCredential from "@/src/hooks/ui/Shared/useUserCredential";
+import { sendCategorySelectEvent } from "@/src/lib/userEvents/userEvents";
 import styles from "./FilterVideos.module.scss";
 
 const topics = [
@@ -29,6 +31,35 @@ type FilterVideosProps = {
 };
 
 const FilterVideos = ({ selectedTopic, onTopicChange }: FilterVideosProps) => {
+  const credentials = useUserCredential();
+
+  const handleTopicChange = (topic: string) => {
+    onTopicChange(topic);
+
+    if (!credentials.isInitialized) {
+      return;
+    }
+
+    const storedCredentials = credentials.getCredentials();
+    const eventId =
+      credentials.generateEventId() ?? storedCredentials.eventId;
+
+    if (!eventId || !storedCredentials.deviceId) {
+      return;
+    }
+
+    sendCategorySelectEvent({
+      eventId,
+      categorySelected: topic,
+      deviceId: storedCredentials.deviceId,
+      userId: localStorage.getItem("userId") || null,
+      profileId: localStorage.getItem("activeProfileId") || null,
+      sessionId: storedCredentials.sessionId,
+    }).catch((error) => {
+      console.error("Failed to send category select event:", error);
+    });
+  };
+
   return (
     <nav className={styles.filterBar} aria-label="Video filters">
       <div className={styles.scroller} role="list">
@@ -41,7 +72,7 @@ const FilterVideos = ({ selectedTopic, onTopicChange }: FilterVideosProps) => {
               type="button"
               className={`${styles.pill} ${isSelected ? styles.selected : ""}`}
               aria-pressed={isSelected}
-              onClick={() => onTopicChange(topic)}
+              onClick={() => handleTopicChange(topic)}
             >
               {topic}
             </button>

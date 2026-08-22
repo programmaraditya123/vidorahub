@@ -45,6 +45,6 @@ async function initAstra() {
     }
 
 testConnection();
-initAstra();
+// initAstra();
 
 module.exports = db;

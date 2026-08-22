@@ -6,8 +6,6 @@ const SelectedCategory = async (req,res) => {
         const event = await createCategorySelectEvent(req.body);
         return res.status(201).json({
             success: true,
-            message: "Category selection captured",
-            event
         });
         
     } catch (error) {
