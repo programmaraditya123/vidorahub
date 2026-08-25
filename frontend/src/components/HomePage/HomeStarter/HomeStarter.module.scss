@@ -6,8 +6,9 @@
   align-items: center;
   justify-content: center;
   padding: 0;
+  overflow: hidden;
   background:
-    radial-gradient(circle at 50% 0%, rgba(124, 58, 237, 0.2), transparent 34%),
+    radial-gradient(circle at 50% 0%, rgba(124, 58, 237, 0.16), transparent 30%),
     linear-gradient(180deg, rgba(8, 10, 18, 0.94), rgba(10, 12, 20, 0.98));
   backdrop-filter: blur(8px);
 }
@@ -15,19 +16,19 @@
 .panel {
   position: relative;
   width: 100%;
-  min-height: 100vh;
-  max-height: 100vh;
-  overflow-y: auto;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
   border-radius: 0;
   border: 0;
   background: rgba(15, 18, 30, 0.72);
   box-shadow: 0 24px 80px rgba(0, 0, 0, 0.38);
-  padding: 44px 24px;
+  padding: clamp(16px, 3vh, 30px) clamp(14px, 3vw, 24px);
   color: #ffffff;
 
   h2 {
-    margin: 18px 0 8px;
-    font-size: 2.8rem;
+    margin: 12px 0 6px;
+    font-size: clamp(1.55rem, 4vw, 2.3rem);
     line-height: 1.05;
     font-weight: 800;
     letter-spacing: 0;
@@ -40,6 +41,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: clamp(8px, 1.5vh, 14px);
 }
 
 .checkingPanel {
@@ -56,7 +58,7 @@
 }
 
 .brandMark {
-  font-size: 1.35rem;
+  font-size: clamp(1rem, 2.4vw, 1.22rem);
   font-weight: 900;
   color: #ffffff;
 }
@@ -86,8 +88,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
-  margin-top: 14px;
+  gap: 8px;
+  margin-top: 0;
   padding: 0 44px;
 }
 
@@ -95,10 +97,10 @@
 .accountBadge {
   display: inline-flex;
   align-items: center;
-  min-height: 30px;
+  min-height: 26px;
   border-radius: 8px;
-  padding: 6px 10px;
-  font-size: 0.78rem;
+  padding: 4px 9px;
+  font-size: 0.7rem;
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0;
@@ -120,7 +122,8 @@
   margin: 0;
   max-width: 560px;
   color: #b8c0d4;
-  line-height: 1.6;
+  font-size: clamp(0.82rem, 1.8vw, 0.95rem);
+  line-height: 1.42;
   text-align: center;
 }
 
@@ -128,8 +131,9 @@
   display: flex;
   gap: 10px;
   align-items: flex-start;
-  margin-top: 18px;
-  padding: 12px;
+  max-width: min(620px, 100%);
+  margin-top: 4px;
+  padding: 9px 10px;
   border-radius: 8px;
   border: 1px solid rgba(220, 38, 38, 0.18);
   background: #fef2f2;
@@ -143,27 +147,27 @@
 
 .profileGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, 150px);
+  grid-template-columns: repeat(auto-fit, minmax(82px, 92px));
   justify-content: center;
-  gap: 26px;
+  gap: clamp(8px, 1.6vw, 14px);
   width: 100%;
-  max-width: 860px;
-  margin-top: 34px;
+  max-width: min(620px, calc(100vw - 28px));
+  margin-top: clamp(4px, 1.2vh, 12px);
 }
 
 .profileCard {
   position: relative;
   display: flex;
   box-sizing: border-box;
-  width: 150px;
-  height: 184px;
-  min-height: 184px;
+  width: clamp(82px, 13vw, 92px);
+  height: clamp(104px, 17vh, 118px);
+  min-height: clamp(104px, 17vh, 118px);
   overflow: hidden;
-  padding: 10px 8px;
+  padding: 5px 4px;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 10px;
+  gap: 4px;
   border: 0;
   border-radius: 8px;
   background: transparent;
@@ -173,22 +177,22 @@
   transition: transform 0.2s ease, opacity 0.2s ease;
 
   strong {
-    max-width: calc(100% - 24px);
+    max-width: calc(100% - 12px);
     overflow-wrap: anywhere;
-    font-size: 1rem;
-    line-height: 1.2;
+    font-size: clamp(0.68rem, 1.35vw, 0.78rem);
+    line-height: 1.08;
     font-weight: 700;
   }
 
   small {
     color: #a8b0c4;
-    font-size: 0.78rem;
-    line-height: 1.2;
+    font-size: clamp(0.58rem, 1.15vw, 0.66rem);
+    line-height: 1.05;
     text-transform: capitalize;
   }
 
   &:hover {
-    transform: translateY(-5px);
+    transform: translateY(-3px);
   }
 
   &:hover .avatar,
@@ -209,15 +213,15 @@
 .addAvatar {
   display: grid;
   place-items: center;
-  width: 112px;
-  height: 112px;
+  width: clamp(52px, 8.5vw, 62px);
+  height: clamp(52px, 8.5vw, 62px);
   border-radius: 50%;
-  border: 3px solid rgba(255, 255, 255, 0.18);
+  border: 2px solid rgba(255, 255, 255, 0.18);
   background-color: #202435;
   background-position: center;
   background-size: cover;
   color: #ffffff;
-  font-size: 2.4rem;
+  font-size: clamp(1.3rem, 2.8vw, 1.55rem);
   font-weight: 800;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
@@ -230,7 +234,7 @@
 
 .addProfileCard {
   background: transparent;
-  gap: 8px;
+  gap: 4px;
 
   strong,
   small {
@@ -240,14 +244,18 @@
 
 .checkIcon {
   position: absolute;
-  top: 22px;
-  right: 22px;
+  top: 9px;
+  right: 9px;
   color: #22c55e;
+
+  :global(.material-symbols-outlined) {
+    font-size: 1rem;
+  }
 }
 
 .emptyState {
   display: grid;
-  min-height: 168px;
+  min-height: 92px;
   place-items: center;
   grid-column: 1 / -1;
   border: 1px dashed rgba(255, 255, 255, 0.18);
@@ -275,14 +283,15 @@
   display: flex;
   justify-content: center;
   gap: 12px;
-  margin-top: 24px;
+  margin-top: clamp(10px, 2vh, 18px);
 }
 
 .primaryButton,
 .secondaryButton {
-  min-height: 44px;
+  min-height: 38px;
   border-radius: 8px;
-  padding: 0 18px;
+  padding: 0 16px;
+  font-size: 0.88rem;
   font-weight: 800;
   cursor: pointer;
   transition: opacity 0.2s ease, transform 0.2s ease, background 0.2s ease;
@@ -316,7 +325,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 18px;
+  padding: 12px;
   background: rgba(4, 6, 14, 0.62);
   backdrop-filter: blur(10px);
 }
@@ -324,16 +333,17 @@
 .createModal {
   box-sizing: border-box;
   display: grid;
-  gap: 16px;
-  width: min(430px, 100%);
-  max-height: calc(100vh - 36px);
+  gap: 12px;
+  width: min(390px, 100%);
+  max-height: calc(100vh - 24px);
+  max-height: calc(100dvh - 24px);
   overflow-y: auto;
   overflow-x: hidden;
   border-radius: 8px;
   border: 1px solid rgba(255, 255, 255, 0.12);
   background: #111827;
   color: #ffffff;
-  padding: 20px;
+  padding: 16px;
   box-shadow: 0 24px 80px rgba(0, 0, 0, 0.44);
 
   label {
@@ -444,54 +454,70 @@
 
 @media (max-width: 680px) {
   .overlay {
-    align-items: stretch;
+    align-items: center;
     padding: 0;
   }
 
   .panel {
     width: 100%;
-    min-height: 100vh;
-    max-height: 100vh;
     border-radius: 0;
-    padding: 22px 16px 18px;
+    padding: 14px 12px;
   }
 
   .panel h2 {
-    font-size: 1.55rem;
+    font-size: clamp(1.35rem, 7vw, 1.7rem);
+  }
+
+  .badgeRow {
+    max-width: 100%;
+    padding: 0;
+  }
+
+  .accountBadge {
+    max-width: min(260px, 78vw);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .profileGrid {
-    grid-template-columns: repeat(2, 132px);
-    gap: 18px;
+    grid-template-columns: repeat(auto-fit, minmax(70px, 78px));
+    gap: 6px;
+    max-width: 100%;
   }
 
   .profileCard {
-    width: 132px;
-    height: 146px;
-    min-height: 146px;
-    gap: 7px;
-    padding: 8px 6px;
+    width: 78px;
+    height: 96px;
+    min-height: 96px;
+    gap: 3px;
+    padding: 4px 3px;
   }
 
   .avatar,
   .addAvatar {
-    width: 82px;
-    height: 82px;
-    font-size: 2rem;
+    width: 46px;
+    height: 46px;
+    font-size: 1.2rem;
   }
 
   .addProfileCard .addAvatar {
-    width: 72px;
-    height: 72px;
-    font-size: 1.7rem;
+    width: 42px;
+    height: 42px;
+    font-size: 1.1rem;
   }
 
   .profileCard strong {
-    font-size: 0.9rem;
+    font-size: 0.62rem;
   }
 
   .profileCard small {
-    font-size: 0.72rem;
+    font-size: 0.54rem;
+  }
+
+  .checkIcon {
+    top: 7px;
+    right: 7px;
   }
 
   .actions {
