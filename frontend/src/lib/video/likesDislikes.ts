@@ -14,19 +14,46 @@ export interface VideoReactionsResponse {
 }
 
 export interface ReactionResponse {
- success: boolean;
+  success: boolean;
   liked: boolean;
   disliked: boolean;
   likes: number;
   dislikes: number;
 }
 
-export interface VideoReactionsResponse {
+export interface UserReactionVideo {
+  _id: string;
+  title?: string;
+  thumbnailUrl?: string;
+  duration?: number | string | null;
+  contentType?: string;
+  uploader?: {
+    _id?: string;
+    name?: string;
+    profilePicUrl?: string;
+  } | null;
+  isDeleted?: boolean;
+  stats?: {
+    views?: number;
+    likes?: number;
+  };
+  videoUrl?: string;
+  videoSerialNumber: number;
+  createdAt?: string;
+  reaction?: {
+    scope?: "like" | "dislike";
+    updatedAt?: string;
+  };
+}
+
+export interface UserReactionVideosResponse {
   success: boolean;
-  liked: boolean;
-  disliked: boolean;
-  likes: number;
-  dislikes: number;
+  userSerialNumber: number;
+  limit: number;
+  count?: number;
+  videos: UserReactionVideo[];
+  nextPageState: string | null;
+  hasMore: boolean;
 }
 
 
@@ -83,6 +110,36 @@ export async function getVideoReactions(
   );
 
   return data;
+}
+
+type GetUserReactionVideosParams = {
+  userSerialNumber: number;
+  pageState?: string | null;
+};
+
+async function getUserReactionVideos(
+  endpoint: "getLikedVideos" | "getDislikedVideos",
+  { userSerialNumber, pageState = null }: GetUserReactionVideosParams
+) {
+  const { data } = await http2.get<UserReactionVideosResponse>(
+    `bitmap/v1/${endpoint}`,
+    {
+      params: {
+        userSerialNumber,
+        ...(pageState ? { pageState } : {}),
+      },
+    }
+  );
+
+  return data;
+}
+
+export async function getLikedVideos(params: GetUserReactionVideosParams) {
+  return getUserReactionVideos("getLikedVideos", params);
+}
+
+export async function getDislikedVideos(params: GetUserReactionVideosParams) {
+  return getUserReactionVideos("getDislikedVideos", params);
 }
 
 //folow unfollow apis

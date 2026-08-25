@@ -15,6 +15,7 @@ import {
   type AccountProfile,
 } from "@/src/lib/accountprofiles/accountprofiles";
 import { getCreatorProfileData } from "@/src/lib/video/videodata";
+import LikedDislikedVideosPanel from "./LikedDislikedVideosPanel";
 import styles from "./setting.module.scss";
 
 type CreatorProfileData = {
@@ -28,6 +29,7 @@ type CreatorProfileData = {
 };
 
 type ModalType = "accounts" | "profiles" | "create" | "reset" | null;
+type ReactionPanelTab = "liked" | "disliked";
 
 const ACTIVE_PROFILE_STORAGE_KEY = "activeProfileId";
 
@@ -61,6 +63,9 @@ export default function ProfileSettingPage() {
   const [createDateOfBirth, setCreateDateOfBirth] = useState("");
   const [createPin, setCreatePin] = useState("");
   const [createAsPrimary, setCreateAsPrimary] = useState(false);
+  const [reactionPanelTab, setReactionPanelTab] =
+    useState<ReactionPanelTab>("liked");
+  const [isReactionPanelOpen, setIsReactionPanelOpen] = useState(false);
 
   const loadProfiles = useCallback(async () => {
     setIsLoadingProfiles(true);
@@ -218,6 +223,11 @@ export default function ProfileSettingPage() {
     toast.success("Preferences reset for this device.");
   };
 
+  const openReactionPanel = (tab: ReactionPanelTab) => {
+    setReactionPanelTab(tab);
+    setIsReactionPanelOpen(true);
+  };
+
   return (
     <div className={styles.page}>
       <div className={styles.backdrop}>
@@ -352,6 +362,30 @@ export default function ProfileSettingPage() {
               </div>
 
               <div className={styles.actionList}>
+                <button
+                  className={styles.actionItem}
+                  onClick={() => openReactionPanel("liked")}
+                >
+                  <span className="material-symbols-outlined">thumb_up</span>
+                  <div>
+                    <b>Liked videos</b>
+                    <p>Review the videos you have liked from this account.</p>
+                  </div>
+                  <span className="material-symbols-outlined">chevron_right</span>
+                </button>
+
+                <button
+                  className={styles.actionItem}
+                  onClick={() => openReactionPanel("disliked")}
+                >
+                  <span className="material-symbols-outlined">thumb_down</span>
+                  <div>
+                    <b>Disliked videos</b>
+                    <p>Review the videos you have disliked from this account.</p>
+                  </div>
+                  <span className="material-symbols-outlined">chevron_right</span>
+                </button>
+
                 <button
                   className={styles.actionItem}
                   onClick={() => setModalType("reset")}
@@ -538,6 +572,12 @@ export default function ProfileSettingPage() {
           danger
         />
       )}
+
+      <LikedDislikedVideosPanel
+        isOpen={isReactionPanelOpen}
+        initialTab={reactionPanelTab}
+        onClose={() => setIsReactionPanelOpen(false)}
+      />
     </div>
   );
 }

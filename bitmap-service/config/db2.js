@@ -19,31 +19,73 @@ async function testConnection() {
 
 async function initAstra() {
     try {
-        await db.createCollection("category_select_events");
+
+        try {
+            await db.createCollection("category_select_events");
+        } catch (error) {
+            if (!error.message?.includes("already exists")) {
+                throw error;
+            }
+        }
+
+        try {
+            await db.createCollection("like_dislike_event");
+        } catch (error) {
+            if (!error.message?.includes("already exists")) {
+                throw error;
+            }
+        }
+
+        const collection =
+            db.collection("like_dislike_event");
+
+        try {
+            await collection.createIndex(
+                "userSerialNumber"
+            );
+        } catch (error) {
+            console.log(
+                "userSerialNumber index:",
+                error.message
+            );
+        }
+
+        try {
+            await collection.createIndex(
+                "videoSerialNumber"
+            );
+        } catch (error) {
+            console.log(
+                "videoSerialNumber index:",
+                error.message
+            );
+        }
+
+        try {
+            await collection.createIndex(
+                "scope"
+            );
+        } catch (error) {
+            console.log(
+                "scope index:",
+                error.message
+            );
+        }
 
         console.log(
-            "✅ category_select_events collection created"
+            "✅ Astra initialization completed"
         );
+
     } catch (error) {
 
-        // Collection already exists
-        if (
-            error.message?.includes("already exists")
-        ) {
-            console.log(
-                "✅ category_select_events already exists"
-            );
-        } else {
-            console.error(
-                "❌ Astra initialization failed:",
-                error
-            );
+        console.error(
+            "❌ Astra initialization failed:",
+            error
+        );
 
-            throw error;
-        }
-      }
+        throw error;
     }
-
+}
 testConnection();
 // initAstra();
 

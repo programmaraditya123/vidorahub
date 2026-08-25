@@ -1,6 +1,8 @@
 const express = require('express');
 const { addLike, removeLike, addDislike, removeDislike, 
-    validateeLikeDislike, getVideoReactions } = require('../controllers/like.controller');
+    validateeLikeDislike, getVideoReactions, 
+    getLikedVideos,
+    getDislikedVideos} = require('../controllers/like.controller');
 const { requireSignIn } = require('../moddlewares/auth.moddleware');
 
 const router = express.Router()
@@ -17,6 +19,11 @@ router.post('/removeDislike',requireSignIn,removeDislike)
 router.get('/validateLikeDislike',requireSignIn,validateeLikeDislike)
 
 router.get("/reactions",getVideoReactions);
+
+router.get('/getLikedVideos',getLikedVideos)
+
+router.get('/getDislikedVideos',getDislikedVideos)
+
 
 
 
