@@ -15,6 +15,7 @@ const dashboardVideoRoute = require('./modules/dashboard/videos/videos.route')
 const dashboardusers = require('./modules/dashboard/users/users.route')
 const accountProfiles = require('./modules/accountprofiles/accountprofiles.route')
 const recommendation = require('./modules/recommendation/recommendation.route')
+const saveVideo = require('./modules/savevideo/savevideo.route')
 const dns = require("dns");
 
 dns.setDefaultResultOrder("ipv4first");
@@ -115,6 +116,9 @@ app.use("/api/v1",accountProfiles)
 
 //this are the routes for recommmendation 
 app.use("/api/v1",recommendation)
+
+//this are the route for saveVideo
+app.use("/api/v1",saveVideo)
 
 const PORT = process.env.PORT || 8000;
 

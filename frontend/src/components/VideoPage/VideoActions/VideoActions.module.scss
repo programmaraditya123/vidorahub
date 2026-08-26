@@ -122,7 +122,8 @@
 
 // ─── SHARE BUTTON ─────────────────────────────────────────────────────────────
 
-.shareBtn {
+.shareBtn,
+.saveBtn {
   display: flex;
   align-items: center;
   gap: 7px;
@@ -168,6 +169,23 @@
     transform: translateY(0);
     box-shadow: 0 2px 8px rgba(124, 58, 237, 0.25);
   }
+
+  &:disabled {
+    opacity: 0.62;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: var(--shadow-xs, 0 1px 4px rgba(124, 58, 237, 0.07));
+  }
+}
+
+.savedBtn {
+  background: rgba(124, 58, 237, 0.1);
+  border-color: rgba(124, 58, 237, 0.32);
+  color: var(--primary);
+
+  span.material-symbols-outlined {
+    font-variation-settings: "FILL" 1;
+  }
 }
 
 // ─── MOBILE ───────────────────────────────────────────────────────────────────
@@ -178,7 +196,8 @@
     justify-content: space-between;
   }
 
-  .shareBtn {
+  .shareBtn,
+  .saveBtn {
     flex: 1;
     justify-content: center;
   }

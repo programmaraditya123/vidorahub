@@ -16,6 +16,7 @@ import {
 } from "@/src/lib/accountprofiles/accountprofiles";
 import { getCreatorProfileData } from "@/src/lib/video/videodata";
 import LikedDislikedVideosPanel from "./LikedDislikedVideosPanel";
+import SavedVideosPanel from "./SavedVideosPanel";
 import styles from "./setting.module.scss";
 
 type CreatorProfileData = {
@@ -66,6 +67,7 @@ export default function ProfileSettingPage() {
   const [reactionPanelTab, setReactionPanelTab] =
     useState<ReactionPanelTab>("liked");
   const [isReactionPanelOpen, setIsReactionPanelOpen] = useState(false);
+  const [isSavedPanelOpen, setIsSavedPanelOpen] = useState(false);
 
   const loadProfiles = useCallback(async () => {
     setIsLoadingProfiles(true);
@@ -364,6 +366,18 @@ export default function ProfileSettingPage() {
               <div className={styles.actionList}>
                 <button
                   className={styles.actionItem}
+                  onClick={() => setIsSavedPanelOpen(true)}
+                >
+                  <span className="material-symbols-outlined">bookmark</span>
+                  <div>
+                    <b>Saved videos</b>
+                    <p>Open all videos you have saved for later.</p>
+                  </div>
+                  <span className="material-symbols-outlined">chevron_right</span>
+                </button>
+
+                <button
+                  className={styles.actionItem}
                   onClick={() => openReactionPanel("liked")}
                 >
                   <span className="material-symbols-outlined">thumb_up</span>
@@ -577,6 +591,10 @@ export default function ProfileSettingPage() {
         isOpen={isReactionPanelOpen}
         initialTab={reactionPanelTab}
         onClose={() => setIsReactionPanelOpen(false)}
+      />
+      <SavedVideosPanel
+        isOpen={isSavedPanelOpen}
+        onClose={() => setIsSavedPanelOpen(false)}
       />
     </div>
   );

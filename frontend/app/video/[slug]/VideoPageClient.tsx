@@ -13,23 +13,57 @@ import CommentsSection from "@/src/components/ui/CommentSection/CommentSection";
 import { getVideoMetadataExceptCommentsDocs } from "@/src/lib/video/videodata";
 import { useEffect, useRef, useState, useMemo, useCallback } from "react";
 import Sidebar from "@/src/components/HomePage/Sidebar/Sidebar";
+import { setVideoId } from "@/src/utils/videoStorage";
+
+const isObjectId = (value?: string) => /^[a-f\d]{24}$/i.test(value || "");
+
+type VideoMetadata = {
+  title?: string;
+  tags?: string[];
+  createdAt?: string;
+  uploader?: {
+    _id?: string;
+    name?: string;
+    profilePicUrl?: string;
+    subscriber?: number;
+    userSerialNumber?: number;
+  };
+  videoSerialNumber?: number;
+  thumbnailUrl?: string;
+  stats?: {
+    views?: number;
+  };
+  description?: string;
+  Status?: string;
+  hlsUl?: string;
+  videoUrl?: string;
+};
 
 export default function VideoPageClient() {
   const params = useParams();
   const slug = params?.slug;
   // console.log("URL slug:", slug);
   const encoded = Array.isArray(slug) ? slug[0] : slug;
-  // console.log("Encoded slug:", encoded);
-  const decoded = encoded ? decodeFilename(encoded) : "";
+  const decoded = useMemo(() => {
+    if (!encoded || isObjectId(encoded)) return "";
+
+    try {
+      return decodeFilename(encoded);
+    } catch {
+      return "";
+    }
+  }, [encoded]);
 
   // ✅ Memoized: don't recompute on every render
-  const { id, filePath, fallbackVideoUrl } = useMemo(() => {
-    const id = decoded.slice(-24);
-    const filePath = decoded.slice(0, -24);
+  const { decodedId, fallbackVideoUrl } = useMemo(() => {
+    const possibleId = decoded.slice(-24);
+    const decodedId = isObjectId(possibleId) ? possibleId : "";
+    const filePath = decodedId ? decoded.slice(0, -24) : "";
     return {
-      id,
-      filePath,
-      fallbackVideoUrl: `https://storage.googleapis.com/vidorahub/${filePath}`,
+      decodedId,
+      fallbackVideoUrl: filePath
+        ? `https://storage.googleapis.com/vidorahub/${filePath}`
+        : "",
     };
   }, [decoded]);
 
@@ -41,14 +75,27 @@ export default function VideoPageClient() {
   //   return id;
   // }, [id]);
 
-  const videoId = encoded;
+  const videoId = useMemo(() => {
+    if (isObjectId(encoded)) return encoded || "";
+    if (decodedId) return decodedId;
+
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("currentVideoId") || "";
+    }
+
+    return "";
+  }, [decodedId, encoded]);
+
+  useEffect(() => {
+    if (videoId) setVideoId(videoId);
+  }, [videoId]);
 
   // Persist video ID
   // useEffect(() => {
   //   if (id) localStorage.setItem("currentVideoId", id);
   // }, [id]);
 
-  const [videoMeta, setVideoMeta] = useState<any>(null);
+  const [videoMeta, setVideoMeta] = useState<VideoMetadata | null>(null);
   const [loading, setLoading] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
   const [activeTab, setActiveTab] = useState(0);
@@ -114,29 +161,38 @@ export default function VideoPageClient() {
   
   const MetaBlock = useMemo(() => {
     if (loading || !videoMeta) return null;
+    const uploader = {
+      _id: videoMeta.uploader?._id || "",
+      name: videoMeta.uploader?.name || "Creator",
+      subscriber: videoMeta.uploader?.subscriber || 0,
+      userSerialNumber: videoMeta.uploader?.userSerialNumber || 0,
+      profilePicUrl: videoMeta.uploader?.profilePicUrl,
+    };
+
     return (
       <>
       <div className={styles.metablock}>
         <VideoMeta
-          title={videoMeta.title}
+          title={videoMeta.title || "Untitled video"}
           category={videoMeta.tags?.[0] || "General"}
-          published={new Date(videoMeta.createdAt).toDateString()}
-          uploader={videoMeta.uploader}
+          published={videoMeta.createdAt ? new Date(videoMeta.createdAt).toDateString() : ""}
+          uploader={uploader}
         />
         <VideoActions
-          videoSerialNumber={videoMeta.videoSerialNumber}
-          thumbnailUrl={videoMeta.thumbnailUrl}
+          videoId={videoId}
+          videoSerialNumber={videoMeta.videoSerialNumber || 0}
+          thumbnailUrl={videoMeta.thumbnailUrl || ""}
         />
         <VideoDescription
           views={videoMeta.stats?.views?.toLocaleString() || "0"}
-          uploaded={new Date(videoMeta.createdAt).toDateString()}
-          hashtags={videoMeta.tags}
-          description={videoMeta.description}
+          uploaded={videoMeta.createdAt ? new Date(videoMeta.createdAt).toDateString() : ""}
+          hashtags={videoMeta.tags || []}
+          description={videoMeta.description || ""}
         />
         </div>
       </>
     );
-  }, [loading, videoMeta]);
+  }, [loading, videoId, videoMeta]);
 
 
 

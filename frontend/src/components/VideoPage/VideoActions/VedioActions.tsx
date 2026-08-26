@@ -9,15 +9,22 @@ import {
   removeDislike,
   getVideoReactions,
 } from "@/src/lib/video/likesDislikes";
+import {
+  getSaveVideoStatus,
+  saveVideo,
+  unsaveVideo,
+} from "@/src/lib/video/savevideo";
 import ShareBlade from "../../ui/ShareBlade/ShareBlade";
 import AuthModal from "../../shared/AuthModal/AuthModal";
 
 interface Props {
+  videoId: string;
   videoSerialNumber: number;
   thumbnailUrl: string;
 }
 
 export default function VideoActions({
+  videoId,
   videoSerialNumber,
   thumbnailUrl,
 }: Props) {
@@ -26,17 +33,24 @@ export default function VideoActions({
   const [liked, setLiked] = useState(false);
   const [disliked, setDisliked] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [saveLoading, setSaveLoading] = useState(false);
+  const [saved, setSaved] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
 
   const [userSerialNumber, setUserSerialNumber] = useState<number | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [authChecked, setAuthChecked] = useState(false);
   const [fullUrl, setFullUrl] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
 
+  const canUseSaveApi = /^[a-f\d]{24}$/i.test(videoId);
+
   useEffect(() => {
     const token = localStorage.getItem("token");
     const storedUserSerial = localStorage.getItem("userSerialNumber");
+
+    setIsAuthenticated(Boolean(token));
 
     if (token && storedUserSerial) {
       setUserSerialNumber(Number(storedUserSerial));
@@ -65,7 +79,22 @@ export default function VideoActions({
     };
 
     loadReactions();
-  }, [authChecked, videoSerialNumber]);
+  }, [authChecked, userSerialNumber, videoSerialNumber]);
+
+  useEffect(() => {
+    if (!authChecked || !isAuthenticated || !canUseSaveApi) return;
+
+    const loadSaveStatus = async () => {
+      try {
+        const res = await getSaveVideoStatus(videoId);
+        setSaved(Boolean(res.data?.isSaved));
+      } catch {
+        setSaved(false);
+      }
+    };
+
+    loadSaveStatus();
+  }, [authChecked, canUseSaveApi, isAuthenticated, videoId]);
 
   const handleLike = async () => {
     if (!userSerialNumber) {
@@ -123,6 +152,49 @@ export default function VideoActions({
     }
   };
 
+  const handleSave = async () => {
+    if (!isAuthenticated) {
+      setModalMessage("Sign in to save this video.");
+      setShowModal(true);
+      return;
+    }
+
+    if (!canUseSaveApi) {
+      setModalMessage("This video cannot be saved right now.");
+      setShowModal(true);
+      return;
+    }
+
+    if (saveLoading) return;
+
+    setSaveLoading(true);
+
+    try {
+      if (saved) {
+        await unsaveVideo(videoId);
+        setSaved(false);
+      } else {
+        await saveVideo(videoId);
+        setSaved(true);
+      }
+    } catch (error) {
+      const message =
+        error &&
+        typeof error === "object" &&
+        "message" in error &&
+        typeof error.message === "string"
+          ? error.message
+          : saved
+            ? "Unable to remove this video from saved videos."
+            : "Unable to save this video.";
+
+      setModalMessage(message);
+      setShowModal(true);
+    } finally {
+      setSaveLoading(false);
+    }
+  };
+
   useEffect(() => {
     setFullUrl(window.location.href);
   }, []);
@@ -157,6 +229,18 @@ export default function VideoActions({
         <button className={styles.shareBtn} onClick={() => setShareOpen(true)}>
           <span className="material-symbols-outlined">share</span>
           <span>Share</span>
+        </button>
+
+        <button
+          className={`${styles.saveBtn} ${saved ? styles.savedBtn : ""}`}
+          onClick={handleSave}
+          disabled={saveLoading}
+          aria-pressed={saved}
+        >
+          <span className="material-symbols-outlined">
+            {saved ? "bookmark_added" : "bookmark"}
+          </span>
+          <span>{saved ? "Saved" : "Save"}</span>
         </button>
         <ShareBlade
           isOpen={shareOpen}
