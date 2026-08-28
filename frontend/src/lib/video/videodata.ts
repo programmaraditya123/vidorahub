@@ -59,9 +59,13 @@ export async function creatorDeleteVideo (videoId : string) {
  
 
 type PostViewPayload = {
+  profileId: string;
   videoId: string;
   sessionId: string;
+  deviceId: string;
   watchTime: number;
+  platform: "android" | "web" | "apple";
+  networkType?: string;
 };
 
 export async function postView(payload: PostViewPayload) {

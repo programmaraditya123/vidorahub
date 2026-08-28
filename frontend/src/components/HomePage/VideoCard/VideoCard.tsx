@@ -2,12 +2,12 @@
 
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import styles from "./VideoCard.module.scss";
 import fallbackThumbnail from "../../../images/sample1.png";
-import { encodeFilename } from "@/src/functions";
 import { setVideoId } from "@/src/utils/videoStorage";
+import { getVideoProgress } from "@/src/lib/video/videoprogress";
 
 type Video = {
   _id: string;
@@ -22,30 +22,74 @@ type Video = {
   profilePicUrl ?: string;
 };
 
+const isObjectId = (value?: string) => /^[a-f\d]{24}$/i.test(value || "");
+
+const clampProgressPercent = (value: number) => {
+  if (!Number.isFinite(value) || value <= 0) return null;
+  return Math.min(100, Math.max(0, value));
+};
+
 export default function VideoCard({ video }: { video: Video }) {
   const router = useRouter();
   const prefetchedRef = useRef(false);
+  const [progressPercent, setProgressPercent] = useState<number | null>(null);
 
-  // ✅ Pre-compute the target URL once — not on every click
+  
   const targetUrl = useRef<string | null>(null);
   useEffect(() => {
-    if (!video.videoUrl) return;
-    const lastPart = video.videoUrl.split("vidorahub/")[1];
-    if (!lastPart) return;
-    // const encoded = encodeFilename(lastPart + video._id);
-    const encoded = video._id;
-    targetUrl.current = `/video/${encoded}`;
-  }, [video.videoUrl, video._id]);
+    targetUrl.current = isObjectId(video._id) ? `/video/${video._id}` : null;
+  }, [video._id]);
 
-  // ✅ Prefetch on hover — Next.js loads the JS bundle for /video/[slug]
-  //    before the user even clicks, so navigation feels instant
+  useEffect(() => {
+    if (typeof window === "undefined" || video.isLive || !isObjectId(video._id)) {
+      setProgressPercent(null);
+      return;
+    }
+
+    const profileId = localStorage.getItem("activeProfileId") || "";
+    const token = localStorage.getItem("token");
+
+    if (!token || !isObjectId(profileId)) {
+      setProgressPercent(null);
+      return;
+    }
+
+    let cancelled = false;
+
+    const loadProgress = async () => {
+      try {
+        const response = await getVideoProgress(profileId, video._id);
+        if (cancelled || !response.exists || !response.data) {
+          if (!cancelled) setProgressPercent(null);
+          return;
+        }
+
+        const nextPercent = response.data.isCompleted
+          ? 100
+          : clampProgressPercent(Number(response.data.percent));
+
+        setProgressPercent(nextPercent);
+      } catch {
+        if (!cancelled) setProgressPercent(null);
+      }
+    };
+
+    loadProgress();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [video._id, video.isLive]);
+
+  
+  
   const handleMouseEnter = useCallback(() => {
     if (prefetchedRef.current || !targetUrl.current) return;
     prefetchedRef.current = true;
     router.prefetch(targetUrl.current);
   }, [router]);
 
-  // ✅ Also prefetch on touch start (mobile — no hover event)
+  
   const handleTouchStart = useCallback(() => {
     if (prefetchedRef.current || !targetUrl.current) return;
     prefetchedRef.current = true;
@@ -67,7 +111,7 @@ export default function VideoCard({ video }: { video: Video }) {
       }
     }
 
-    // ✅ router.push is now near-instant because the bundle was prefetched
+    
     router.push(targetUrl.current);
   }, [router, video._id, video.thumbnailUrl]);
 
@@ -80,7 +124,7 @@ export default function VideoCard({ video }: { video: Video }) {
       onMouseEnter={handleMouseEnter}
       onTouchStart={handleTouchStart}
     >
-      {/* Thumbnail */}
+      
       <div className={styles.thumbnailWrapper}>
         <Image
           src={thumb}
@@ -89,7 +133,7 @@ export default function VideoCard({ video }: { video: Video }) {
           priority={false}
           className={styles.thumbnail}
           loading="lazy"
-          // ✅ Hint to the browser this image may become important on hover
+          
           fetchPriority="high"
           unoptimized
         />
@@ -99,9 +143,15 @@ export default function VideoCard({ video }: { video: Video }) {
         {!video.isLive && (
           <span className={styles.duration}>{video.duration || "00:00"}</span>
         )}
+
+        {progressPercent !== null && (
+          <div className={styles.watchProgress} aria-hidden="true">
+            <span style={{ width: `${progressPercent}%` }} />
+          </div>
+        )}
       </div>
 
-      {/* Info */}
+      
       <div className={`${styles.info} glass-dark`}>
         <div className={styles.avatar}>
          {video.profilePicUrl && <Image
@@ -110,7 +160,7 @@ export default function VideoCard({ video }: { video: Video }) {
             priority={false}
             className={styles.thumbnail}
             loading="lazy"
-            // ✅ Hint to the browser this image may become important on hover
+            
             fetchPriority="low"
             style={{ borderRadius: '50%', objectFit: 'cover' }} 
             height={32}

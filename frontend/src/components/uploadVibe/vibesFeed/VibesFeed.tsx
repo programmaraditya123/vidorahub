@@ -1,207 +1,207 @@
-// "use client";
 
-// import { useEffect, useRef, useState } from "react";
-// import { useRouter } from "next/navigation";
-// import Sidebar from "@/src/components/HomePage/Sidebar/Sidebar";
-// import styles from "./VibesFeed.module.scss";
-// import { http } from "@/src/lib/http";
-// import VibeActions from "../VibeActionsSidebar/VibeActions";
-// import { postView } from "@/src/lib/video/videodata";
-// import VibeMeta from "../VibeMeta/VibeMeta";
-// import Hls from "hls.js";
 
-// export default function VibesFeed() {
-//   const [vibes, setVibes] = useState<any[]>([]);
-//   const [cursor, setCursor] = useState<string | null>(null);
-//   const [hasMore, setHasMore] = useState(true);
-//   const [loading, setLoading] = useState(false);
 
-//   const router = useRouter();
 
-//   const videoRefs = useRef(new Map<string, HTMLVideoElement>());
-//   const hlsInstances = useRef(new Map<string, Hls>());
-//   const activeVideoRef = useRef<string | null>(null);
 
-//   const watchStartRef = useRef(new Map<string, number>());
-//   const viewedRef = useRef(new Set<string>());
 
-//   // ✅ LOAD 1 VIDEO
-//   const loadVibes = async (initial = false) => {
-//     if (loading || (!hasMore && !initial)) return;
 
-//     setLoading(true);
 
-//     try {
-//       const res = await http.get(
-//         `/api/v1/allvibes?limit=1${cursor ? `&cursor=${cursor}` : ""}`
-//       );
 
-//       const items = res.data.items;
 
-//       setVibes((prev) => (initial ? items : [...prev, ...items]));
-//       setCursor(res.data.nextCursor);
-//       setHasMore(res.data.hasMore);
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
 
-//   useEffect(() => {
-//     loadVibes(true);
-//   }, []);
 
-//   // ✅ GET SRC
-//   const getVideoSrc = (vibe: any) => {
-//     const base = "https://storage.googleapis.com/vidorahub";
 
-//     if (vibe?.Status === "ready" && vibe?.hlsUl) {
-//       return `${base}/${vibe.hlsUl}/master.m3u8`;
-//     }
 
-//     return `${base}/${vibe.videoUrl}`;
-//   };
 
-//   // ✅ SETUP VIDEO (FIXED TIMING)
-//   const setupVideo = async (video: HTMLVideoElement, vibe: any) => {
-//     const src = getVideoSrc(vibe);
 
-//     if (hlsInstances.current.has(vibe._id)) {
-//       hlsInstances.current.get(vibe._id)?.destroy();
-//     }
 
-//     return new Promise<void>((resolve) => {
-//       if (video.canPlayType("application/vnd.apple.mpegurl")) {
-//         video.src = src;
-//         resolve();
-//       } else if (Hls.isSupported() && src.includes(".m3u8")) {
-//         const hls = new Hls();
 
-//         hls.loadSource(src);
-//         hls.attachMedia(video);
 
-//         hls.on(Hls.Events.MANIFEST_PARSED, () => {
-//           resolve();
-//         });
 
-//         hlsInstances.current.set(vibe._id, hls);
-//       } else {
-//         video.src = src;
-//         resolve();
-//       }
-//     });
-//   };
 
-//   // ✅ INIT VIDEOS
-//   useEffect(() => {
-//     vibes.forEach((vibe) => {
-//       const video = videoRefs.current.get(vibe._id);
-//       if (video) setupVideo(video, vibe);
-//     });
-//   }, [vibes]);
 
-//   // ✅ VIEW TRACK
-//   const sendView = async (id: string) => {
-//     if (viewedRef.current.has(id)) return;
 
-//     const start = watchStartRef.current.get(id);
-//     if (!start) return;
 
-//     const watchTime = Math.floor((Date.now() - start) / 1000);
-//     if (watchTime < 3) return;
 
-//     // await postView({ videoId: id, watchTime });
 
-//     viewedRef.current.add(id);
-//   };
 
-//   // ✅ OBSERVER (FINAL FIX)
-//   useEffect(() => {
-//     if (!vibes.length) return;
 
-//     const observer = new IntersectionObserver(
-//       async (entries) => {
-//         for (const entry of entries) {
-//           const video = entry.target as HTMLVideoElement;
-//           const id = video.dataset.id!;
 
-//           if (entry.isIntersecting && entry.intersectionRatio > 0.7) {
-//             if (activeVideoRef.current === id) return;
 
-//             // pause previous
-//             if (activeVideoRef.current) {
-//               const prev = videoRefs.current.get(activeVideoRef.current);
-//               prev?.pause();
-//               sendView(activeVideoRef.current);
-//             }
 
-//             // 🔥 ENSURE SOURCE READY
-//             const vibe = vibes.find((v) => v._id === id);
-//             if (vibe) {
-//               await setupVideo(video, vibe);
-//             }
 
-//             // 🔥 AUTOPLAY SAFE
-//             video.muted = true;
-//             await video.play().catch(() => {});
 
-//             watchStartRef.current.set(id, Date.now());
-//             activeVideoRef.current = id;
 
-//             // 🔗 PUSH URL
-//             router.replace(`/vibes/${id}`, { scroll: false });
 
-//             // 🚀 LOAD NEXT
-//             const index = vibes.findIndex((v) => v._id === id);
-//             if (index === vibes.length - 1) {
-//               loadVibes();
-//             }
-//           }
-//         }
-//       },
-//       { threshold: 0.7 }
-//     );
 
-//     videoRefs.current.forEach((video) => observer.observe(video));
 
-//     return () => observer.disconnect();
-//   }, [vibes]);
 
-//   return (
-//     <div className={styles.page}>
-//       <Sidebar />
 
-//       <div className={styles.feed}>
-//         {vibes.map((vibe) => (
-//           <div key={vibe._id} className={styles.vibeCard}>
-//             <video
-//               className={styles.video}
-//               poster={vibe.thumbnailUrl}
-//               loop
-//               muted
-//               playsInline
-//               preload="metadata"
-//               data-id={vibe._id}
-//               ref={(el) => {
-//                 if (el) videoRefs.current.set(vibe._id, el);
-//               }}
-//             />
 
-//             <VibeActions
-//               videoSerialNumber={vibe.videoSerialNumber}
-//               thumbnailUrl={vibe.thumbnailUrl || ""}
-//               totalViews={vibe.stats.views}
-//             />
 
-//             <div className={styles.overlay}>
-//               <VibeMeta uploader={vibe.uploader} />
-//               <p className={styles.title}>{vibe.title}</p>
-//             </div>
-//           </div>
-//         ))}
-//       </div>
-//     </div>
-//   );
-// }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -238,6 +238,40 @@ interface VibeItem {
     likes: number;
   };
 }
+
+const isObjectId = (value?: string) => /^[a-f\d]{24}$/i.test(value || "");
+
+const getClientPlatform = (): "android" | "web" | "apple" => {
+  if (typeof navigator === "undefined") return "web";
+  const userAgent = navigator.userAgent.toLowerCase();
+
+  if (userAgent.includes("android")) return "android";
+  if (/iphone|ipad|ipod|macintosh/.test(userAgent)) return "apple";
+
+  return "web";
+};
+
+const createClientId = (prefix: string) => {
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+    return `${prefix}_${crypto.randomUUID()}`;
+  }
+
+  return `${prefix}_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+};
+
+const getStoredDeviceId = () => {
+  if (typeof window === "undefined") return "";
+
+  const key = "vidorahub_device_id";
+  let deviceId = localStorage.getItem(key);
+
+  if (!deviceId) {
+    deviceId = createClientId("device");
+    localStorage.setItem(key, deviceId);
+  }
+
+  return deviceId;
+};
 
 export default function VibesFeed() {
   const [vibes, setVibes] = useState<VibeItem[]>([]);
@@ -285,11 +319,27 @@ export default function VibesFeed() {
 
   if (watchTime < 3) return;
 
+  const profileId = localStorage.getItem("activeProfileId") || "";
+  const deviceId = getStoredDeviceId();
+
+  if (
+    !localStorage.getItem("token") ||
+    !isObjectId(profileId) ||
+    !isObjectId(videoId) ||
+    !sessionIdRef.current ||
+    !deviceId
+  ) {
+    return;
+  }
+
   try {
     await postView({
+      profileId,
       videoId, 
       sessionId: sessionIdRef.current,
+      deviceId,
       watchTime,
+      platform: getClientPlatform(),
     });
 
     viewedRef.current.add(videoId);
@@ -319,10 +369,10 @@ export default function VibesFeed() {
         const id = video.dataset.id as string;
 
         if (entry.isIntersecting && entry.intersectionRatio > 0.6) {
-          // If this video is already active → do nothing
+          
           if (activeVideoId === id) return;
 
-          // Pause previous active video
+          
           if (activeVideoId) {
             const prev = videoRefs.current.get(activeVideoId);
             if (prev) {
@@ -331,7 +381,7 @@ export default function VibesFeed() {
             }
           }
 
-          // Play new active video
+          
           video.play().catch(() => {});
           watchStartRef.current.set(id, Date.now());
           activeVideoId = id;
@@ -363,7 +413,7 @@ export default function VibesFeed() {
               className={styles.video}
               src={vibe.videoUrl}
               poster={vibe.thumbnailUrl}
-              // muted
+              
               loop
               playsInline
               data-id={vibe._id}
