@@ -1,1 +1,1 @@
-print("we are working on it")
+from app.main import app
