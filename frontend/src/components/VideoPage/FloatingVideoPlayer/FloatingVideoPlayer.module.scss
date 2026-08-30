@@ -1,0 +1,108 @@
+.inlineSlot {
+  width: 100%;
+  max-width: 86rem;
+  aspect-ratio: 16 / 9;
+}
+
+.playerFrame {
+  position: fixed;
+  overflow: hidden;
+  background: #050505;
+  transform: translateZ(0);
+  will-change: top, left, width, height, right, bottom;
+}
+
+.inlineFrame {
+  z-index: 35;
+  border-radius: 2rem;
+  box-shadow:
+    0 0 0 1px var(--border),
+    0 8px 40px rgba(124, 58, 237, 0.12),
+    0 2px 8px rgba(124, 58, 237, 0.06);
+}
+
+.miniPlayer {
+  right: clamp(10px, 2vw, 24px);
+  bottom: clamp(10px, 2vw, 24px);
+  width: min(360px, calc(100vw - 20px));
+  aspect-ratio: 16 / 9;
+  z-index: 1200;
+  border-radius: 12px;
+  box-shadow: 0 18px 54px rgba(0, 0, 0, 0.42);
+  contain: layout paint;
+}
+
+.hiddenFrame {
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.playerViewport {
+  width: 100%;
+  height: 100%;
+  background: #000;
+}
+
+.miniToolbar {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 30;
+  display: flex;
+  gap: 6px;
+}
+
+.miniButton {
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.58);
+  backdrop-filter: blur(12px);
+  cursor: pointer;
+  transition: transform 0.16s ease, background 0.16s ease;
+
+  &:hover {
+    transform: scale(1.05);
+    background: rgba(0, 0, 0, 0.78);
+  }
+
+  :global(.material-symbols-outlined) {
+    font-size: 19px;
+  }
+}
+
+@media (max-width: 768px) {
+  .miniPlayer {
+    right: 10px;
+    bottom: 72px;
+    width: min(220px, calc(100vw - 20px));
+    border-radius: 10px;
+  }
+
+  .miniToolbar {
+    top: 6px;
+    right: 6px;
+    gap: 5px;
+  }
+
+  .miniButton {
+    width: 28px;
+    height: 28px;
+
+    :global(.material-symbols-outlined) {
+      font-size: 17px;
+    }
+  }
+}
+
+@media (max-width: 420px) {
+  .miniPlayer {
+    width: min(180px, calc(100vw - 20px));
+  }
+}

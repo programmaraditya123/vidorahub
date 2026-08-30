@@ -8,6 +8,7 @@ import styles from "./VideoCard.module.scss";
 import fallbackThumbnail from "../../../images/sample1.png";
 import { setVideoId } from "@/src/utils/videoStorage";
 import { getVideoProgress } from "@/src/lib/video/videoprogress";
+import { useFloatingVideoPlayer } from "@/src/components/VideoPage/FloatingVideoPlayer/FloatingVideoPlayerProvider";
 
 type Video = {
   _id: string;
@@ -31,6 +32,7 @@ const clampProgressPercent = (value: number) => {
 
 export default function VideoCard({ video }: { video: Video }) {
   const router = useRouter();
+  const { isMiniPlayerVisible, setActiveVideo } = useFloatingVideoPlayer();
   const prefetchedRef = useRef(false);
   const [progressPercent, setProgressPercent] = useState<number | null>(null);
 
@@ -111,9 +113,27 @@ export default function VideoCard({ video }: { video: Video }) {
       }
     }
 
+    if (isMiniPlayerVisible && video.videoUrl) {
+      setActiveVideo({
+        src: video.videoUrl,
+        videoId: video._id,
+        title: video.title,
+        watchPath: targetUrl.current,
+      });
+      return;
+    }
+
     
     router.push(targetUrl.current);
-  }, [router, video._id, video.thumbnailUrl]);
+  }, [
+    isMiniPlayerVisible,
+    router,
+    setActiveVideo,
+    video._id,
+    video.thumbnailUrl,
+    video.title,
+    video.videoUrl,
+  ]);
 
   const thumb = video.thumbnailUrl || fallbackThumbnail;
 

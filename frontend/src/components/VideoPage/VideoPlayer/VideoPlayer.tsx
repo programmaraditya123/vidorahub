@@ -13,6 +13,8 @@ import Hls from "hls.js";
 interface Props {
   src: string;
   videoId: string;
+  compact?: boolean;
+  onPlaybackStateChange?: (isPlaying: boolean) => void;
 }
 
 const isObjectId = (value?: string) => /^[a-f\d]{24}$/i.test(value || "");
@@ -35,8 +37,14 @@ const createClientId = (prefix: string) => {
   return `${prefix}_${Date.now()}_${Math.random().toString(36).slice(2)}`;
 };
 
-export default function VideoPlayer({ src, videoId }: Props) {
+export default function VideoPlayer({
+  src,
+  videoId,
+  compact = false,
+  onPlaybackStateChange,
+}: Props) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
+  const wrapperRef = useRef<HTMLDivElement | null>(null);
   const lastUpdateRef = useRef(0);
   const watchStartRef = useRef<number | null>(null);
   const sessionIdRef = useRef<string>("");
@@ -452,20 +460,31 @@ export default function VideoPlayer({ src, videoId }: Props) {
   useEffect(() => {
     const v = videoRef.current;
     if (!v) return;
-    const onPlay = () => setIsPlaying(true);
-    const onPause = () => setIsPlaying(false);
+    const onPlay = () => {
+      setIsPlaying(true);
+      onPlaybackStateChange?.(true);
+    };
+    const onPause = () => {
+      setIsPlaying(false);
+      onPlaybackStateChange?.(false);
+    };
     v.addEventListener("play", onPlay);
     v.addEventListener("pause", onPause);
     return () => {
       v.removeEventListener("play", onPlay);
       v.removeEventListener("pause", onPause);
     };
-  }, []);
+  }, [onPlaybackStateChange]);
 
   
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
-      
+      if (
+        compact &&
+        (!e.target || !wrapperRef.current?.contains(e.target as Node))
+      ) {
+        return;
+      }
       if ((e.target as HTMLElement).tagName === "INPUT") return;
       if (e.code === "Space") { e.preventDefault(); togglePlay(); }
       if (e.code === "ArrowRight") videoRef.current && (videoRef.current.currentTime += 5);
@@ -475,7 +494,7 @@ export default function VideoPlayer({ src, videoId }: Props) {
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
-  }, [togglePlay, toggleMute, toggleFullScreen]);
+  }, [compact, togglePlay, toggleMute, toggleFullScreen]);
 
   
   useEffect(() => {
@@ -509,8 +528,15 @@ export default function VideoPlayer({ src, videoId }: Props) {
   }, []);
 
   return (
-    <div className={styles.playerWrapper}>
-      <div className={styles.inner} onClick={togglePlay} onMouseMove={showUI}>
+    <div
+      ref={wrapperRef}
+      className={`${styles.playerWrapper} ${compact ? styles.compact : ""}`}
+    >
+      <div
+        className={styles.inner}
+        onClick={togglePlay}
+        onMouseMove={showUI}
+      >
 
         
         {loading && <div className={styles.loader} />}
@@ -531,7 +557,10 @@ export default function VideoPlayer({ src, videoId }: Props) {
         {!isPlaying && !loading && (
           <div
             className={styles.centerPlay}
-            onClick={(e) => { e.stopPropagation(); togglePlay(); }}
+            onClick={(e) => {
+              e.stopPropagation();
+              togglePlay();
+            }}
           >
             <span className="material-symbols-outlined">play_arrow</span>
           </div>
@@ -1097,6 +1126,3 @@ export default function VideoPlayer({ src, videoId }: Props) {
 
 
              
-
-
-

@@ -5,7 +5,7 @@ import styles from "./video.module.scss";
 import Navbar2 from "@/src/components/Navbar2/Navbar2";
 import { decodeFilename } from "@/src/functions";
 import UpNextSidebar from "@/src/components/shared/upnextsidebar/UpNextSidebar";
-import VideoPlayer from "@/src/components/VideoPage/VideoPlayer/VideoPlayer";
+import FloatingVideoPlayerSlot from "@/src/components/VideoPage/FloatingVideoPlayer/FloatingVideoPlayerSlot";
 import VideoMeta from "@/src/components/VideoPage/VideoMeta/VideoMeta";
 import VideoActions from "@/src/components/VideoPage/VideoActions/VedioActions";
 import VideoDescription from "@/src/components/VideoPage/VedioDescription/VideoDescription";
@@ -214,7 +214,11 @@ export default function VideoPageClient() {
 
           <main className={styles.center}>
             <div className={styles.fixedPlayer}>
-              <VideoPlayer src={finalVideoSrc} videoId={videoId!} />
+              <FloatingVideoPlayerSlot
+                src={finalVideoSrc}
+                videoId={videoId!}
+                title={videoMeta?.title}
+              />
             </div>
 
             <div className={styles.topMeta}>{MetaBlock}</div>
@@ -227,7 +231,11 @@ export default function VideoPageClient() {
       ) : (
         // ─── Mobile layout ─────────────────────────────────────────────────
         <div className={styles.mobileLayout}>
-          <VideoPlayer src={finalVideoSrc} videoId={videoId!} />
+          <FloatingVideoPlayerSlot
+            src={finalVideoSrc}
+            videoId={videoId!}
+            title={videoMeta?.title}
+          />
 
           {/* Tab bar */}
           <div className={styles.mobileTabs}>

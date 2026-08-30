@@ -6,6 +6,7 @@ import SpeedInsightsClient from "./SpeedInsightsClient";
 import WelcomeModal from "@/src/components/shared/WelcomeModal/WelcomeModal";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import UserCredentialProvider from "./userCredentials";
+import FloatingVideoPlayerProvider from "@/src/components/VideoPage/FloatingVideoPlayer/FloatingVideoPlayerProvider";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.vidorahub.com"),
@@ -56,9 +57,11 @@ export default function RootLayout({
             <ToastProvider>
               <WelcomeModal />
               <GoogleOAuthProvider clientId={process.env.GOOGLE_CLIENT_ID!}>
-                <UserCredentialProvider />
+                <FloatingVideoPlayerProvider>
+                  <UserCredentialProvider />
 
-                {children}
+                  {children}
+                </FloatingVideoPlayerProvider>
               </GoogleOAuthProvider>
               <SpeedInsightsClient />
             </ToastProvider>
