@@ -81,28 +81,42 @@
   .miniPlayer {
     right: 10px;
     bottom: 72px;
-    width: min(220px, calc(100vw - 20px));
+    width: min(200px, calc(100vw - 20px));
     border-radius: 10px;
   }
 
   .miniToolbar {
-    top: 6px;
-    right: 6px;
-    gap: 5px;
+    top: 5px;
+    right: 5px;
+    gap: 4px;
   }
 
   .miniButton {
-    width: 28px;
-    height: 28px;
+    width: 22px;
+    height: 22px;
 
     :global(.material-symbols-outlined) {
-      font-size: 17px;
+      font-size: 14px;
     }
   }
 }
 
 @media (max-width: 420px) {
   .miniPlayer {
-    width: min(180px, calc(100vw - 20px));
+    width: min(170px, calc(100vw - 20px));
+  }
+
+  .miniToolbar {
+    top: 4px;
+    right: 4px;
+  }
+
+  .miniButton {
+    width: 20px;
+    height: 20px;
+
+    :global(.material-symbols-outlined) {
+      font-size: 13px;
+    }
   }
 }
