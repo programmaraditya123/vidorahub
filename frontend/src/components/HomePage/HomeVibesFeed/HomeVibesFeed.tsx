@@ -50,6 +50,25 @@ function normalizeCursor(cursor: string | number | null | undefined) {
   return normalized ? cursor : null;
 }
 
+function formatUploadedAgo(createdAt?: string) {
+  const createdTime = createdAt ? new Date(createdAt).getTime() : NaN;
+  if (!Number.isFinite(createdTime)) return "";
+
+  const diffMs = Math.max(0, Date.now() - createdTime);
+  const minute = 60 * 1000;
+  const hour = 60 * minute;
+  const day = 24 * hour;
+  const month = 30 * day;
+  const year = 365 * day;
+
+  if (diffMs < minute) return "just now";
+  if (diffMs < hour) return `${Math.floor(diffMs / minute)}m ago`;
+  if (diffMs < day) return `${Math.floor(diffMs / hour)}h ago`;
+  if (diffMs < month) return `${Math.floor(diffMs / day)}d ago`;
+  if (diffMs < year) return `${Math.floor(diffMs / month)}mo ago`;
+  return `${Math.floor(diffMs / year)}y ago`;
+}
+
 export default function HomeVibesFeed({ selectedCategory }: HomeVibesFeedProps) {
   const [vibes, setVibes] = useState<HomeFeedVideo[]>([]);
   const [nextCursor, setNextCursor] = useState<string | number | null>(null);
@@ -203,6 +222,7 @@ export default function HomeVibesFeed({ selectedCategory }: HomeVibesFeedProps) 
         thumbnailUrl: vibe.thumbnailUrl,
         creatorName: vibe.uploader?.name || "Creator",
         views: vibe.stats?.views ?? 0,
+        createdAt: vibe.createdAt,
       })),
     [vibes],
   );
@@ -231,6 +251,7 @@ export default function HomeVibesFeed({ selectedCategory }: HomeVibesFeedProps) 
         {renderedVibes.map((vibe, index) => {
           const shouldAttachTrigger =
             hasMore && index === Math.max(renderedVibes.length - FETCH_AHEAD_COUNT, 0);
+          const uploadedAgo = formatUploadedAgo(vibe.createdAt);
 
           return (
             <article
@@ -252,7 +273,7 @@ export default function HomeVibesFeed({ selectedCategory }: HomeVibesFeedProps) 
               </div>
               <p className={styles.title}>{vibe.title}</p>
               <p className={styles.meta}>
-                {vibe.creatorName} | {vibe.views} views
+                {vibe.creatorName} | {vibe.views} views{uploadedAgo ? ` | ${uploadedAgo}` : ""}
               </p>
             </article>
           );

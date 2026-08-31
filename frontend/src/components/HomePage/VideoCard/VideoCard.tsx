@@ -19,6 +19,7 @@ type Video = {
   views?: number | string;
   duration?: string;
   thumbnailUrl?: string;
+  createdAt?: string;
   isLive?: boolean;
   profilePicUrl ?: string;
 };
@@ -29,6 +30,25 @@ const clampProgressPercent = (value: number) => {
   if (!Number.isFinite(value) || value <= 0) return null;
   return Math.min(100, Math.max(0, value));
 };
+
+function formatUploadedAgo(createdAt?: string) {
+  const createdTime = createdAt ? new Date(createdAt).getTime() : NaN;
+  if (!Number.isFinite(createdTime)) return "";
+
+  const diffMs = Math.max(0, Date.now() - createdTime);
+  const minute = 60 * 1000;
+  const hour = 60 * minute;
+  const day = 24 * hour;
+  const month = 30 * day;
+  const year = 365 * day;
+
+  if (diffMs < minute) return "just now";
+  if (diffMs < hour) return `${Math.floor(diffMs / minute)}m ago`;
+  if (diffMs < day) return `${Math.floor(diffMs / hour)}h ago`;
+  if (diffMs < month) return `${Math.floor(diffMs / day)}d ago`;
+  if (diffMs < year) return `${Math.floor(diffMs / month)}mo ago`;
+  return `${Math.floor(diffMs / year)}y ago`;
+}
 
 export default function VideoCard({ video }: { video: Video }) {
   const router = useRouter();
@@ -136,6 +156,7 @@ export default function VideoCard({ video }: { video: Video }) {
   ]);
 
   const thumb = video.thumbnailUrl || fallbackThumbnail;
+  const uploadedAgo = formatUploadedAgo(video.createdAt);
 
   return (
     <div
@@ -196,7 +217,9 @@ export default function VideoCard({ video }: { video: Video }) {
           </span>
 
           {!video.isLive && (
-            <span className={styles.views}>{video.views} views</span>
+            <span className={styles.views}>
+              {video.views} views{uploadedAgo ? ` | ${uploadedAgo}` : ""}
+            </span>
           )}
 
           {video.isLive && <span className={styles.liveText}>🔴 Live now</span>}

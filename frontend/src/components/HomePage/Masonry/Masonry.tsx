@@ -166,6 +166,7 @@ export default function Masonry({ selectedCategory, afterFirstRow }: MasonryProp
         views: video.stats?.views ?? 0,
         videoUrl: video.videoUrl,
         profilePicUrl: video.uploader?.profilePicUrl,
+        createdAt: video.createdAt,
       }));
   }, [videos]);
 
