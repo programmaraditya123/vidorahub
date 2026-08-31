@@ -3,7 +3,7 @@
 - `APP_NAME`: optional service name. Example: `vidoravibe`. Not sensitive.
 - `ENVIRONMENT`: optional runtime mode. Example: `development`. Not sensitive.
 - `HOST`, `PORT`: optional server bind settings. Not sensitive.
-- `MONGODB_URI`: required for persistence. Sensitive when it includes credentials.
+- `MONGODB_URI`: optional for local health checks, required for persistent job and vibe APIs. Leave blank when MongoDB is not running locally. Sensitive when it includes credentials.
 - `MONGODB_DATABASE`: required MongoDB database name. Not sensitive.
 - `VIDORAHUB_API_URL`: required for publishing. Not sensitive by itself.
 - `VIDORAHUB_INTERNAL_API_URL`: required for VidoraHub source acquisition. Sensitive if private.
