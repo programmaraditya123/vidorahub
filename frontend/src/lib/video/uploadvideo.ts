@@ -86,10 +86,13 @@ export type HomeFeedVideo = {
 export type HomeVideoFeedResponse = {
   success?: boolean;
   message?: string;
+  videos?: HomeFeedVideo[];
+  nextCursor?: string | number | null;
+  hasMore?: boolean;
+  source?: "redis" | "redis+mongo" | string;
   length?: number;
   primary?: HomeFeedVideo[];
   secondary?: HomeFeedVideo[];
-  hasMore?: boolean;
   redisSet?: number;
   primarySet?: number;
   secondarySet?: number;
@@ -97,17 +100,20 @@ export type HomeVideoFeedResponse = {
 
 interface GetHomeVideoFeedParams {
   category?: string;
-  page?: number;
+  cursor?: string | number | null;
 }
 
 export async function getHomeVideoFeed({
   category,
-  page = 1,
+  cursor,
 }: GetHomeVideoFeedParams = {}): Promise<HomeVideoFeedResponse> {
   const payload: GetHomeVideoFeedParams = {
     category: category?.trim().toLowerCase() || "all",
-    page,
   };
+
+  if (cursor !== undefined && cursor !== null && `${cursor}`.trim() !== "") {
+    payload.cursor = cursor;
+  }
 
   const response = await http.post("/api/v1/getHomeVideoFeed", payload);
 
@@ -116,12 +122,15 @@ export async function getHomeVideoFeed({
 
 export async function getHomeVibesFeed({
   category,
-  page = 1,
+  cursor,
 }: GetHomeVideoFeedParams = {}): Promise<HomeVideoFeedResponse> {
   const payload: GetHomeVideoFeedParams = {
     category: category?.trim().toLowerCase() || "all",
-    page,
   };
+
+  if (cursor !== undefined && cursor !== null && `${cursor}`.trim() !== "") {
+    payload.cursor = cursor;
+  }
 
   const response = await http.post("/api/v1/getHomeVibesFeed", payload);
 

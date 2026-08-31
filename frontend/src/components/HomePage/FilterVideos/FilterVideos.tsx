@@ -8,9 +8,11 @@ const topics = [
   "All",
   "Music",
   "Bhajan",
+  "Spiritual",
   "Wrestling",
   "Software",
   "Gaming",
+  "Food Vlogs", 
   "Comedy",
   "Movies",
   "Education",
@@ -23,6 +25,7 @@ const topics = [
   "Travel",
   "Fashion",
   "Fitness",
+  "meme"
 ];
 
 type FilterVideosProps = {

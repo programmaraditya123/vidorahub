@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment, type ReactNode, useEffect, useMemo, useRef, useState } from "react";
+import { Fragment, type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { getHomeVideoFeed, type HomeFeedVideo } from "@/src/lib/video/uploadvideo";
 
 import styles from "./Masonry.module.scss";
@@ -9,106 +9,123 @@ import { formatDuration } from "@/src/utils/extractFrames";
 import VideoCardSkeleton from "../VideoCard/VideoCardSkeleton/VideoCardSkeleton";
 
 const SKELETON_COUNT = 12;
-const PAGE_SIZE = 20;
 
 type MasonryProps = {
   selectedCategory: string;
   afterFirstRow?: ReactNode;
 };
 
-type VideoSection = "primary" | "secondary";
+function getFeedItems(res: Awaited<ReturnType<typeof getHomeVideoFeed>>) {
+  if (Array.isArray(res?.videos)) return res.videos;
 
-type FeedVideo = HomeFeedVideo & {
-  section: VideoSection;
-};
+  const legacyPrimary = Array.isArray(res?.primary) ? res.primary : [];
+  const legacySecondary = Array.isArray(res?.secondary) ? res.secondary : [];
+  return [...legacyPrimary, ...legacySecondary];
+}
+
+function normalizeCursor(cursor: string | number | null | undefined) {
+  if (cursor === null || cursor === undefined) return null;
+
+  const normalized = String(cursor).trim();
+  return normalized ? cursor : null;
+}
+
+function formatFeedDuration(duration: HomeFeedVideo["duration"]) {
+  const numericDuration = Number(duration);
+  return Number.isFinite(numericDuration) ? formatDuration(numericDuration) : "";
+}
 
 export default function Masonry({ selectedCategory, afterFirstRow }: MasonryProps) {
-  const [primaryVideos, setPrimaryVideos] = useState<HomeFeedVideo[]>([]);
-  const [secondaryVideos, setSecondaryVideos] = useState<HomeFeedVideo[]>([]);
-  const [page, setPage] = useState(1);
+  const [videos, setVideos] = useState<HomeFeedVideo[]>([]);
+  const [nextCursor, setNextCursor] = useState<string | number | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [hasNextPage, setHasNextPage] = useState(false);
+  const [loadedInitial, setLoadedInitial] = useState(false);
   const [firstRowCount, setFirstRowCount] = useState(1);
 
   const requestIdRef = useRef(0);
   const fetchingRef = useRef(false);
-  const loadedPagesRef = useRef(new Set<number>());
+  const loadedCursorRef = useRef(new Set<string>());
   const triggerRef = useRef<HTMLDivElement | null>(null);
+
   const normalizedCategory = selectedCategory.trim().toLowerCase();
-  const isAllCategory = !normalizedCategory || normalizedCategory === "all";
+  const categoryParam = !normalizedCategory || normalizedCategory === "all" ? "all" : normalizedCategory;
 
-  const loadVideos = async (pageToLoad: number) => {
-    if (fetchingRef.current || loadedPagesRef.current.has(pageToLoad)) return;
+  const loadVideos = useCallback(
+    async (cursorToLoad?: string | number | null) => {
+      const cursorKey = cursorToLoad === undefined || cursorToLoad === null ? "initial" : String(cursorToLoad);
+      if (fetchingRef.current || loadedCursorRef.current.has(cursorKey)) return;
 
-    const requestId = requestIdRef.current + 1;
-    requestIdRef.current = requestId;
-    fetchingRef.current = true;
-    setLoading(true);
-    setError(null);
+      const requestId = requestIdRef.current + 1;
+      requestIdRef.current = requestId;
+      fetchingRef.current = true;
+      loadedCursorRef.current.add(cursorKey);
+      setLoading(true);
+      setError(null);
 
-    try {
-      // Previous homepage API:
-      // const res = await getVideos({ page: pageToLoad, limit: LIMIT });
-      const res = await getHomeVideoFeed({
-        category: isAllCategory ? "all" : normalizedCategory,
-        page: pageToLoad,
-      });
-
-      if (requestIdRef.current !== requestId) return;
-
-      const nextPrimary = Array.isArray(res?.primary) ? res.primary : [];
-      const nextSecondary = Array.isArray(res?.secondary) ? res.secondary : [];
-      const totalVideos = nextPrimary.length + nextSecondary.length;
-
-      setPrimaryVideos((currentVideos) => {
-        const existingIds = new Set(currentVideos.map((video) => video._id));
-        const uniqueVideos = nextPrimary.filter((video) => {
-          if (!video?._id || existingIds.has(video._id)) return false;
-          existingIds.add(video._id);
-          return true;
+      try {
+        const res = await getHomeVideoFeed({
+          category: categoryParam,
+          cursor: cursorToLoad,
         });
 
-        return pageToLoad === 1 ? uniqueVideos : [...currentVideos, ...uniqueVideos];
-      });
+        if (requestIdRef.current !== requestId) return;
 
-      setSecondaryVideos((currentVideos) => {
-        const existingIds = new Set([
-          ...primaryVideos.map((video) => video._id),
-          ...currentVideos.map((video) => video._id),
-        ]);
-        const uniqueVideos = nextSecondary.filter((video) => {
-          if (!video?._id || existingIds.has(video._id)) return false;
-          existingIds.add(video._id);
-          return true;
+        const incomingVideos = getFeedItems(res);
+        const safeNextCursor = normalizeCursor(res?.nextCursor);
+        const madeCursorProgress =
+          cursorToLoad === undefined || cursorToLoad === null || String(safeNextCursor) !== String(cursorToLoad);
+
+        setVideos((currentVideos) => {
+          const seenIds = new Set(cursorKey === "initial" ? [] : currentVideos.map((video) => video._id));
+          const uniqueVideos = incomingVideos.filter((video) => {
+            if (!video?._id || seenIds.has(video._id)) return false;
+            seenIds.add(video._id);
+            return true;
+          });
+
+          return cursorKey === "initial" ? uniqueVideos : [...currentVideos, ...uniqueVideos];
         });
 
-        return pageToLoad === 1 ? uniqueVideos : [...currentVideos, ...uniqueVideos];
-      });
+        setNextCursor(safeNextCursor);
+        setHasNextPage(Boolean(res?.hasMore) && safeNextCursor !== null && madeCursorProgress);
+        if (cursorKey === "initial") {
+          setLoadedInitial(true);
+        }
+      } catch (err) {
+        loadedCursorRef.current.delete(cursorKey);
+        if (requestIdRef.current !== requestId) return;
 
-      setPage(pageToLoad);
-      setHasNextPage(Boolean(res?.hasMore) && totalVideos >= PAGE_SIZE);
-      loadedPagesRef.current.add(pageToLoad);
-    } catch (err) {
-      if (requestIdRef.current !== requestId) return;
-      console.error("Error fetching home video feed:", err);
-      if (pageToLoad === 1) {
-        setPrimaryVideos([]);
-        setSecondaryVideos([]);
+        console.error("Error fetching home video feed:", err);
+        if (cursorKey === "initial") {
+          setVideos([]);
+          setNextCursor(null);
+          setLoadedInitial(true);
+        }
+        setHasNextPage(false);
+        setError("Unable to load videos right now.");
+      } finally {
+        if (requestIdRef.current === requestId) {
+          fetchingRef.current = false;
+          setLoading(false);
+        }
       }
-      setHasNextPage(false);
-      setError("Unable to load videos right now.");
-    } finally {
-      if (requestIdRef.current === requestId) {
-        fetchingRef.current = false;
-        setLoading(false);
-      }
-    }
-  };
+    },
+    [categoryParam],
+  );
 
   useEffect(() => {
-    loadVideos(1);
-  }, []);
+    requestIdRef.current += 1;
+    fetchingRef.current = false;
+    loadedCursorRef.current.clear();
+    setVideos([]);
+    setNextCursor(null);
+    setHasNextPage(false);
+    setLoadedInitial(false);
+    setError(null);
+    void loadVideos();
+  }, [loadVideos]);
 
   useEffect(() => {
     const updateFirstRowCount = () => {
@@ -132,51 +149,39 @@ export default function Masonry({ selectedCategory, afterFirstRow }: MasonryProp
   }, []);
 
   const renderedVideos = useMemo(() => {
-    const primary = primaryVideos.map((video) => ({
-      ...video,
-      section: "primary" as const,
-    }));
-    const secondary = secondaryVideos.map((video) => ({
-      ...video,
-      section: "secondary" as const,
-    }));
-
-    const combined = [...primary, ...secondary];
     const seenIds = new Set<string>();
 
-    return combined
+    return videos
       .filter((video) => {
         if (!video?._id || seenIds.has(video._id)) return false;
         seenIds.add(video._id);
         return true;
       })
-      .map((video: FeedVideo) => ({
+      .map((video) => ({
         _id: video._id,
         title: video.title || "Untitled video",
         creatorName: video.uploader?.name,
         thumbnailUrl: video.thumbnailUrl,
-        duration: formatDuration(Number(video.duration)),
+        duration: formatFeedDuration(video.duration),
         views: video.stats?.views ?? 0,
         videoUrl: video.videoUrl,
         profilePicUrl: video.uploader?.profilePicUrl,
-        section: video.section,
       }));
-  }, [primaryVideos, secondaryVideos]);
+  }, [videos]);
 
-  const secondaryCount = secondaryVideos.length;
   const hasVideos = renderedVideos.length > 0;
-  const showCategoryBreak = !isAllCategory && secondaryCount > 0;
-  const showSkeletons = loading || (!error && !hasVideos);
+  const isEmptyCategory = loadedInitial && !loading && !error && !hasVideos;
+  const showSkeletons = loading || (!loadedInitial && !error && !hasVideos);
 
   useEffect(() => {
     const trigger = triggerRef.current;
-    if (!trigger || !hasNextPage) return;
+    if (!trigger || !hasNextPage || nextCursor === null) return;
 
     const observer = new IntersectionObserver(
       (entries) => {
         const first = entries[0];
         if (first.isIntersecting && !fetchingRef.current) {
-          loadVideos(page + 1);
+          void loadVideos(nextCursor);
         }
       },
       {
@@ -188,7 +193,7 @@ export default function Masonry({ selectedCategory, afterFirstRow }: MasonryProp
     observer.observe(trigger);
 
     return () => observer.disconnect();
-  }, [hasNextPage, page, renderedVideos.length]);
+  }, [hasNextPage, loadVideos, nextCursor, renderedVideos.length]);
 
   const triggerIndex = Math.max(renderedVideos.length - 6, 0);
   const afterFirstRowIndex = Math.min(firstRowCount - 1, renderedVideos.length - 1);
@@ -196,18 +201,11 @@ export default function Masonry({ selectedCategory, afterFirstRow }: MasonryProp
   return (
     <>
       {error && <p className={styles.stateMessage}>{error}</p>}
+      {isEmptyCategory && <p className={styles.stateMessage}>No videos in this category.</p>}
 
       <div className={styles.masonry}>
         {renderedVideos.map((video, index) => (
           <Fragment key={video._id}>
-            {showCategoryBreak && video.section === "secondary" && (
-              index === 0 || renderedVideos[index - 1]?.section !== "secondary"
-            ) && (
-              <div className={styles.categoryBreak}>
-                <span>No more here — let’s find something you’ll love</span>
-              </div>
-            )}
-
             <div
               ref={hasNextPage && index === triggerIndex ? triggerRef : null}
               className={styles.item}

@@ -11,7 +11,6 @@ import {
 import styles from "./HomeVibesFeed.module.scss";
 import fallbackThumbnail from "../../../images/sample1.png";
 
-const PAGE_SIZE = 20;
 const SKELETON_COUNT = 8;
 const FETCH_AHEAD_COUNT = 2;
 
@@ -21,33 +20,55 @@ type HomeVibesFeedProps = {
 
 type CachedVibesFeed = {
   vibes: HomeFeedVideo[];
-  page: number;
+  nextCursor: string | number | null;
   hasMore: boolean;
+  loadedInitial: boolean;
 };
 
 const initialCacheEntry: CachedVibesFeed = {
   vibes: [],
-  page: 0,
+  nextCursor: null,
   hasMore: true,
+  loadedInitial: false,
 };
+
+function getFeedItems(res: Awaited<ReturnType<typeof getHomeVibesFeed>>) {
+  if (Array.isArray(res?.videos)) return res.videos;
+
+  const nestedData = res as { data?: { videos?: HomeFeedVideo[] } };
+  if (Array.isArray(nestedData.data?.videos)) return nestedData.data.videos;
+
+  const legacyPrimary = Array.isArray(res?.primary) ? res.primary : [];
+  const legacySecondary = Array.isArray(res?.secondary) ? res.secondary : [];
+  return [...legacyPrimary, ...legacySecondary];
+}
+
+function normalizeCursor(cursor: string | number | null | undefined) {
+  if (cursor === null || cursor === undefined) return null;
+
+  const normalized = String(cursor).trim();
+  return normalized ? cursor : null;
+}
 
 export default function HomeVibesFeed({ selectedCategory }: HomeVibesFeedProps) {
   const [vibes, setVibes] = useState<HomeFeedVideo[]>([]);
-  const [page, setPage] = useState(0);
+  const [nextCursor, setNextCursor] = useState<string | number | null>(null);
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [loadedInitial, setLoadedInitial] = useState(false);
 
   const cacheRef = useRef<Record<string, CachedVibesFeed>>({});
   const fetchingRef = useRef(false);
-  const requestedPagesRef = useRef(new Set<string>());
+  const hasMoreRef = useRef(true);
+  const requestedCursorsRef = useRef(new Set<string>());
+  const requestIdRef = useRef(0);
   const rowRef = useRef<HTMLDivElement | null>(null);
   const triggerRef = useRef<HTMLDivElement | null>(null);
   const router = useRouter();
 
   const normalizedCategory = selectedCategory.trim().toLowerCase() || "all";
   const isAllCategory = normalizedCategory === "all";
-
   const cacheKey = normalizedCategory;
 
   const saveCache = useCallback(
@@ -57,84 +78,109 @@ export default function HomeVibesFeed({ selectedCategory }: HomeVibesFeedProps) 
     [cacheKey],
   );
 
-  const loadVibes = useCallback(
-    async (pageToLoad: number) => {
-      const requestKey = `${cacheKey}:${pageToLoad}`;
-      if (fetchingRef.current || requestedPagesRef.current.has(requestKey)) return;
-      if (!hasMore && pageToLoad !== 1) return;
+  useEffect(() => {
+    hasMoreRef.current = hasMore;
+  }, [hasMore]);
 
+  const loadVibes = useCallback(
+    async (cursorToLoad?: string | number | null) => {
+      const cursorKey = cursorToLoad === undefined || cursorToLoad === null ? "initial" : String(cursorToLoad);
+      const requestKey = `${cacheKey}:${cursorKey}`;
+      if (fetchingRef.current || requestedCursorsRef.current.has(requestKey)) return;
+      if (cursorKey !== "initial" && !hasMoreRef.current) return;
+
+      const requestId = requestIdRef.current + 1;
+      requestIdRef.current = requestId;
       fetchingRef.current = true;
-      requestedPagesRef.current.add(requestKey);
+      requestedCursorsRef.current.add(requestKey);
       setLoading(true);
       setError(null);
 
       try {
         const res = await getHomeVibesFeed({
           category: isAllCategory ? "all" : normalizedCategory,
-          page: pageToLoad,
+          cursor: cursorToLoad,
         });
 
-        const primary = Array.isArray(res?.primary) ? res.primary : [];
-        const secondary = Array.isArray(res?.secondary) ? res.secondary : [];
-        const incoming = [...primary, ...secondary];
-        const totalIncoming = incoming.length;
-        const nextHasMore = Boolean(res?.hasMore) && totalIncoming >= PAGE_SIZE;
+        if (requestIdRef.current !== requestId) return;
+
+        const incoming = getFeedItems(res);
+        const safeNextCursor = normalizeCursor(res?.nextCursor);
+        const madeCursorProgress =
+          cursorToLoad === undefined || cursorToLoad === null || String(safeNextCursor) !== String(cursorToLoad);
+        const nextHasMore = Boolean(res?.hasMore) && safeNextCursor !== null && madeCursorProgress;
 
         setVibes((currentVibes) => {
-          const seenIds = new Set(currentVibes.map((vibe) => vibe._id));
+          const seenIds = new Set(cursorKey === "initial" ? [] : currentVibes.map((vibe) => vibe._id));
           const uniqueIncoming = incoming.filter((vibe) => {
             if (!vibe?._id || seenIds.has(vibe._id)) return false;
             seenIds.add(vibe._id);
             return true;
           });
-          const nextVibes = pageToLoad === 1 ? uniqueIncoming : [...currentVibes, ...uniqueIncoming];
+          const nextVibes = cursorKey === "initial" ? uniqueIncoming : [...currentVibes, ...uniqueIncoming];
 
           saveCache({
             vibes: nextVibes,
-            page: pageToLoad,
+            nextCursor: safeNextCursor,
             hasMore: nextHasMore,
+            loadedInitial: true,
           });
 
           return nextVibes;
         });
 
-        setPage(pageToLoad);
+        setNextCursor(safeNextCursor);
         setHasMore(nextHasMore);
+        setLoadedInitial(true);
       } catch (err) {
+        requestedCursorsRef.current.delete(requestKey);
+        if (requestIdRef.current !== requestId) return;
+
         console.error("Error fetching home vibes feed:", err);
-        requestedPagesRef.current.delete(requestKey);
+        if (cursorKey === "initial") {
+          setVibes([]);
+          setNextCursor(null);
+          setLoadedInitial(true);
+        }
+        setHasMore(false);
         setError("Unable to load vibes right now.");
       } finally {
-        fetchingRef.current = false;
-        setLoading(false);
+        if (requestIdRef.current === requestId) {
+          fetchingRef.current = false;
+          setLoading(false);
+        }
       }
     },
-    [cacheKey, hasMore, isAllCategory, normalizedCategory, saveCache],
+    [cacheKey, isAllCategory, normalizedCategory, saveCache],
   );
 
   useEffect(() => {
     const cached = cacheRef.current[cacheKey] || initialCacheEntry;
 
+    requestIdRef.current += 1;
+    fetchingRef.current = false;
+    requestedCursorsRef.current.clear();
     setVibes(cached.vibes);
-    setPage(cached.page);
+    setNextCursor(cached.nextCursor);
     setHasMore(cached.hasMore);
+    setLoadedInitial(cached.loadedInitial);
     setError(null);
 
-    if (cached.page === 0) {
-      loadVibes(1);
+    if (!cached.loadedInitial) {
+      void loadVibes();
     }
   }, [cacheKey, loadVibes]);
 
   useEffect(() => {
     const row = rowRef.current;
     const trigger = triggerRef.current;
-    if (!row || !trigger || !hasMore) return;
+    if (!row || !trigger || !hasMore || nextCursor === null) return;
 
     const observer = new IntersectionObserver(
       (entries) => {
         const first = entries[0];
         if (first.isIntersecting && !fetchingRef.current) {
-          loadVibes(page + 1);
+          void loadVibes(nextCursor);
         }
       },
       {
@@ -147,7 +193,7 @@ export default function HomeVibesFeed({ selectedCategory }: HomeVibesFeedProps) 
     observer.observe(trigger);
 
     return () => observer.disconnect();
-  }, [hasMore, loadVibes, page, vibes.length]);
+  }, [hasMore, loadVibes, nextCursor, vibes.length]);
 
   const renderedVibes = useMemo(
     () =>
@@ -165,9 +211,7 @@ export default function HomeVibesFeed({ selectedCategory }: HomeVibesFeedProps) 
     router.push(`/vibes?v=${vibeId}`);
   };
 
-  if (!loading && !error && renderedVibes.length === 0 && page > 0) {
-    return null;
-  }
+  const isEmptyCategory = loadedInitial && !loading && !error && renderedVibes.length === 0;
 
   return (
     <section className={styles.section} aria-label="Vibes feed">
@@ -177,6 +221,10 @@ export default function HomeVibesFeed({ selectedCategory }: HomeVibesFeedProps) 
 
       {error && renderedVibes.length === 0 && (
         <p className={styles.stateMessage}>{error}</p>
+      )}
+
+      {isEmptyCategory && (
+        <p className={styles.stateMessage}>No vibes in this category.</p>
       )}
 
       <div ref={rowRef} className={styles.row}>
@@ -204,7 +252,7 @@ export default function HomeVibesFeed({ selectedCategory }: HomeVibesFeedProps) 
               </div>
               <p className={styles.title}>{vibe.title}</p>
               <p className={styles.meta}>
-                {vibe.creatorName} · {vibe.views} views
+                {vibe.creatorName} | {vibe.views} views
               </p>
             </article>
           );
