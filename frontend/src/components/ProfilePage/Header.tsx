@@ -109,6 +109,12 @@ export default function Header() {
       {menuOpen && (
         <div ref={menuRef} className={`${styles.mobileMenu} ${styles.glass}`}>
           <Link
+            href="/profile"
+            className={`${styles.logoutMobile} ${isSettings ? styles.activeMobileLink : ""}`}
+          >
+           Profile
+          </Link>
+          <Link
             href={`https://studio.vidorahub.com/login/${token}`}
             target="_blank"
             className={styles.logoutMobile}
