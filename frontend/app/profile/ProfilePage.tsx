@@ -116,7 +116,7 @@ export default function ProfilePage() {
           {!profileData ? <VidoraHubLoader/> : (<section className={styles.content}>
             <ProfileCard data={profileData} />
             <Tabs  />
-            {activeTab === "videos" && <MasonryGrid uploads={uploads} />}
+            {activeTab === "videos" && <MasonryGrid uploads={uploads} profilePicUrl={profileData?.profilePicUrl}/>}
             {activeTab === "store" && (
                 <div className={styles.wrapper}>
                   <ProductCard products={products} />

@@ -99,6 +99,8 @@ export default function ChannelPage({ id }: ChannelPageProps) {
 
   if (!profileData) return <div>Loading...</div>;
 
+  console.log("profile pic url ", profileData?.profilePicUrl);
+
   return (
     <div className={styles.page}>
       <div className={styles.backdrop}>
@@ -122,7 +124,12 @@ export default function ChannelPage({ id }: ChannelPageProps) {
               <ProfileCard data={profileData} />
               <Tabs channelId={id} />
               {/* <MassonaryGrid uploads={uploads} /> */}
-              {activeTab === "videos" && <MasonryGrid2 uploads={uploads} />}
+              {activeTab === "videos" && (
+                <MasonryGrid2
+                  uploads={uploads}
+                  profilePicUrl={profileData?.profilePicUrl}
+                />
+              )}
               {activeTab === "store" && (
                 <div className={styles.wrapper}>
                   <ProductCard products={products} />

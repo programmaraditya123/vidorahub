@@ -325,7 +325,10 @@ $text-faint:  #9ca3af;
   @media (min-width: 768px) { flex-direction: row; }
 }
 
-.content { flex: 1; }
+.content {
+  flex: 1;
+  min-width: 0;
+}
 
 /* ================= PROFILE CARD ================= */
 
@@ -813,6 +816,8 @@ $text-faint:  #9ca3af;
   height: 30px;
   border-radius: 50%;
   background: $primary-grad;
+  background-size: cover;
+  background-position: center;
   flex-shrink: 0;
   box-shadow: 0 2px 6px rgba(124, 58, 237, 0.3);
 }

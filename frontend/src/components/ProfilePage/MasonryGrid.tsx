@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useToast } from "@/src/hooks/ui/ToastProvider/ToastProvider";
 import { creatorDeleteVideo } from "@/src/lib/video/videodata";
+import Image from "next/image";
 
 type VideoStats = {
   views: number;
@@ -26,9 +27,10 @@ export type UploadVideo = {
 
 type MasonryGridProps = {
   uploads: UploadVideo[];
+  profilePicUrl ?: string | null;
 };
 
-export default function MasonryGrid({ uploads }: MasonryGridProps) {
+export default function MasonryGrid({ uploads,profilePicUrl }: MasonryGridProps) {
   const router = useRouter();
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const [confirmVideoId, setConfirmVideoId] = useState<string | null>(null);
@@ -117,7 +119,15 @@ export default function MasonryGrid({ uploads }: MasonryGridProps) {
 
             {/* bottom overlay */}
             <div className={styles.cardInfo}>
-              <div className={styles.avatar}></div>
+              <div className={styles.avatar}>
+                <Image
+                height={32}
+                width={32}
+                alt="profile image"
+                src={profilePicUrl!}
+                className={styles.avatar}
+                />
+              </div>
               <div className={styles.textWrap}>
                 <p className={styles.title}>{item.title}</p>
                 <span className={styles.meta}>

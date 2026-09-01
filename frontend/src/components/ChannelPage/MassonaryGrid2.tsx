@@ -7,6 +7,7 @@ import { encodeFilename } from "@/src/functions";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useToast } from "@/src/hooks/ui/ToastProvider/ToastProvider";
+import Image from "next/image";
 // import { creatorDeleteVideo } from "@/src/lib/video/videodata";
 
 type VideoStats = {
@@ -26,9 +27,10 @@ export type UploadVideo = {
 
 type MasonryGridProps = {
   uploads: UploadVideo[];
+  profilePicUrl?: string;
 };
 
-export default function MasonryGrid2({ uploads }: MasonryGridProps) {
+export default function MasonryGrid2({ uploads, profilePicUrl }: MasonryGridProps) {
   const router = useRouter();
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const [confirmVideoId, setConfirmVideoId] = useState<string | null>(null);
@@ -89,7 +91,24 @@ export default function MasonryGrid2({ uploads }: MasonryGridProps) {
 
             {/* bottom overlay */}
             <div className={styles.cardInfo}>
-              <div className={styles.avatar}></div>
+              {/* <div
+                className={styles.avatar}
+                style={
+                  profilePicUrl
+                    ? { backgroundImage: `url(${profilePicUrl})` }
+                    : undefined
+                }
+              ></div> */}
+              <div className={styles.avatar}>
+                <Image
+                height={32}
+                width={32}
+                src={profilePicUrl!}
+                className={styles.avatar}
+              alt="profile image"
+             
+                />
+              </div>
               <div className={styles.textWrap}>
                 <p className={styles.title}>{item.title}</p>
                 <span className={styles.meta}>
