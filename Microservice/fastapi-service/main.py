@@ -7,7 +7,7 @@ app = FastAPI(
 
 @app.get("/")
 def home():
-    return "FastAPI backend is runing"
+    return "FastAPI backend is runing made by aditya"
 
 @app.get("/health")
 def health():
