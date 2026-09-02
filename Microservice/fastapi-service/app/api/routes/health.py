@@ -7,6 +7,10 @@ from app.schemas.common import ok
 
 router = APIRouter()
 
+@router.get("/")
+def home():
+    return "fastapi microservice is runing"
+
 
 @router.get("/health")
 def health():
@@ -22,5 +26,6 @@ def ready():
             get_client().admin.command("ping")
             mongo = "ok"
         except PyMongoError:
+            print(PyMongoError)
             mongo = "unavailable"
     return ok({"status": "ready", "mongo": mongo})
