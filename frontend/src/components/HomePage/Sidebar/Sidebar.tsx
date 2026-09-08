@@ -13,7 +13,9 @@ export default function Sidebar() {
     { icon: "home",             label: "Home",          link: "/"         },
     { icon: "search",           label: "Search",        link: "/search"   },
     { icon: "animated_images",  label: "Vibes", link: "/vibes" },
-    { icon: "currency_rupee",   label: "Earn",          link: "/earn"     },
+    // { icon: "currency_rupee",   label: "Earn",          link: "/earn"     },
+    { icon: "local_convenience_store",   label: "Stores",          link: "/stores"     },
+
   ];
 
   return (

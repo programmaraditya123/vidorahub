@@ -243,11 +243,18 @@ export default function Header() {
                 account_circle
               </span>
             ) : profilePicUrl ? (
-              <span
+              <Image
+                src={profilePicUrl}
+                alt="Profile"
+                width={38}
+                height={38}
                 className={styles.profileAvatar}
-                style={{ backgroundImage: `url(${profilePicUrl})` }}
-                aria-hidden="true"
               />
+              // <span
+              //   className={styles.profileAvatar}
+              //   style={{ backgroundImage: `url(${profilePicUrl})` }}
+              //   aria-hidden="true"
+              // />
             ) : (
               <span className={styles.profileFallback} aria-hidden="true">
                 {profileInitial}

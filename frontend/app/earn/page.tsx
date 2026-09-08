@@ -7,7 +7,7 @@ import styles from "./eanr.module.scss";
 const Earn = () => {
   return (
     <>
-      <Sidebar />
+      {/* <Sidebar /> */}
       <EarnNavbar />
       <div className={styles.Conatiner}>
         <VibePointsBreakdown />
