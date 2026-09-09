@@ -17,6 +17,7 @@ const accountProfiles = require('./modules/accountprofiles/accountprofiles.route
 const recommendation = require('./modules/recommendation/recommendation.route')
 const saveVideo = require('./modules/savevideo/savevideo.route')
 const videoProgress = require('./modules/videoprogress/videoprogress.route')
+const search = require('./modules/search/search.route')
 const dns = require("dns");
 
 dns.setDefaultResultOrder("ipv4first");
@@ -123,6 +124,9 @@ app.use("/api/v1",saveVideo)
 
 //this are the routes to get and send video progress
 app.use("/api/v1",videoProgress)
+
+//this are the routes for search functionality 
+app.use("/api/v1",search)
 
 const PORT = process.env.PORT || 8000;
 

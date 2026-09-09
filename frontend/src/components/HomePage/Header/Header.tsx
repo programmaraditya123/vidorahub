@@ -7,6 +7,7 @@ import styles from "./Header.module.scss";
 import VidorahubIcon from "@/src/icons/VidorahubIcon";
 import { checkSession } from "@/src/lib/auth/auth";
 import Image from "next/image";
+import { http } from "@/src/lib/http";
 
 const STARTER_SESSION_PREFIX = "vidorahub_home_starter_seen";
 const OPEN_HOME_STARTER_EVENT = "vidorahub:open-home-starter";
@@ -16,6 +17,11 @@ type AuthSnapshot = {
   token: string | null;
   profileName: string;
   profilePicUrl: string | null;
+};
+
+type KeywordResponse = {
+  success: boolean;
+  keywords: string[];
 };
 
 function getStoredValue(key: string) {
@@ -79,9 +85,25 @@ function clearHomeStarterSeenState() {
   }
 }
 
+function isCanceledRequest(error: unknown) {
+  if (!error || typeof error !== "object" || !("raw" in error)) return false;
+
+  const rawError = error.raw;
+
+  return (
+    rawError !== null &&
+    typeof rawError === "object" &&
+    "code" in rawError &&
+    rawError.code === "ERR_CANCELED"
+  );
+}
+
 export default function Header() {
   const router = useRouter();
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [keywords, setKeywords] = useState<string[]>([]);
+  const [keywordsOpen, setKeywordsOpen] = useState(false);
   const [auth, setAuth] = useState<AuthSnapshot>(() => {
     if (typeof window === "undefined") {
       return { token: null, profileName: "Profile", profilePicUrl: null };
@@ -91,6 +113,7 @@ export default function Header() {
   });
   const profileMenuRef = useRef<HTMLDivElement>(null);
   const profileButtonRef = useRef<HTMLButtonElement>(null);
+  const searchRef = useRef<HTMLFormElement>(null);
   const isLoggedIn = Boolean(auth.token);
   const profileName = auth.profileName;
   const profilePicUrl = auth.profilePicUrl;
@@ -114,14 +137,23 @@ export default function Header() {
     router.push("/");
   };
 
-  const openSettings = () => {
+  const openSettings = (panel?: string) => {
     closeProfileMenu();
-    router.push("/profile/setting");
+    router.push(panel ? `/profile/setting?panel=${panel}` : "/profile/setting");
   };
 
   const openLogin = () => {
     closeProfileMenu();
     router.push("/login");
+  };
+
+  const submitSearch = (query: string) => {
+    const normalizedQuery = query.trim();
+
+    if (normalizedQuery.length < 2) return;
+
+    setKeywordsOpen(false);
+    router.push(`/results?search_query=${encodeURIComponent(normalizedQuery)}`);
   };
 
   useEffect(() => {
@@ -218,13 +250,115 @@ export default function Header() {
     };
   }, [profileMenuOpen]);
 
+  useEffect(() => {
+    const normalizedQuery = searchQuery.trim();
+
+    if (normalizedQuery.length < 2) {
+      setKeywords([]);
+      setKeywordsOpen(false);
+      return;
+    }
+
+    const controller = new AbortController();
+    const timer = window.setTimeout(async () => {
+      try {
+        const response = await http.get<KeywordResponse>("/api/v1/keywords", {
+          params: { q: normalizedQuery },
+          signal: controller.signal,
+        });
+
+        const nextKeywords = Array.isArray(response.data.keywords)
+          ? response.data.keywords
+          : [];
+
+        setKeywords(nextKeywords);
+        setKeywordsOpen(nextKeywords.length > 0);
+      } catch (error) {
+        if (!isCanceledRequest(error)) {
+          setKeywords([]);
+          setKeywordsOpen(false);
+        }
+      }
+    }, 250);
+
+    return () => {
+      window.clearTimeout(timer);
+      controller.abort();
+    };
+  }, [searchQuery]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (searchRef.current?.contains(event.target as Node)) return;
+      setKeywordsOpen(false);
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   return (
     <header className={styles.header}>
-      {/* Search Bar */}
       <div className={styles.searchContainer}>
-
         <p className={styles.homeLogo}><VidorahubIcon.VidorahubIcon height={28} width={28} color="purple" /> VidoraHub</p>
       </div>
+
+      <form
+        ref={searchRef}
+        className={styles.desktopSearch}
+        role="search"
+        onSubmit={(event) => {
+          event.preventDefault();
+          submitSearch(searchQuery);
+        }}
+      >
+        <span className={styles.searchIcon}>
+          <VidorahubIcon.SearchIcon width={18} height={18} />
+        </span>
+        <input
+          className={styles.searchInput}
+          value={searchQuery}
+          onChange={(event) => setSearchQuery(event.target.value)}
+          onFocus={() => setKeywordsOpen(keywords.length > 0)}
+          placeholder="Search videos, creators, AI tools..."
+          type="search"
+          autoComplete="off"
+        />
+
+        {searchQuery && (
+          <button
+            className={styles.clearSearch}
+            type="button"
+            aria-label="Clear search"
+            onClick={() => {
+              setSearchQuery("");
+              setKeywords([]);
+              setKeywordsOpen(false);
+            }}
+          >
+            <span className="material-symbols-outlined">close</span>
+          </button>
+        )}
+
+        {keywordsOpen && (
+          <div className={styles.keywordMenu}>
+            {keywords.map((keyword) => (
+              <button
+                key={keyword}
+                type="button"
+                onMouseDown={(event) => event.preventDefault()}
+                onClick={() => {
+                  setSearchQuery(keyword);
+                  submitSearch(keyword);
+                }}
+              >
+                <span className="material-symbols-outlined">search</span>
+                {keyword}
+              </button>
+            ))}
+          </div>
+        )}
+      </form>
 
       {/* Right Actions */}
       <div className={styles.actions}>
@@ -250,11 +384,6 @@ export default function Header() {
                 height={38}
                 className={styles.profileAvatar}
               />
-              // <span
-              //   className={styles.profileAvatar}
-              //   style={{ backgroundImage: `url(${profilePicUrl})` }}
-              //   aria-hidden="true"
-              // />
             ) : (
               <span className={styles.profileFallback} aria-hidden="true">
                 {profileInitial}
@@ -311,11 +440,15 @@ export default function Header() {
                     <span className="material-symbols-outlined">add_circle</span>
                     Create profile
                   </button>
-                  <button type="button" role="menuitem" onClick={openSettings}>
+                  <button
+                    type="button"
+                    role="menuitem"
+                    onClick={() => openSettings("notifications")}
+                  >
                     <span className="material-symbols-outlined">notifications</span>
                     Notifications
                   </button>
-                  <button type="button" role="menuitem" onClick={openSettings}>
+                  <button type="button" role="menuitem" onClick={() => openSettings()}>
                     <span className="material-symbols-outlined">settings</span>
                     Setting
                   </button>
@@ -324,13 +457,6 @@ export default function Header() {
             </div>
           )}
         </div>
-
-        {/* <Link href={'https://about.vidorahub.com/'} target="_blank">
-        <button className={`${styles.uploadBtn} glass-dark`}>
-          {"About"}
-        </button>
-        </Link> */}
-
         <Link href={isLoggedIn ? 'upload' : 'login'}>
           <button className={`${styles.uploadBtn} glass-dark`}>
             {isLoggedIn ? "Upload" : "Login"}

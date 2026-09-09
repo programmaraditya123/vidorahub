@@ -1,5 +1,10 @@
+import { Suspense } from "react";
 import ProfileSettingPage from "./ProfileSettingPage";
 
 export default function SettingPage() {
-  return <ProfileSettingPage />;
+  return (
+    <Suspense fallback={null}>
+      <ProfileSettingPage />
+    </Suspense>
+  );
 }

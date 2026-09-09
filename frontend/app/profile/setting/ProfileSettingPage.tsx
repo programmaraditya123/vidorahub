@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { FormEvent, ReactNode } from "react";
 import Link from "next/link";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import Header from "@/src/components/ProfilePage/Header";
 import Footer from "@/src/components/ProfilePage/Footer";
 import Sidebar from "@/src/components/HomePage/Sidebar/Sidebar";
@@ -31,8 +32,36 @@ type CreatorProfileData = {
 
 type ModalType = "accounts" | "profiles" | "create" | "reset" | null;
 type ReactionPanelTab = "liked" | "disliked";
+type SettingsPanel =
+  | "accounts"
+  | "profiles"
+  | "create"
+  | "reset"
+  | "saved"
+  | "liked"
+  | "disliked"
+  | "notifications"
+  | "notification-settings";
 
 const ACTIVE_PROFILE_STORAGE_KEY = "activeProfileId";
+const PANEL_QUERY_KEY = "panel";
+const MODAL_PANELS = new Set<Exclude<ModalType, null>>([
+  "accounts",
+  "profiles",
+  "create",
+  "reset",
+]);
+const SETTINGS_PANELS = new Set<SettingsPanel>([
+  "accounts",
+  "profiles",
+  "create",
+  "reset",
+  "saved",
+  "liked",
+  "disliked",
+  "notifications",
+  "notification-settings",
+]);
 
 function getErrorMessage(error: unknown, fallback: string) {
   if (
@@ -49,6 +78,9 @@ function getErrorMessage(error: unknown, fallback: string) {
 
 export default function ProfileSettingPage() {
   const toast = useToast();
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [creatorProfile, setCreatorProfile] = useState<CreatorProfileData | null>(null);
   const [accountProfiles, setAccountProfiles] = useState<AccountProfile[]>([]);
   const [selectedProfileId, setSelectedProfileId] = useState("");
@@ -68,6 +100,7 @@ export default function ProfileSettingPage() {
     useState<ReactionPanelTab>("liked");
   const [isReactionPanelOpen, setIsReactionPanelOpen] = useState(false);
   const [isSavedPanelOpen, setIsSavedPanelOpen] = useState(false);
+  const [isNotificationsPanelOpen, setIsNotificationsPanelOpen] = useState(false);
 
   const loadProfiles = useCallback(async () => {
     setIsLoadingProfiles(true);
@@ -138,7 +171,77 @@ export default function ProfileSettingPage() {
     creatorProfile?.profilePicUrl ||
     `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(displayName)}`;
 
-  const closeModal = () => setModalType(null);
+  const writePanelToUrl = useCallback(
+    (panel: SettingsPanel | null, mode: "push" | "replace" = "push") => {
+      const params = new URLSearchParams(searchParams.toString());
+
+      if (panel) {
+        params.set(PANEL_QUERY_KEY, panel);
+      } else {
+        params.delete(PANEL_QUERY_KEY);
+      }
+
+      const queryString = params.toString();
+      const href = queryString ? `${pathname}?${queryString}` : pathname;
+
+      if (mode === "replace") {
+        router.replace(href, { scroll: false });
+        return;
+      }
+
+      router.push(href, { scroll: false });
+    },
+    [pathname, router, searchParams]
+  );
+
+  const openPanel = useCallback(
+    (panel: SettingsPanel) => {
+      writePanelToUrl(panel);
+    },
+    [writePanelToUrl]
+  );
+
+  const closePanel = useCallback(() => {
+    writePanelToUrl(null, "replace");
+  }, [writePanelToUrl]);
+
+  const closeModal = closePanel;
+
+  useEffect(() => {
+    const panelParam = searchParams.get(PANEL_QUERY_KEY);
+    const panel = SETTINGS_PANELS.has(panelParam as SettingsPanel)
+      ? (panelParam as SettingsPanel)
+      : null;
+
+    if (!panel) {
+      setModalType(null);
+      setIsSavedPanelOpen(false);
+      setIsReactionPanelOpen(false);
+      setIsNotificationsPanelOpen(false);
+      if (panelParam) {
+        writePanelToUrl(null, "replace");
+      }
+      return;
+    }
+
+    setModalType(
+      MODAL_PANELS.has(panel as Exclude<ModalType, null>)
+        ? (panel as Exclude<ModalType, null>)
+        : null
+    );
+      setIsSavedPanelOpen(panel === "saved");
+    setIsNotificationsPanelOpen(
+      panel === "notifications" || panel === "notification-settings"
+    );
+
+    if (panel === "liked" || panel === "disliked") {
+      setReactionPanelTab(panel);
+      setIsReactionPanelOpen(true);
+      return;
+    }
+
+    setIsReactionPanelOpen(false);
+  }, [searchParams, writePanelToUrl]);
 
   const handleCreateProfile = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -182,7 +285,7 @@ export default function ProfileSettingPage() {
       setCreateDateOfBirth("");
       setCreatePin("");
       setCreateAsPrimary(false);
-      closeModal();
+      closePanel();
       toast.success(response.message || "Profile created successfully.");
     } catch (error) {
       toast.error(getErrorMessage(error, "Unable to create profile."));
@@ -210,7 +313,7 @@ export default function ProfileSettingPage() {
         }))
       );
       localStorage.setItem(ACTIVE_PROFILE_STORAGE_KEY, activeProfile._id);
-      closeModal();
+      closePanel();
       toast.success(response.message || "Profile switched successfully.");
     } catch (error) {
       toast.error(getErrorMessage(error, "Unable to switch profile."));
@@ -221,13 +324,12 @@ export default function ProfileSettingPage() {
 
   const confirmReset = () => {
     setResetDone(true);
-    closeModal();
+    closePanel();
     toast.success("Preferences reset for this device.");
   };
 
   const openReactionPanel = (tab: ReactionPanelTab) => {
-    setReactionPanelTab(tab);
-    setIsReactionPanelOpen(true);
+    openPanel(tab);
   };
 
   return (
@@ -245,27 +347,17 @@ export default function ProfileSettingPage() {
         <main className={styles.main}>
           <section className={styles.content}>
             <div className={styles.profilePanel}>
-              <Link
-                href={`https://studio.vidorahub.com/login/${token || ""}`}
-                target="_blank"
-                className={styles.editProfileBtn}
-                aria-disabled={!token}
-              >
-                <span className="material-symbols-outlined">edit</span>
-                Edit
-              </Link>
-
               <div className={styles.profileInfo}>
                 <div
                   className={styles.avatar}
                   style={{ backgroundImage: `url(${avatarUrl})` }}
                 />
                 <div>
-                  <span className={styles.eyebrow}>Profile info</span>
+                  <span className={styles.eyebrow}>Settings</span>
                   <h1>{displayName}</h1>
                   <p>
                     {creatorProfile?.bio ||
-                      "Manage account access, profiles, recommendations and Vidorahub preferences."}
+                      "Tune profiles, saved content, notifications and feedback controls from one place."}
                   </p>
                   {selectedAccountProfile && (
                     <span className={styles.activeMeta}>
@@ -275,28 +367,65 @@ export default function ProfileSettingPage() {
                 </div>
               </div>
 
-              <div className={styles.stats}>
-                <div>
-                  <span>Videos</span>
-                  <b>{creatorProfile?.totalvideos ?? 0}</b>
-                </div>
-                <div>
-                  <span>Views</span>
-                  <b>{creatorProfile?.totalviews ?? 0}</b>
-                </div>
-                <div>
-                  <span>Subscribers</span>
-                  <b>{creatorProfile?.subscriber ?? 0}</b>
+              <div className={styles.profileAside}>
+                <Link
+                  href={`https://studio.vidorahub.com/login/${token || ""}`}
+                  target="_blank"
+                  className={styles.editProfileBtn}
+                  aria-disabled={!token}
+                >
+                  <span className="material-symbols-outlined">edit</span>
+                  Edit creator profile
+                </Link>
+
+                <div className={styles.stats}>
+                  <div>
+                    <span>Videos</span>
+                    <b>{creatorProfile?.totalvideos ?? 0}</b>
+                  </div>
+                  <div>
+                    <span>Views</span>
+                    <b>{creatorProfile?.totalviews ?? 0}</b>
+                  </div>
+                  <div>
+                    <span>Subscribers</span>
+                    <b>{creatorProfile?.subscriber ?? 0}</b>
+                  </div>
                 </div>
               </div>
+            </div>
+
+            <div className={styles.quickGrid}>
+              <button onClick={() => openPanel("notifications")}>
+                <span className="material-symbols-outlined">notifications</span>
+                <b>Notifications</b>
+                <small>Alerts and updates</small>
+              </button>
+              <button onClick={() => openPanel("saved")}>
+                <span className="material-symbols-outlined">bookmark</span>
+                <b>Saved videos</b>
+                <small>Watch later list</small>
+              </button>
+              <button onClick={() => openReactionPanel("liked")}>
+                <span className="material-symbols-outlined">thumb_up</span>
+                <b>Liked videos</b>
+                <small>Positive feedback</small>
+              </button>
+              <button onClick={() => openPanel("profiles")}>
+                <span className="material-symbols-outlined">switch_account</span>
+                <b>Profiles</b>
+                <small>{accountProfiles.length || 0} available</small>
+              </button>
             </div>
 
             <section className={styles.section}>
               <div className={styles.sectionHeader}>
                 <div>
                   <h2>Accounts and profiles</h2>
+                  <p>Control who is active on this device and add separate viewing spaces.</p>
                 </div>
                 <button className={styles.smallBtn} onClick={loadProfiles}>
+                  <span className="material-symbols-outlined">sync</span>
                   Refresh
                 </button>
               </div>
@@ -311,7 +440,7 @@ export default function ProfileSettingPage() {
               <div className={styles.actionList}>
                 <button
                   className={styles.actionItem}
-                  onClick={() => setModalType("accounts")}
+                  onClick={() => openPanel("accounts")}
                 >
                   <span className="material-symbols-outlined">switch_account</span>
                   <div>
@@ -325,7 +454,7 @@ export default function ProfileSettingPage() {
 
                 <button
                   className={styles.actionItem}
-                  onClick={() => setModalType("profiles")}
+                  onClick={() => openPanel("profiles")}
                   disabled={isLoadingProfiles}
                 >
                   <span className="material-symbols-outlined">account_circle</span>
@@ -344,7 +473,7 @@ export default function ProfileSettingPage() {
 
                 <button
                   className={styles.actionItem}
-                  onClick={() => setModalType("create")}
+                  onClick={() => openPanel("create")}
                 >
                   <span className="material-symbols-outlined">add_circle</span>
                   <div>
@@ -360,13 +489,14 @@ export default function ProfileSettingPage() {
               <div className={styles.sectionHeader}>
                 <div>
                   <h2>Feedback and preferences</h2>
+                  <p>Review the content signals that shape recommendations and alerts.</p>
                 </div>
               </div>
 
               <div className={styles.actionList}>
                 <button
                   className={styles.actionItem}
-                  onClick={() => setIsSavedPanelOpen(true)}
+                  onClick={() => openPanel("saved")}
                 >
                   <span className="material-symbols-outlined">bookmark</span>
                   <div>
@@ -402,7 +532,7 @@ export default function ProfileSettingPage() {
 
                 <button
                   className={styles.actionItem}
-                  onClick={() => setModalType("reset")}
+                  onClick={() => openPanel("reset")}
                 >
                   <span className="material-symbols-outlined">restart_alt</span>
                   <div>
@@ -416,7 +546,10 @@ export default function ProfileSettingPage() {
                   </span>
                 </button>
 
-                <button className={styles.actionItem}>
+                <button
+                  className={styles.actionItem}
+                  onClick={() => openPanel("notifications")}
+                >
                   <span className="material-symbols-outlined">notifications</span>
                   <div>
                     <b>Notifications</b>
@@ -478,7 +611,7 @@ export default function ProfileSettingPage() {
           onClose={closeModal}
           primaryLabel="Switch profiles"
           secondaryLabel="Close"
-          onPrimary={() => setModalType("profiles")}
+          onPrimary={() => openPanel("profiles")}
           onSecondary={closeModal}
         >
           <div className={styles.accountSummary}>
@@ -503,7 +636,7 @@ export default function ProfileSettingPage() {
           primaryLabel={isSwitchingProfile ? "Switching..." : "Switch"}
           secondaryLabel="Create"
           onPrimary={handleSwitchProfile}
-          onSecondary={() => setModalType("create")}
+          onSecondary={() => openPanel("create")}
           primaryDisabled={isSwitchingProfile || isLoadingProfiles || !selectedProfileId}
         >
           <ProfilePickerList
@@ -590,11 +723,23 @@ export default function ProfileSettingPage() {
       <LikedDislikedVideosPanel
         isOpen={isReactionPanelOpen}
         initialTab={reactionPanelTab}
-        onClose={() => setIsReactionPanelOpen(false)}
+        onTabChange={openReactionPanel}
+        onClose={closePanel}
       />
       <SavedVideosPanel
         isOpen={isSavedPanelOpen}
-        onClose={() => setIsSavedPanelOpen(false)}
+        onClose={closePanel}
+      />
+      <NotificationsPanel
+        isOpen={isNotificationsPanelOpen}
+        view={
+          searchParams.get(PANEL_QUERY_KEY) === "notification-settings"
+            ? "settings"
+            : "activity"
+        }
+        onOpenSettings={() => openPanel("notification-settings")}
+        onBackToActivity={() => openPanel("notifications")}
+        onClose={closePanel}
       />
     </div>
   );
@@ -656,6 +801,209 @@ function SettingsModal({
           </button>
         </div>
       </div>
+    </div>
+  );
+}
+
+type NotificationsPanelProps = {
+  isOpen: boolean;
+  view: "activity" | "settings";
+  onOpenSettings: () => void;
+  onBackToActivity: () => void;
+  onClose: () => void;
+};
+
+const NOTIFICATION_ITEMS = [
+  {
+    title: "Your video reached 30 views",
+    description: "Your upload is picking up early traction from viewers today.",
+    time: "8 min ago",
+    icon: "visibility",
+    unread: true,
+  },
+  {
+    title: "Your video is trending",
+    description: "One of your videos is gaining faster engagement than usual.",
+    time: "32 min ago",
+    icon: "trending_up",
+    unread: true,
+  },
+  {
+    title: "New comment on your video",
+    description: "A viewer added a comment to your latest upload.",
+    time: "1 hr ago",
+    icon: "mode_comment",
+    unread: false,
+  },
+  {
+    title: "Saved video reminder",
+    description: "A creator you saved has posted a related video.",
+    time: "Yesterday",
+    icon: "bookmark",
+    unread: false,
+  },
+];
+
+const NOTIFICATION_GROUPS = [
+  {
+    title: "Creator updates",
+    description: "Uploads, premieres and channel milestones from creators you follow.",
+    icon: "subscriptions",
+    enabled: true,
+  },
+  {
+    title: "Comments and replies",
+    description: "Activity on your videos, replies and meaningful conversation updates.",
+    icon: "forum",
+    enabled: true,
+  },
+  {
+    title: "Earning alerts",
+    description: "Revenue changes, payouts, campaigns and monetization notices.",
+    icon: "payments",
+    enabled: false,
+  },
+  {
+    title: "Product and safety",
+    description: "Account security, policy changes and important Vidorahub notices.",
+    icon: "verified_user",
+    enabled: true,
+  },
+];
+
+function NotificationsPanel({
+  isOpen,
+  view,
+  onOpenSettings,
+  onBackToActivity,
+  onClose,
+}: NotificationsPanelProps) {
+  const [settings, setSettings] = useState(NOTIFICATION_GROUPS);
+  const enabledCount = settings.filter((item) => item.enabled).length;
+  const unreadCount = NOTIFICATION_ITEMS.filter((item) => item.unread).length;
+
+  if (!isOpen) return null;
+
+  return (
+    <div className={styles.drawerOverlay} role="dialog" aria-modal="true">
+      <aside className={`${styles.reactionDrawer} ${styles.notificationsDrawer}`}>
+        <div className={styles.drawerHeader}>
+          <div>
+            <span className={styles.eyebrow}>
+              {view === "settings" ? "Notification settings" : "Notification center"}
+            </span>
+            <h3>{view === "settings" ? "Settings" : "Notifications"}</h3>
+            <p className={styles.drawerDescription}>
+              {view === "settings"
+                ? "Choose which notification types should reach this profile."
+                : "Recent activity about your videos, creators and account."}
+            </p>
+          </div>
+          <button
+            className={styles.iconBtn}
+            onClick={onClose}
+            aria-label="Close notifications panel"
+          >
+            <span className="material-symbols-outlined">close</span>
+          </button>
+        </div>
+
+        {view === "activity" ? (
+          <div className={styles.notificationSummary}>
+            <span className="material-symbols-outlined">notifications_active</span>
+            <div>
+              <b>{unreadCount} new notifications</b>
+              <p>Video performance, trend signals and viewer activity appear here.</p>
+            </div>
+          </div>
+        ) : (
+          <div className={styles.notificationSummary}>
+            <span className="material-symbols-outlined">tune</span>
+            <div>
+              <b>{enabledCount} enabled</b>
+              <p>These settings control what shows up in your notification center.</p>
+            </div>
+          </div>
+        )}
+
+        <div className={styles.drawerBody}>
+          {view === "activity" ? (
+            <div className={styles.notificationList}>
+              {NOTIFICATION_ITEMS.map((item) => (
+                <button
+                  className={`${styles.notificationActivityItem} ${
+                    item.unread ? styles.notificationUnread : ""
+                  }`}
+                  key={`${item.title}-${item.time}`}
+                >
+                  <span className={styles.notificationIcon}>
+                    <span className="material-symbols-outlined">{item.icon}</span>
+                  </span>
+                  <span>
+                    <b>{item.title}</b>
+                    <p>{item.description}</p>
+                    <small>{item.time}</small>
+                  </span>
+                </button>
+              ))}
+            </div>
+          ) : (
+            <div className={styles.notificationList}>
+              {settings.map((item) => (
+                <label className={styles.notificationItem} key={item.title}>
+                  <span className={styles.notificationIcon}>
+                    <span className="material-symbols-outlined">{item.icon}</span>
+                  </span>
+                  <span>
+                    <b>{item.title}</b>
+                    <p>{item.description}</p>
+                  </span>
+                  <input
+                    type="checkbox"
+                    checked={item.enabled}
+                    onChange={(event) => {
+                      const checked = event.target.checked;
+                      setSettings((current) =>
+                        current.map((currentItem) =>
+                          currentItem.title === item.title
+                            ? { ...currentItem, enabled: checked }
+                            : currentItem
+                        )
+                      );
+                    }}
+                    aria-label={`Toggle ${item.title}`}
+                  />
+                </label>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className={styles.drawerFooter}>
+          {view === "activity" ? (
+            <>
+              <button className={styles.secondaryBtn} onClick={onOpenSettings}>
+                Settings
+              </button>
+              <button className={styles.primaryBtn} onClick={onClose}>
+                Done
+              </button>
+            </>
+          ) : (
+            <>
+              <button className={styles.secondaryBtn} onClick={onBackToActivity}>
+                Back
+              </button>
+              <button
+                className={styles.primaryBtn}
+                onClick={() => setSettings(NOTIFICATION_GROUPS)}
+              >
+                Reset
+              </button>
+            </>
+          )}
+        </div>
+      </aside>
     </div>
   );
 }

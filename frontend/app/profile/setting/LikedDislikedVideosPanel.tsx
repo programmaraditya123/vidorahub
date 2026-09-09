@@ -17,6 +17,7 @@ type ReactionTab = "liked" | "disliked";
 type LikedDislikedVideosPanelProps = {
   isOpen: boolean;
   initialTab: ReactionTab;
+  onTabChange: (tab: ReactionTab) => void;
   onClose: () => void;
 };
 
@@ -153,6 +154,7 @@ function mergeUniqueVideos(
 export default function LikedDislikedVideosPanel({
   isOpen,
   initialTab,
+  onTabChange,
   onClose,
 }: LikedDislikedVideosPanelProps) {
   const router = useRouter();
@@ -231,6 +233,12 @@ export default function LikedDislikedVideosPanel({
     fetchVideos(activeTab);
   };
 
+  const handleTabChange = (tab: ReactionTab) => {
+    if (tab === activeTab) return;
+    setActiveTab(tab);
+    onTabChange(tab);
+  };
+
   const getVideoHref = (video: UserReactionVideo) =>
     video._id ? `/video/${video._id}` : "";
 
@@ -280,7 +288,7 @@ export default function LikedDislikedVideosPanel({
         <div className={styles.reactionTabs} role="tablist">
           <button
             className={activeTab === "liked" ? styles.activeReactionTab : ""}
-            onClick={() => setActiveTab("liked")}
+            onClick={() => handleTabChange("liked")}
             role="tab"
             aria-selected={activeTab === "liked"}
           >
@@ -288,7 +296,7 @@ export default function LikedDislikedVideosPanel({
           </button>
           <button
             className={activeTab === "disliked" ? styles.activeReactionTab : ""}
-            onClick={() => setActiveTab("disliked")}
+            onClick={() => handleTabChange("disliked")}
             role="tab"
             aria-selected={activeTab === "disliked"}
           >
