@@ -24,9 +24,7 @@ export function ExportActions({ vibe }: { vibe: Vibe }) {
         <button className="min-h-10 rounded-md bg-zinc-950 px-4 text-sm font-semibold text-white disabled:bg-zinc-300" disabled={!vibe.video_url} onClick={download}>
           Download
         </button>
-        <button className="min-h-10 rounded-md border border-zinc-300 px-4 text-sm font-semibold text-zinc-800" disabled>
-          Publish to VidoraHub
-        </button>
+
       </div>
       {message ? <p className="mt-3 text-sm text-rose-700">{message}</p> : null}
     </section>

@@ -1,4 +1,4 @@
-export type SourceType = "YOUTUBE" | "GCS" | "VIDORAHUB";
+export type SourceType = "YOUTUBE" | "GCS" | "VIDORAHUB" | "UPLOAD";
 export type JobStatus =
   | "QUEUED"
   | "VALIDATING"
@@ -21,6 +21,14 @@ export type VibeJob = {
   status: JobStatus;
   progress: number;
   current_stage: JobStatus;
+  warning?: string | null;
+  transcription?: {
+    phase: "loading_model" | "preparing_audio" | "transcribing" | "complete" | "cached";
+    processed_seconds: number;
+    total_seconds: number;
+    elapsed_seconds: number;
+  };
+  edit?: { vibe_id: string };
   error?: { code: string; message: string; details?: unknown } | null;
   created_at: string;
   updated_at: string;

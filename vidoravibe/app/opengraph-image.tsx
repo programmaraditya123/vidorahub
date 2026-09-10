@@ -32,7 +32,7 @@ export default function Image() {
               Turn Long Videos Into Meaningful Vibes.
             </div>
             <div style={{ display: "flex", color: "#52525b", fontSize: 30, lineHeight: 1.35 }}>
-              Find the moments that matter in YouTube, VidoraHub, and supported video URLs.
+              Find the moments that matter in cloud videos and your own recordings.
             </div>
           </div>
           <div style={{ display: "flex", gap: 18 }}>
@@ -59,7 +59,7 @@ export default function Image() {
           </div>
         </div>
         <div style={{ display: "flex", gap: 16, color: "#0f766e", fontSize: 24, fontWeight: 900 }}>
-          <span>YouTube</span>
+          <span>Video upload</span>
           <span>VidoraHub</span>
           <span>Video URL</span>
         </div>

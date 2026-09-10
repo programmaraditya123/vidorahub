@@ -32,7 +32,7 @@ export default function Image() {
               Paste a video URL. Create meaningful Vibes.
             </div>
             <div style={{ display: "flex", color: "#d4d4d8", fontSize: 30, lineHeight: 1.35 }}>
-              Start from YouTube, VidoraHub, Google Cloud Storage, or a supported direct video link.
+              Start from a Google Cloud Storage link or a video from your device.
             </div>
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 18, width: 330 }}>

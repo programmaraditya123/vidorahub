@@ -23,7 +23,7 @@ export function VideoSourceInput({
       return;
     }
     if (!detected) {
-      setError("Use a supported YouTube, VidoraHub, or Google Cloud Storage URL.");
+      setError("Use a supported Google Cloud Storage URL.");
       return;
     }
     setError("");
@@ -39,7 +39,7 @@ export function VideoSourceInput({
         <input
           id="video-source"
           className="min-h-12 flex-1 rounded-md border border-zinc-300 bg-white px-4 text-base text-zinc-950 outline-none transition focus:border-teal-700 focus:ring-2 focus:ring-teal-100"
-          placeholder="https://youtube.com/watch?v=..."
+          placeholder="https://storage.googleapis.com/bucket/video.mp4"
           value={value}
           onChange={(event) => {
             setValue(event.target.value);
@@ -61,7 +61,7 @@ export function VideoSourceInput({
         </button>
       </div>
       <div id="source-help" className="mt-3 flex flex-wrap gap-2 text-xs text-zinc-500">
-        <span className="rounded bg-zinc-100 px-2 py-1">YouTube</span>
+        <span className="rounded bg-zinc-100 px-2 py-1">Video upload</span>
         <span className="rounded bg-zinc-100 px-2 py-1">VidoraHub</span>
         <span className="rounded bg-zinc-100 px-2 py-1">Google Cloud Storage</span>
       </div>

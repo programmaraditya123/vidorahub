@@ -6,7 +6,7 @@ export function GET() {
 
 VidoraVibe is an AI-powered video repurposing platform from the VidoraHub ecosystem.
 
-VidoraVibe turns long-form videos into meaningful short-form Vibes. It supports YouTube, VidoraHub, Google Cloud Storage, and supported direct video URLs.
+VidoraVibe turns long-form videos into meaningful short-form Vibes. It supports Google Cloud Storage links and direct video uploads.
 
 VidoraVibe analyzes content context to find meaningful moments such as strong hooks, valuable insights, key lessons, funny moments, emotional moments, smart discussions, complete stories, and surprising moments.
 

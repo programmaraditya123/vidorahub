@@ -7,7 +7,7 @@ export const seoKeywords = [
   "AI video repurposing",
   "long form video to short clips",
   "short form video generator",
-  "YouTube clips",
+  "video clips",
   "VidoraHub Vibes",
   "video highlights",
   "AI video clipping",
@@ -20,7 +20,7 @@ export const homeDescription =
   "VidoraVibe uses AI to find meaningful moments in long-form videos and turn them into engaging short-form Vibes for VidoraHub and beyond.";
 
 export const createDescription =
-  "Create short-form Vibes from supported YouTube, VidoraHub, Google Cloud Storage, and direct video URLs with VidoraVibe.";
+  "Create short-form Vibes from Google Cloud Storage links and uploaded videos with VidoraVibe.";
 
 export function absoluteUrl(path = "/") {
   if (/^https?:\/\//.test(path)) return path;

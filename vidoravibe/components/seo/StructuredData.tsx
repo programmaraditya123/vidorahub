@@ -16,8 +16,8 @@ const softwareApplication = {
   },
   featureList: [
     "AI-powered video analysis",
-    "YouTube video source support",
-    "VidoraHub video source support",
+    "Direct video uploads",
+    "Shared VidoraHub account authentication",
     "Google Cloud Storage video source support",
     "Short-form Vibe creation",
     "Vibe preview and download",
@@ -33,7 +33,7 @@ const howTo = {
     {
       "@type": "HowToStep",
       name: "Add your video",
-      text: "Paste a supported YouTube, VidoraHub, Google Cloud Storage, or direct video URL.",
+      text: "Paste a Google Cloud Storage URL or upload your video.",
     },
     {
       "@type": "HowToStep",
@@ -70,7 +70,7 @@ const faq = {
       name: "What sources does VidoraVibe support?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "VidoraVibe supports YouTube, VidoraHub, Google Cloud Storage, and supported direct video URLs.",
+        text: "VidoraVibe supports Google Cloud Storage links and direct video uploads.",
       },
     },
     {

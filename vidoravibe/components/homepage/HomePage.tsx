@@ -8,8 +8,8 @@ import { createVibeHref, VidoraVibeNav } from "./VidoraVibeNav";
 
 const sources = [
   {
-    name: "YouTube",
-    description: "Bring your long-form YouTube videos.",
+    name: "Video upload",
+    description: "Upload your long-form recordings directly.",
   },
   {
     name: "VidoraHub",
@@ -35,7 +35,7 @@ const meaningfulTypes = [
 const workSteps = [
   {
     title: "Add Your Video",
-    body: "Paste a supported YouTube, VidoraHub, or direct video URL.",
+    body: "Paste a Google Cloud Storage URL or upload a video.",
   },
   {
     title: "VidoraVibe Understands It",
@@ -51,7 +51,7 @@ const workSteps = [
   },
   {
     title: "Share Everywhere",
-    body: "Preview and download your Vibes. Publishing back to VidoraHub is marked in-product when available.",
+    body: "Preview and download your Vibes. Download captioned MP4 files ready to share.",
   },
 ];
 
@@ -144,7 +144,7 @@ export function HomePage() {
         <div className="mx-auto grid max-w-7xl items-center gap-12 px-4 py-16 sm:px-6 sm:py-20 lg:grid-cols-[1fr_0.9fr] lg:px-8">
           <div className="reveal space-y-7">
             <p className="w-fit rounded-full border border-teal-200 bg-white px-3 py-1 text-sm font-bold text-teal-800">
-              From YouTube to VidoraHub. From long-form to short-form.
+              From your cloud to your audience. From long-form to short-form.
             </p>
             <div className="space-y-5">
               <h1 className="max-w-4xl text-5xl font-black leading-[1.02] tracking-normal text-zinc-950 sm:text-6xl lg:text-7xl">
@@ -175,7 +175,7 @@ export function HomePage() {
               <h2 className="mt-2 text-3xl font-black tracking-normal">One platform. Multiple sources.</h2>
             </div>
             <p className="max-w-xl text-sm leading-6 text-zinc-600">
-              VidoraVibe works whether your best content lives on YouTube, inside VidoraHub, or behind a supported cloud video URL.
+              Bring a Google Cloud video link or upload a recording directly from your device.
             </p>
           </div>
           <div className="grid gap-4 md:grid-cols-3">

@@ -36,9 +36,9 @@ export const metadata: Metadata = {
 
 export default function CreateVibesPage() {
   return (
-    <main className="min-h-screen bg-[#f7f8f6] text-zinc-950">
+    <div className="min-h-screen bg-[#f7f8f6] text-zinc-950">
       <VidoraVibeNav />
       <CreateVibeWorkspace />
-    </main>
+    </div>
   );
 }

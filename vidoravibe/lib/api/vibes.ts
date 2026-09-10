@@ -6,7 +6,7 @@ export function getVibe(vibeId: string) {
 }
 
 export function updateVibe(vibeId: string, payload: Partial<Pick<Vibe, "start_time" | "end_time" | "title">>) {
-  return apiRequest<Vibe>(`/api/v1/vibes/${vibeId}`, {
+  return apiRequest<{ job_id: string; vibe: Vibe }>(`/api/v1/vibes/${vibeId}`, {
     method: "PATCH",
     body: JSON.stringify(payload),
   });
