@@ -20,9 +20,10 @@ type SearchVideo = {
   category?: string;
   createdAt?: string;
   uploader?: {
+    _id?: string;
     name?: string;
     username?: string;
-    profileImage?: string;
+    profileImage?: string | null;
   };
   stats?: {
     views?: number;
@@ -93,6 +94,44 @@ function getImageSrc(value?: string | null) {
   } catch {
     return fallbackThumbnail;
   }
+}
+
+function CreatorAvatar({ uploader }: { uploader: SearchVideo["uploader"] }) {
+  const [failedSrc, setFailedSrc] = useState<string | null>(null);
+  const name = uploader?.name || uploader?.username || "Creator";
+  let src: string | null = null;
+
+  if (uploader?.profileImage?.trim()) {
+    // Accept plain URLs and pasted Markdown links, including filenames with spaces.
+    const value = uploader.profileImage.trim().replace(/^\[[^\]]+\]\((https?:\/\/[^)]+)\)/i, "$1");
+    try {
+      if (value.startsWith("/") && !value.startsWith("//")) {
+        src = value;
+      } else {
+        const url = new URL(value);
+        if (["http:", "https:"].includes(url.protocol)) src = url.href;
+      }
+    } catch {
+      // Missing or invalid images use the creator's initial.
+    }
+  }
+
+  return (
+    <span className={styles.creatorAvatar}>
+      {src && src !== failedSrc ? (
+        <Image
+          src={src}
+          alt={`${name} profile`}
+          fill
+          sizes="27px"
+          unoptimized
+          onError={() => setFailedSrc(src)}
+        />
+      ) : (
+        name.trim().charAt(0).toUpperCase() || "V"
+      )}
+    </span>
+  );
 }
 
 function formatDuration(value?: number | string) {
@@ -251,10 +290,10 @@ export default function ResultsPageClient() {
               ))}
             </div>
 
-          <button className={styles.filterButton} type="button">
+          {/* <button className={styles.filterButton} type="button">
             <span>Filters</span>
             <span className={`material-symbols-outlined ${styles.filterIcon}`}>tune</span>
-          </button>
+          </button> */}
           </section>
 
           {activeQuery.length === 1 && (
@@ -274,19 +313,7 @@ export default function ResultsPageClient() {
             </div>
           )}
 
-          {!!activeQuery && (
-            <section className={styles.resultsInfo}>
-              <div>
-                <span>Search results</span>
-                <h1>{activeQuery}</h1>
-              </div>
-              <p>
-                {isLoading
-                  ? "Searching..."
-                  : `${videos.length} result${videos.length === 1 ? "" : "s"}`}
-              </p>
-            </section>
-          )}
+
 
           {!!videos.length && (
             <section className={styles.resultsList}>
@@ -321,12 +348,7 @@ export default function ResultsPageClient() {
                       {formatCount(video.stats?.views)} views • {formatDate(video.createdAt)}
                     </p>
                     <div className={styles.creatorLine}>
-                      <span className={styles.creatorAvatar}>
-                        {(video.uploader?.name || video.uploader?.username || "V")
-                          .trim()
-                          .charAt(0)
-                          .toUpperCase()}
-                      </span>
+                      <CreatorAvatar uploader={video.uploader} />
                       <span>{video.uploader?.name || video.uploader?.username || "Creator"}</span>
                     </div>
                     <p className={styles.description}>
@@ -361,12 +383,17 @@ export default function ResultsPageClient() {
                     />
                     <span>{formatDuration(video.duration)}</span>
                   </div>
-                  <div>
+                  <div className={styles.mobileDetails}>
                     <h3>{video.title || "Untitled video"}</h3>
-                    <p>
-                      {video.uploader?.name || video.uploader?.username || "Creator"} •{" "}
-                      {formatCount(video.stats?.views)} views
-                    </p>
+                    <div className={styles.creatorLine}>
+                      <CreatorAvatar uploader={video.uploader} />
+                      <div className={styles.mobileCreatorInfo}>
+                        <span>{video.uploader?.name || video.uploader?.username || "Creator"}</span>
+                      </div>
+                      
+                    </div>
+                        <p>{formatCount(video.stats?.views)} views</p>
+
                   </div>
                 </button>
               ))}

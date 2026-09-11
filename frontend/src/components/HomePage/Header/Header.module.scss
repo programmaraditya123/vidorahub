@@ -3,7 +3,9 @@
 /* ------------------------------------------------- */
 .header {
   height: 60px;
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, min(42vw, 520px)) minmax(0, 1fr);
+  gap: 1.5rem;
   align-items: center;
   justify-content: space-between;
   padding: 0 1.2rem;
@@ -22,6 +24,9 @@
 /* LOGO */
 /* ------------------------------------------------- */
 .homeLogo {
+  width: fit-content;
+  white-space: nowrap;
+  text-decoration: none;
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -46,8 +51,8 @@
   position: relative;
   display: flex;
   align-items: center;
-  width: min(42vw, 520px);
-  flex: 0 1 520px;
+  width: 100%;
+  min-width: 0;
 }
 
 .searchWrapper {
@@ -161,6 +166,7 @@
 /* ACTION BUTTONS */
 /* ------------------------------------------------- */
 .actions {
+  justify-self: end;
   display: flex;
   align-items: center;
   gap: 1.3rem;
@@ -413,6 +419,7 @@
 @media (max-width: 1024px) {
   .header {
     padding: 0 1rem;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr) minmax(0, 1fr);
   }
 
   .searchContainer {
@@ -420,12 +427,13 @@
   }
 
   .desktopSearch {
-    width: min(38vw, 420px);
+    width: 100%;
   }
 }
 
 @media (max-width: 768px) {
   .header {
+    display: flex;
     height: 60px;
     padding: 0 0.8rem;
     gap: 1rem;

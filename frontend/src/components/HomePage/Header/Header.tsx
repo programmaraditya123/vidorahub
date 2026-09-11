@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useEffect, useRef, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import styles from "./Header.module.scss";
 import VidorahubIcon from "@/src/icons/VidorahubIcon";
 import { checkSession } from "@/src/lib/auth/auth";
@@ -12,6 +12,7 @@ import { http } from "@/src/lib/http";
 const STARTER_SESSION_PREFIX = "vidorahub_home_starter_seen";
 const OPEN_HOME_STARTER_EVENT = "vidorahub:open-home-starter";
 const AUTH_CHANGED_EVENT = "vidorahub:auth-changed";
+const SEARCH_DRAFT_KEY = "vidorahub_search_draft";
 
 type AuthSnapshot = {
   token: string | null;
@@ -98,8 +99,10 @@ function isCanceledRequest(error: unknown) {
   );
 }
 
-export default function Header() {
+function HeaderContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const urlQuery = searchParams.get("search_query");
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [keywords, setKeywords] = useState<string[]>([]);
@@ -120,6 +123,30 @@ export default function Header() {
   const profileInitial = profileName.trim().charAt(0).toUpperCase() || "V";
 
   const closeProfileMenu = () => setProfileMenuOpen(false);
+
+  const updateSearchQuery = (value: string) => {
+    setSearchQuery(value);
+    try {
+      window.sessionStorage.setItem(SEARCH_DRAFT_KEY, value);
+    } catch {
+      // Keep the input usable when session storage is unavailable.
+    }
+  };
+
+  useEffect(() => {
+    // URL searches take precedence on refresh and back/forward navigation.
+    // Pages without a search parameter retain the user's last input.
+    if (urlQuery !== null) {
+      updateSearchQuery(urlQuery);
+      return;
+    }
+    try {
+      const draft = window.sessionStorage.getItem(SEARCH_DRAFT_KEY);
+      if (draft !== null) setSearchQuery(draft);
+    } catch {
+      // Keep the current input when session storage is unavailable.
+    }
+  }, [urlQuery]);
 
   const refreshAuthSnapshot = () => {
     setAuth(getAuthSnapshot());
@@ -152,6 +179,7 @@ export default function Header() {
 
     if (normalizedQuery.length < 2) return;
 
+    updateSearchQuery(normalizedQuery);
     setKeywordsOpen(false);
     router.push(`/results?search_query=${encodeURIComponent(normalizedQuery)}`);
   };
@@ -271,8 +299,9 @@ export default function Header() {
           ? response.data.keywords
           : [];
 
+        if (controller.signal.aborted) return;
         setKeywords(nextKeywords);
-        setKeywordsOpen(nextKeywords.length > 0);
+        setKeywordsOpen(nextKeywords.length > 0 && searchRef.current?.contains(document.activeElement) === true);
       } catch (error) {
         if (!isCanceledRequest(error)) {
           setKeywords([]);
@@ -300,7 +329,9 @@ export default function Header() {
   return (
     <header className={styles.header}>
       <div className={styles.searchContainer}>
-        <p className={styles.homeLogo}><VidorahubIcon.VidorahubIcon height={28} width={28} color="purple" /> VidoraHub</p>
+        <Link href="/" className={styles.homeLogo} aria-label="VidoraHub home">
+          <VidorahubIcon.VidorahubIcon height={28} width={28} color="purple" /> VidoraHub
+        </Link>
       </div>
 
       <form
@@ -318,10 +349,12 @@ export default function Header() {
         <input
           className={styles.searchInput}
           value={searchQuery}
-          onChange={(event) => setSearchQuery(event.target.value)}
+          onChange={(event) => updateSearchQuery(event.target.value)}
           onFocus={() => setKeywordsOpen(keywords.length > 0)}
           placeholder="Search videos, creators, AI tools..."
-          type="search"
+          type="text"
+          aria-label="Search videos, creators, AI tools"
+          enterKeyHint="search"
           autoComplete="off"
         />
 
@@ -331,7 +364,7 @@ export default function Header() {
             type="button"
             aria-label="Clear search"
             onClick={() => {
-              setSearchQuery("");
+              updateSearchQuery("");
               setKeywords([]);
               setKeywordsOpen(false);
             }}
@@ -348,7 +381,6 @@ export default function Header() {
                 type="button"
                 onMouseDown={(event) => event.preventDefault()}
                 onClick={() => {
-                  setSearchQuery(keyword);
                   submitSearch(keyword);
                 }}
               >
@@ -465,5 +497,13 @@ export default function Header() {
 
       </div>
     </header>
+  );
+}
+
+export default function Header() {
+  return (
+    <Suspense fallback={null}>
+      <HeaderContent />
+    </Suspense>
   );
 }
