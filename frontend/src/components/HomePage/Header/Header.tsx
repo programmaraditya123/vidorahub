@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { Suspense, useEffect, useRef, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useCallback, useEffect, useRef, useState } from "react";
+import { flushSync } from "react-dom";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import styles from "./Header.module.scss";
 import VidorahubIcon from "@/src/icons/VidorahubIcon";
 import { checkSession } from "@/src/lib/auth/auth";
@@ -99,10 +100,21 @@ function isCanceledRequest(error: unknown) {
   );
 }
 
+function SearchOutlineIcon({ size = 20 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false">
+      <circle cx="10.5" cy="10.5" r="6.5" />
+      <path d="m16 16 4.5 4.5" />
+    </svg>
+  );
+}
+
 function HeaderContent() {
   const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
-  const urlQuery = searchParams.get("search_query");
+  const urlQuery = searchParams.get("search_query") ?? searchParams.get("q");
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [keywords, setKeywords] = useState<string[]>([]);
@@ -117,12 +129,47 @@ function HeaderContent() {
   const profileMenuRef = useRef<HTMLDivElement>(null);
   const profileButtonRef = useRef<HTMLButtonElement>(null);
   const searchRef = useRef<HTMLFormElement>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  const searchToggleRef = useRef<HTMLButtonElement>(null);
+  const suggestionsAllowed = useRef(false);
+  const searchNavigationPending = useRef(false);
   const isLoggedIn = Boolean(auth.token);
   const profileName = auth.profileName;
   const profilePicUrl = auth.profilePicUrl;
   const profileInitial = profileName.trim().charAt(0).toUpperCase() || "V";
 
   const closeProfileMenu = () => setProfileMenuOpen(false);
+
+  const closeSearch = useCallback((restoreFocus = false) => {
+    suggestionsAllowed.current = false;
+    setKeywordsOpen(false);
+    setMobileSearchOpen(false);
+    if (searchRef.current?.contains(document.activeElement)) {
+      (document.activeElement as HTMLElement)?.blur();
+    }
+    if (restoreFocus) {
+      window.requestAnimationFrame(() => searchToggleRef.current?.focus({ preventScroll: true }));
+    }
+  }, []);
+
+  const openMobileSearch = () => {
+    closeProfileMenu();
+    // Focus within the tap handler so mobile browsers open the keyboard.
+    flushSync(() => setMobileSearchOpen(true));
+    searchInputRef.current?.focus({ preventScroll: true });
+  };
+
+  useEffect(() => {
+    searchNavigationPending.current = false;
+    closeSearch();
+  }, [pathname, urlQuery, closeSearch]);
+
+  useEffect(() => {
+    const media = window.matchMedia("(max-width: 768px)");
+    const handleResize = () => closeSearch();
+    media.addEventListener("change", handleResize);
+    return () => media.removeEventListener("change", handleResize);
+  }, [closeSearch]);
 
   const updateSearchQuery = (value: string) => {
     setSearchQuery(value);
@@ -177,11 +224,17 @@ function HeaderContent() {
   const submitSearch = (query: string) => {
     const normalizedQuery = query.trim();
 
-    if (normalizedQuery.length < 2) return;
+    closeSearch();
+    if (normalizedQuery.length < 2 || normalizedQuery.length > 200) return;
 
     updateSearchQuery(normalizedQuery);
-    setKeywordsOpen(false);
-    router.push(`/results?search_query=${encodeURIComponent(normalizedQuery)}`);
+    const destination = `/results?search_query=${encodeURIComponent(normalizedQuery)}`;
+    if (pathname === "/results" || searchNavigationPending.current) {
+      router.replace(destination);
+    } else {
+      searchNavigationPending.current = true;
+      router.push(destination);
+    }
   };
 
   useEffect(() => {
@@ -296,14 +349,14 @@ function HeaderContent() {
         });
 
         const nextKeywords = Array.isArray(response.data.keywords)
-          ? response.data.keywords
+          ? [...new Set(response.data.keywords.filter((keyword) => typeof keyword === "string" && keyword.trim()))].slice(0, 10)
           : [];
 
         if (controller.signal.aborted) return;
         setKeywords(nextKeywords);
-        setKeywordsOpen(nextKeywords.length > 0 && searchRef.current?.contains(document.activeElement) === true);
+        setKeywordsOpen(suggestionsAllowed.current && nextKeywords.length > 0 && searchRef.current?.contains(document.activeElement) === true);
       } catch (error) {
-        if (!isCanceledRequest(error)) {
+        if (!controller.signal.aborted && !isCanceledRequest(error)) {
           setKeywords([]);
           setKeywordsOpen(false);
         }
@@ -317,17 +370,17 @@ function HeaderContent() {
   }, [searchQuery]);
 
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (searchRef.current?.contains(event.target as Node)) return;
-      setKeywordsOpen(false);
+    const handleClickOutside = (event: PointerEvent) => {
+      if (searchRef.current?.contains(event.target as Node) || searchToggleRef.current?.contains(event.target as Node)) return;
+      closeSearch();
     };
 
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+    document.addEventListener("pointerdown", handleClickOutside);
+    return () => document.removeEventListener("pointerdown", handleClickOutside);
+  }, [closeSearch]);
 
   return (
-    <header className={styles.header}>
+    <header className={`${styles.header} ${mobileSearchOpen ? styles.mobileSearchOpen : ""}`}>
       <div className={styles.searchContainer}>
         <Link href="/" className={styles.homeLogo} aria-label="VidoraHub home">
           <VidorahubIcon.VidorahubIcon height={28} width={28} color="purple" /> VidoraHub
@@ -336,26 +389,50 @@ function HeaderContent() {
 
       <form
         ref={searchRef}
+        id="header-search"
         className={styles.desktopSearch}
         role="search"
+        onKeyDown={(event) => {
+          if (event.key === "Escape") {
+            event.preventDefault();
+            closeSearch(mobileSearchOpen);
+          }
+          if (event.key === "Enter" && event.nativeEvent.isComposing) event.preventDefault();
+        }}
+        onBlur={(event) => {
+          if (!event.currentTarget.contains(event.relatedTarget as Node | null)) closeSearch();
+        }}
         onSubmit={(event) => {
           event.preventDefault();
           submitSearch(searchQuery);
         }}
       >
+        <button className={styles.mobileSearchBack} type="button" aria-label="Close search" onPointerDown={(event) => event.preventDefault()} onClick={() => closeSearch(true)}>
+          <span className="material-symbols-outlined" aria-hidden="true">arrow_back</span>
+        </button>
         <span className={styles.searchIcon}>
-          <VidorahubIcon.SearchIcon width={18} height={18} />
+          <SearchOutlineIcon size={18} />
         </span>
         <input
+          ref={searchInputRef}
           className={styles.searchInput}
           value={searchQuery}
-          onChange={(event) => updateSearchQuery(event.target.value)}
-          onFocus={() => setKeywordsOpen(keywords.length > 0)}
+          onChange={(event) => {
+            suggestionsAllowed.current = true;
+            setKeywords([]);
+            setKeywordsOpen(false);
+            updateSearchQuery(event.target.value);
+          }}
+          onFocus={() => {
+            suggestionsAllowed.current = true;
+            setKeywordsOpen(keywords.length > 0);
+          }}
           placeholder="Search videos, creators, AI tools..."
           type="text"
           aria-label="Search videos, creators, AI tools"
           enterKeyHint="search"
           autoComplete="off"
+          maxLength={200}
         />
 
         {searchQuery && (
@@ -363,10 +440,12 @@ function HeaderContent() {
             className={styles.clearSearch}
             type="button"
             aria-label="Clear search"
+            onPointerDown={(event) => event.preventDefault()}
             onClick={() => {
               updateSearchQuery("");
               setKeywords([]);
               setKeywordsOpen(false);
+              searchInputRef.current?.focus();
             }}
           >
             <span className="material-symbols-outlined">close</span>
@@ -379,7 +458,7 @@ function HeaderContent() {
               <button
                 key={keyword}
                 type="button"
-                onMouseDown={(event) => event.preventDefault()}
+                onPointerDown={(event) => event.preventDefault()}
                 onClick={() => {
                   submitSearch(keyword);
                 }}
@@ -394,6 +473,17 @@ function HeaderContent() {
 
       {/* Right Actions */}
       <div className={styles.actions}>
+        <button
+          ref={searchToggleRef}
+          type="button"
+          className={`${styles.iconBtn} ${styles.mobileSearchToggle}`}
+          aria-label="Open search"
+          aria-expanded={mobileSearchOpen}
+          aria-controls="header-search"
+          onClick={openMobileSearch}
+        >
+          <SearchOutlineIcon />
+        </button>
         <div className={styles.profileMenuWrap}>
           <button
             ref={profileButtonRef}
@@ -489,10 +579,9 @@ function HeaderContent() {
             </div>
           )}
         </div>
-        <Link href={isLoggedIn ? 'upload' : 'login'}>
-          <button className={`${styles.uploadBtn} glass-dark`}>
-            {isLoggedIn ? "Upload" : "Login"}
-          </button>
+        <Link href={isLoggedIn ? '/upload' : '/login'} className={`${styles.uploadBtn} glass-dark`} aria-label={isLoggedIn ? "Upload video" : "Login"}>
+          <span className={styles.uploadLabel}>{isLoggedIn ? "Upload" : "Login"}</span>
+          <span className={`material-symbols-outlined ${styles.uploadIcon}`} aria-hidden="true">{isLoggedIn ? "upload" : "login"}</span>
         </Link>
 
       </div>
