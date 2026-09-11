@@ -4,6 +4,12 @@ The MCP endpoint is `/mcp` (Streamable HTTP). `/`, `/health`, and
 `/api/videos/trending` are ordinary HTTP routes, not MCP endpoints.
 The tools currently read the sample catalog in `constants/videos.py`.
 
+The production host `vidorahub.fastapicloud.dev` is explicitly allowed.
+After deploying this code, use `https://vidorahub.fastapicloud.dev/mcp`
+in Gemini Spark's custom-app URL field. A `421 Invalid Host header`
+response means MCP host validation rejected the hostname; `/health` can
+still succeed in that situation. Other domains need `MCP_ALLOWED_HOSTS`.
+
 Run these commands from this directory in PowerShell.
 
 ## URL-based MCP clients

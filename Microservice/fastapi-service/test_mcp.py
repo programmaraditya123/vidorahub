@@ -12,7 +12,7 @@ HEADERS = {'Accept': 'application/json, text/event-stream'}
 
 class MCPTests(unittest.TestCase):
     def test_http_discovery_and_calls(self):
-        with TestClient(app, base_url='http://localhost', follow_redirects=False) as client:
+        with TestClient(app, base_url='https://vidorahub.fastapicloud.dev', follow_redirects=False) as client:
             def rpc(method, params=None):
                 response = client.post('/mcp', headers=HEADERS, json={
                     'jsonrpc': '2.0', 'id': 1, 'method': method, 'params': params or {}})
@@ -35,6 +35,10 @@ class MCPTests(unittest.TestCase):
             self.assertEqual(client.get('/health').json(), {'status': 'ok'})
             self.assertEqual(client.get('/').json()['mcp_endpoint'], '/mcp')
             self.assertEqual(client.post('/mcp/mcp', headers=HEADERS, json={}).status_code, 404)
+            for host in ['vidorahub.fastapicloud.dev:443', 'localhost', '127.0.0.1:8000']:
+                response = client.post('/mcp', headers={**HEADERS, 'Host': host}, json={
+                    'jsonrpc': '2.0', 'id': 1, 'method': 'tools/list'})
+                self.assertEqual(response.status_code, 200, response.text)
             rejected = client.post('/mcp', headers={**HEADERS, 'Host': 'untrusted.example'}, json={
                 'jsonrpc': '2.0', 'id': 1, 'method': 'tools/list'})
             self.assertEqual(rejected.status_code, 421)

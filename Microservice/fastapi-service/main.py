@@ -40,10 +40,12 @@ mcp = FastMCP(
         enable_dns_rebinding_protection=True,
         allowed_hosts=[
             "localhost", "localhost:*", "127.0.0.1", "127.0.0.1:*", "[::1]", "[::1]:*",
+            "vidorahub.fastapicloud.dev", "vidorahub.fastapicloud.dev:443",
             *env_list("MCP_ALLOWED_HOSTS"),
         ],
         allowed_origins=[
             "http://localhost", "http://localhost:*", "http://127.0.0.1", "http://127.0.0.1:*",
+            "https://vidorahub.fastapicloud.dev",
             *env_list("MCP_ALLOWED_ORIGINS"),
         ],
     ),
