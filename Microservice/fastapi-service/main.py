@@ -8,6 +8,7 @@ from mcp.server.transport_security import TransportSecuritySettings
 from mcp.types import ToolAnnotations
 from config.mongo import db,client
 from services.search import search_videos,find_trending_video
+from services.videos import get_Video_Details
 
 def env_list(name: str) -> list[str]:
     return [value.strip() for value in os.getenv(name, "").split(",") if value.strip()]
@@ -66,6 +67,17 @@ async def get_trending_vidorahub_videos() -> dict:
     }
 
 
+@mcp.tool(annotations=ToolAnnotations(readOnlyHint=True, destructiveHint=False, idempotentHint=True))
+async def get_video_details(video_id : str) -> dict:
+    """
+    Get complete details of a VidoraHub video by MongoDB ObjectId.
+    """
+    video = await get_Video_Details(video_id)
+    return {
+        "platform" : "vidorahub",
+        "video_Details" : video
+    }
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     await client.admin.command("ping")
@@ -123,6 +135,14 @@ async def search_vidorahub_videos(query:str):
         "platform" : "vidorahub",
         "count" : len(results),
         "videos" : results
+    }
+
+@app.get("/api/videoDetails")
+async def get_VideoDetails(id : str):
+    results = await get_Video_Details(id)
+    return {
+        "platform" : "vidorahub",
+        "video deatils" : results
     }
 
 # Mount at root: FastMCP already owns /mcp. Mounting at /mcp doubles
