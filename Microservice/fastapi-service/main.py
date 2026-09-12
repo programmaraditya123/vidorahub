@@ -6,26 +6,8 @@ from fastapi import FastAPI
 from mcp.server.fastmcp import FastMCP
 from mcp.server.transport_security import TransportSecuritySettings
 from mcp.types import ToolAnnotations
-
-from constants.videos import VIDEOS
-
-
-def search_videos(query: str):
-    """Search VidoraHub videos by title and category."""
-
-    query = query.lower().strip()
-
-    results = []
-
-    for video in VIDEOS:
-        title = video["title"].lower()
-        category = video["category"].lower()
-
-        if query in title or query in category:
-            results.append(video)
-
-    return results
-
+from config.mongo import db,client
+from services.search import search_videos,find_trending_video
 
 def env_list(name: str) -> list[str]:
     return [value.strip() for value in os.getenv(name, "").split(",") if value.strip()]
@@ -45,7 +27,7 @@ mcp = FastMCP(
         ],
         allowed_origins=[
             "http://localhost", "http://localhost:*", "http://127.0.0.1", "http://127.0.0.1:*",
-            "https://vidorahub.fastapicloud.dev",
+            "https://vidorahub.fastapicloud.dev","www.vidorahub.com","https://www.vidorahub.com",
             *env_list("MCP_ALLOWED_ORIGINS"),
         ],
     ),
@@ -53,7 +35,7 @@ mcp = FastMCP(
 
 
 @mcp.tool(annotations=ToolAnnotations(readOnlyHint=True, destructiveHint=False, idempotentHint=True))
-def search_vidorahub_videos(query: str) -> dict:
+async def search_vidorahub_videos(query: str) -> dict:
     """
     Search videos available on VidoraHub.
 
@@ -61,7 +43,7 @@ def search_vidorahub_videos(query: str) -> dict:
     on the VidoraHub platform.
     """
 
-    results = search_videos(query)
+    results = await search_videos(query)
 
     return {
         "platform": "VidoraHub",
@@ -72,26 +54,22 @@ def search_vidorahub_videos(query: str) -> dict:
 
 
 @mcp.tool(annotations=ToolAnnotations(readOnlyHint=True, destructiveHint=False, idempotentHint=True))
-def get_trending_vidorahub_videos() -> dict:
+async def get_trending_vidorahub_videos() -> dict:
     """
     Get currently trending videos on VidoraHub.
     """
-
-    trending = sorted(
-        VIDEOS,
-        key=lambda video: video["views"],
-        reverse=True,
-    )
-
+    trending = await find_trending_video()
     return {
         "platform": "VidoraHub",
-        "count": min(len(trending), 5),
-        "videos": trending[:5],
+        "count": len(trending),
+        "videos": trending,
     }
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    await client.admin.command("ping")
+    print("MongoDB connected successfully")
 
     async with mcp.session_manager.run():
         yield
@@ -104,6 +82,8 @@ app = FastAPI(
 )
 
 
+
+
 @app.get("/")
 def home():
     return {
@@ -111,6 +91,8 @@ def home():
         "message": "VidoraHub MCP server is running",
         "mcp_endpoint": "/mcp",
         "transport": "streamable-http",
+        "database" : db.name,
+        "updateon" : "12-09-2026"
     }
 
 
@@ -124,17 +106,24 @@ def health():
 @app.get("/api/videos/trending")
 async def api_trending_videos():
 
-    trending = sorted(
-        VIDEOS,
-        key=lambda video: video["views"],
-        reverse=True,
-    )
+    trending = await find_trending_video()
 
     return {
         "platform": "VidoraHub",
-        "videos": trending[:5],
+        "count" : len(trending),
+        "videos": trending,
+
     }
 
+@app.get("/api/videos/search")
+async def search_vidorahub_videos(query:str):
+    results = await search_videos(query)
+
+    return {
+        "platform" : "vidorahub",
+        "count" : len(results),
+        "videos" : results
+    }
 
 # Mount at root: FastMCP already owns /mcp. Mounting at /mcp doubles
 # the prefix and makes clients receive 404 at the advertised endpoint.
