@@ -64,3 +64,42 @@ A successful `/health` response alone does not verify MCP discovery.
 After restarting/redeploying the server, reconnect or refresh the client's
 MCP tool list. The advertised tools are `search_vidorahub_videos` and
 `get_trending_vidorahub_videos`.
+
+## Product catalog search
+
+`GET /api/products/find` accepts only optional parameters:
+
+| Parameter | Meaning | Default |
+| --- | --- | --- |
+| `query` | Literal, case-insensitive text across name, description, category, brand and tags; max 200 characters | No text filter |
+| `minPrice` / `maxPrice` | Inclusive nonnegative price bounds | No price bounds |
+| `rating` | Minimum `rating.average`, from 1 to 5 inclusive | No rating filter |
+| `sort` | `latest`, `price_asc`, or `price_desc` | `latest` |
+| `page` | Page number, 1–10000 | 1 |
+| `limit` | Products per page, 1–100 | 20 |
+
+Example: `/api/products/find?query=shirt&minPrice=100&maxPrice=2000&rating=4&sort=price_asc`
+
+With no parameters, all active products are eligible, ordered newest first and
+returned in pages. Responses retain `platform`, `count` (this page), and
+`products`, and add `page`, `limit`, `hasMore`, and `nextPage`. Follow `nextPage`
+with the same filters to browse more results. Equal sort values use creation
+time and product ID as deterministic tie breakers. As with offset pagination,
+concurrent catalog changes can shift later pages.
+
+`creatorId` now contains a public profile object (`_id`, `username`, `name`,
+`avatar`) joined from `userprofiles`, or null if the profile is missing.
+It is no longer a bare ID string. Inactive products are always excluded.
+Invalid filters return 422; database failures return a generic 503.
+
+The Product schema in `Backend/modules/store/store.model.js` defines compound
+indexes for active/latest and both price sort directions. Ensure those indexes
+are built in the deployment database if Mongoose automatic index creation is
+disabled. This change does not execute an index migration. Substring searches
+across multiple fields still require scanning candidates; a large catalog
+should use a dedicated search index. Deep offset pages are also more expensive.
+Queries have a five-second database execution limit and fetch one extra record
+to report `hasMore` without counting the entire matching catalog.
+
+Run the isolated HTTP/service contract tests with `python -m unittest test_products -v`.
+These tests mock MongoDB; they do not replace database integration or load tests.

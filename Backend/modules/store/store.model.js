@@ -87,4 +87,9 @@ const productSchema = new mongoose.Schema(
   }
 );
 
+// Support the public catalog's active-product ordering and price bounds.
+productSchema.index({ status: 1, createdAt: -1, _id: -1 });
+productSchema.index({ status: 1, price: 1, createdAt: -1, _id: -1 });
+productSchema.index({ status: 1, price: -1, createdAt: -1, _id: -1 });
+
 module.exports = mongoose.model("Product", productSchema);

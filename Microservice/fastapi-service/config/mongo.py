@@ -15,3 +15,4 @@ db = client[settings.mongodb_database]
 
 videos_collection = db["videos"]
 users_collection = db["userprofiles"]
+products_collections = db["products"]
