@@ -87,7 +87,7 @@ async def get_video_details(video_id : str) -> dict:
 ProductSort = Literal["latest", "price_asc", "price_desc"]
 
 @mcp.tool(annotations=ToolAnnotations(readOnlyHint=True, destructiveHint=False, idempotentHint=True))
-async def find_products(
+async def find_products_viodrahub(
     query: str | None = None,
         *,
         min_price: float | None = None,
