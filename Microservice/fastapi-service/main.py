@@ -105,7 +105,7 @@ async def find_products(
     - Filter products by minimum price.
     - Filter products by maximum price.
     - Filter products by minimum rating.
-    - Sort products by latest, price, rating, or popularity.
+    - Sort products by latest, price_asc,price_desc, rating, .
     - Browse products page by page.
 
     Parameters:
@@ -127,8 +127,8 @@ async def find_products(
             - latest: newest products first.
             - price_asc: lowest price first.
             - price_desc: highest price first.
-            - rating_desc: highest-rated products first.
-            - popular: most popular products first.
+            - rating: highest-rated products first.
+        
 
         page:
             Page number. Starts from 1.
