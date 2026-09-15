@@ -3,6 +3,7 @@ import os
 from contextlib import asynccontextmanager
 from typing import Literal
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from mcp.server.fastmcp import FastMCP
 from mcp.server.transport_security import TransportSecuritySettings
 from mcp.types import ToolAnnotations
@@ -170,6 +171,19 @@ app = FastAPI(
     title="VidoraHub MCP Server",
     version="1.0.0",
     lifespan=lifespan,
+)
+
+# Public catalog requests from the web frontend; additional deployments can opt in.
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "https://www.vidorahub.com", "https://vidorahub.com",
+        "http://localhost:3000", "http://127.0.0.1:3000",
+        *env_list("FRONTEND_ALLOWED_ORIGINS"),
+    ],
+    allow_credentials=False,
+    allow_methods=["GET"],
+    allow_headers=["Accept", "Content-Type"],
 )
 
 app.include_router(main_router)

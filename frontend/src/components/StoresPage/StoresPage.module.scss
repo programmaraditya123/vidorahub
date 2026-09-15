@@ -1,3 +1,50 @@
+.apiFilters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 0.8rem;
+  width: 100%;
+
+  label { display: grid; gap: 0.35rem; color: #4b5563; font-size: 0.85rem; }
+  input, select, button {
+    min-height: 42px;
+    max-width: 100%;
+    padding: 0.6rem 0.8rem;
+    border: 1px solid #d8c9f2;
+    border-radius: 10px;
+    background: white;
+    color: #1a1a2e;
+    font: inherit;
+  }
+  input { width: 150px; }
+  button { cursor: pointer; }
+}
+
+.requestStatus, .pagination { margin: 1.2rem; color: #4b5563; }
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+}
+.pagination button, .requestStatus button {
+  padding: 0.65rem 1rem;
+  border: 1px solid #d8c9f2;
+  border-radius: 10px;
+  color: #6d28d9;
+  background: white;
+  cursor: pointer;
+  &:disabled { opacity: 0.45; cursor: default; }
+}
+.imagePlaceholder {
+  display: grid;
+  place-items: center;
+  height: 100%;
+  min-height: 180px;
+  color: #6b7280;
+  background: #f3f0f8;
+}
+
 .page {
   min-height: 100vh;
   padding: 0 0 3rem;
