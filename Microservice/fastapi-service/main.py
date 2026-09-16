@@ -14,7 +14,9 @@ from services.videos import get_Video_Details
 from routes.health import router as main_router
 from routes.videos import router as video_router
 from routes.products import router as product_router
+from routes.auth import router as auth_router
 from services.storeproducts.products import find_products
+from routes.store import router as store_router
 
 def env_list(name: str) -> list[str]:
     return [value.strip() for value in os.getenv(name, "").split(",") if value.strip()]
@@ -34,7 +36,7 @@ mcp = FastMCP(
         ],
         allowed_origins=[
             "http://localhost", "http://localhost:*", "http://127.0.0.1", "http://127.0.0.1:*",
-            "https://vidorahub.fastapicloud.dev","www.vidorahub.com","https://www.vidorahub.com",
+            "https://vidorahub.fastapicloud.dev","www.vidorahub.com","https://www.vidorahub.com","https://studio.vidorahub.com",
             *env_list("MCP_ALLOWED_ORIGINS"),
         ],
     ),
@@ -182,14 +184,15 @@ app.add_middleware(
         *env_list("FRONTEND_ALLOWED_ORIGINS"),
     ],
     allow_credentials=False,
-    allow_methods=["GET"],
-    allow_headers=["Accept", "Content-Type"],
+    allow_methods=["GET","POST"],
+    allow_headers=["Accept", "Content-Type", "Authorization"],
 )
 
 app.include_router(main_router)
 app.include_router(video_router)
 app.include_router(product_router)
-
+app.include_router(auth_router)
+app.include_router(store_router)
 
 
 

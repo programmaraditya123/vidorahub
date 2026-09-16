@@ -103,3 +103,55 @@ to report `hasMore` without counting the entire matching catalog.
 
 Run the isolated HTTP/service contract tests with `python -m unittest test_products -v`.
 These tests mock MongoDB; they do not replace database integration or load tests.
+
+## Authentication for selected HTTP APIs
+
+FastAPI reuses login tokens from Backend/modules/auth. Registration, password
+login, and Google login remain in the backend. Set JWT_SECRET in this service's
+.env or deployment environment to the same secret as the backend, and use the
+same MongoDB database. Never send JWT_SECRET to the browser.
+Install dependencies: `.\.venv\Scripts\python.exe -m pip install -r requirements.txt`.
+
+GET /api/auth/check-session is protected and returns {"ok": true, "user": ...}.
+The service verifies HS256, exp, and _id, then loads _id, name, email, role,
+and profilePicUrl from userprofiles. Both backend login flows already set exp.
+Like Express, this checks identity and user existence, not role, blocked/deleted
+flags, or resource ownership. Add those checks where an endpoint needs them.
+Failures return 401 with a detail message; configuration/database failures return 503.
+
+Protect only the routes you choose:
+
+```python
+from typing import Annotated
+from fastapi import Depends
+from services.auth import require_sign_in
+
+@router.get("/private-example")
+async def private_example(user: Annotated[dict, Depends(require_sign_in)]):
+    return {"userId": user["_id"]}
+
+@router.get("/public-example")
+async def public_example():
+    return {"message": "No token needed"}
+```
+
+If the handler does not need the user, use
+`@router.get("/private-example", dependencies=[Depends(require_sign_in)])`.
+The dependency also sets request.state.user. To protect an entire router, use
+`APIRouter(dependencies=[Depends(require_sign_in)])`. Do not add it to the whole
+app when only selected APIs need authentication.
+
+```javascript
+const response = await fetch(`${FASTAPI_URL}/api/auth/check-session`, {
+  headers: { Authorization: `Bearer ${token}` },
+});
+```
+
+Use the token returned by backend login. Legacy raw Authorization tokens also
+work. CORS permits Authorization for configured frontend origins. Existing
+products, videos, health, and MCP endpoints remain public. This dependency
+protects HTTP routes, not MCP tool calls. If adding cross-origin POST/PUT/DELETE
+routes, also allow those methods in main.py.
+
+Run auth tests: `.\.venv\Scripts\python.exe -m unittest test_auth -v`.
+Tests use real JWT verification with mocked MongoDB; they do not access live users.
