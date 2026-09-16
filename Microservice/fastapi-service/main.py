@@ -180,7 +180,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "https://www.vidorahub.com", "https://vidorahub.com",
-        "http://localhost:3000", "http://127.0.0.1:3000","https://studio.vidorahub.com/",
+        "http://localhost:3000", "http://127.0.0.1:3000","https://studio.vidorahub.com",
         *env_list("FRONTEND_ALLOWED_ORIGINS"),
     ],
     allow_credentials=False,
