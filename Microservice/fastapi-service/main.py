@@ -17,6 +17,7 @@ from routes.products import router as product_router
 from routes.auth import router as auth_router
 from services.storeproducts.products import find_products
 from routes.store import router as store_router
+from mcptools.store import register_store_tools
 
 def env_list(name: str) -> list[str]:
     return [value.strip() for value in os.getenv(name, "").split(",") if value.strip()]
@@ -159,6 +160,9 @@ async def find_products_viodrahub(
         "platform ": "vidorahub",
         "products" : products
     }
+
+register_store_tools(mcp)
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):

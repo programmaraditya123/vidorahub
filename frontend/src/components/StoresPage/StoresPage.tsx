@@ -1,11 +1,12 @@
 ﻿"use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import VidorahubIcon from "@/src/icons/VidorahubIcon";
 import { findProducts, type FindProductsResponse, type ProductSort, type StoreProduct } from "@/src/lib/storeproducts/storeproducts";
 import { formatProductPrice } from "@/src/lib/store/store";
 import styles from "./StoresPage.module.scss";
+import FindStores from "./FindStores";
 
 type Filters = { query: string; minPrice: string; maxPrice: string; rating: string; sort: ProductSort };
 type SearchState = { key: string; data?: FindProductsResponse; error?: string };
@@ -192,7 +193,7 @@ export default function StoresPage() {
   }, [filtersOpen]);
 
   useEffect(() => {
-    if (validationError) return;
+    if (validationError || viewMode !== "products") return;
     const controller = new AbortController();
     // Debounce typing; cancel obsolete requests and ignore late responses.
     const timer = window.setTimeout(async () => {
@@ -218,38 +219,27 @@ export default function StoresPage() {
       window.clearTimeout(timer);
       controller.abort();
     };
-  }, [requestKey, validationError, filters.query, filters.rating, filters.sort, minPrice, maxPrice, page]);
+  }, [viewMode, requestKey, validationError, filters.query, filters.rating, filters.sort, minPrice, maxPrice, page]);
 
   const current = result?.key === requestKey ? result : null;
-  const loading = !validationError && !current;
+  const loading = viewMode === "products" && !validationError && !current;
   const data = current?.data;
-  const stores = useMemo(() => {
-    const grouped = new Map<string, { product: StoreProduct; products: StoreProduct[] }>();
-    for (const product of data?.products ?? []) {
-      const id = product.creatorId?._id;
-      if (!id) continue;
-      const store = grouped.get(id);
-      if (store) store.products.push(product);
-      else grouped.set(id, { product, products: [product] });
-    }
-    return Array.from(grouped.values());
-  }, [data]);
-  const activeCount = viewMode === "products" ? data?.products.length ?? 0 : stores.length;
+  const activeCount = data?.products.length ?? 0;
 
   return (
     <section className={styles.page} aria-busy={loading}>
       <div className={styles.topBar}>
         <div className={styles.brand}>
           <VidorahubIcon.VidorahubIcon width={30} height={30} color="purple" />
-          <div><span>VidoraHub Stores</span><small>{loading ? "Finding products..." : `${activeCount} ${viewMode} on this page`}</small></div>
+          <div><span>VidoraHub Stores</span><small>{viewMode === "stores" ? "Find creator stores" : loading ? "Finding products..." : `${activeCount} products on this page`}</small></div>
         </div>
-        <div className={styles.searchBox}>
+        {viewMode === "products" && <div className={styles.searchBox}>
           <VidorahubIcon.SearchIcon width={18} height={18} />
           <input ref={searchRef} className="product-search-input" value={filters.query} maxLength={200} aria-label="Search products" onChange={(event) => updateFilters({ query: event.target.value })} placeholder="Search products, brands, categories..." />
           {filters.query && <button type="button" className="search-clear" aria-label="Clear search" onClick={() => { updateFilters({ query: "" }); searchRef.current?.focus(); }}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18" /></svg>
           </button>}
-        </div>
+        </div>}
         <div className="topbar-actions">
         <div className={styles.viewSwitch} role="group" aria-label="Store view">
           {(["products", "stores"] as const).map((mode) => (
@@ -258,11 +248,11 @@ export default function StoresPage() {
             </button>
           ))}
         </div>
-        <button ref={triggerRef} className="filter-trigger" type="button" aria-label={`Sort and filter products${appliedCount ? `, ${appliedCount} active preferences` : ""}`} aria-haspopup="dialog" aria-expanded={filtersOpen} aria-controls="product-filters" onClick={() => { setDraft(filters); setFiltersOpen(true); }}>
+        {viewMode === "products" && <button ref={triggerRef} className="filter-trigger" type="button" aria-label={`Sort and filter products${appliedCount ? `, ${appliedCount} active preferences` : ""}`} aria-haspopup="dialog" aria-expanded={filtersOpen} aria-controls="product-filters" onClick={() => { setDraft(filters); setFiltersOpen(true); }}>
           <svg className="filter-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden="true"><path d="M4 7h9m4 0h3M4 17h3m4 0h9" /><circle cx="15" cy="7" r="2" /><circle cx="9" cy="17" r="2" /></svg>
           <span className="filter-label">Filters</span>
           {appliedCount > 0 && <span className="filter-badge" aria-hidden="true">{appliedCount}</span>}
-        </button>
+        </button>}
         </div>
       </div>
       <dialog ref={dialogRef} id="product-filters" className="filter-dialog" aria-labelledby="filter-title" aria-describedby="filter-description" onCancel={(event) => { event.preventDefault(); closeFilters(); }} onClick={(event) => { if (event.target === event.currentTarget) { const rect = event.currentTarget.getBoundingClientRect(); if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) closeFilters(); } }}>
@@ -297,10 +287,11 @@ export default function StoresPage() {
           </footer>
         </form>
       </dialog>
-      {validationError && <p className={styles.requestStatus} role="alert">{validationError}</p>}
+      {viewMode === "stores" && <FindStores />}
+      {viewMode === "products" && validationError && <p className={styles.requestStatus} role="alert">{validationError}</p>}
       {loading && <p className={styles.requestStatus} role="status">Loading products...</p>}
-      {current?.error && <div className={styles.requestStatus} role="alert"><p>{current.error}</p><button type="button" onClick={() => setRetry((value) => value + 1)}>Try again</button></div>}
-      {!validationError && data && (viewMode === "products" ? (
+      {viewMode === "products" && current?.error && <div className={styles.requestStatus} role="alert"><p>{current.error}</p><button type="button" onClick={() => setRetry((value) => value + 1)}>Try again</button></div>}
+      {viewMode === "products" && !validationError && data && (
         <div className={`${styles.productGrid} marketplace-grid`}>
           {data.products.map((product) => (
             <article className={`${styles.productCard} marketplace-card`} key={product._id}>
@@ -320,34 +311,9 @@ export default function StoresPage() {
             </article>
           ))}
         </div>
-      ) : (
-        <>
-          <p className={styles.requestStatus}>Creators with matching products on this page.</p>
-          <div className={styles.storeGrid}>
-            {stores.map(({ product, products }) => {
-              const creator = product.creatorId!;
-              const avatar = creator.profilePicUrl || creator.avatar;
-              return <article className={styles.storeCard} key={creator._id}>
-                <div className={styles.storeCover}>
-                  {product.images?.[0] && <img src={product.images[0]} alt="" loading="lazy" />}
-                  {avatar && <div className={styles.storeAvatar}><img src={avatar} alt={creatorName(product)} loading="lazy" /></div>}
-                </div>
-                <div className={styles.storeBody}>
-                  <div className={styles.storeTitleRow}><div><h2>{creatorName(product)}</h2>{creator.username && <p>@{creator.username}</p>}</div></div>
-                  <div className={styles.storeTags}>{Array.from(new Set(products.map((item) => item.category))).filter(Boolean).map((category) => <span key={category}>{category}</span>)}</div>
-                  <div className={styles.storeFooter}>
-                    <div className={styles.previewStack}>{products.filter((item) => item.images?.[0]).slice(0, 3).map((item) => <img key={item._id} src={item.images![0]} alt={item.name} loading="lazy" />)}</div>
-                    <div className={styles.storeStats}><strong>{products.length} on this page</strong></div>
-                    <Link href={`/channel/${encodeURIComponent(creator._id)}?tab=store`}>Open</Link>
-                  </div>
-                </div>
-              </article>;
-            })}
-          </div>
-        </>
-      ))}
-      {!validationError && data && activeCount === 0 && <div className={styles.emptyState}><h2>No {viewMode} found</h2><p>Try different filters or another page.</p></div>}
-      {!validationError && data && <nav className={styles.pagination} aria-label="Product pages">
+      )}
+      {viewMode === "products" && !validationError && data && activeCount === 0 && <div className={styles.emptyState}><h2>No {viewMode} found</h2><p>Try different filters or another page.</p></div>}
+      {viewMode === "products" && !validationError && data && <nav className={styles.pagination} aria-label="Product pages">
         <button type="button" disabled={page <= 1} onClick={() => setPage((value) => value - 1)}>Previous</button>
         <span>Page {data.page}</span>
         <button type="button" disabled={!data.hasMore || data.nextPage === null || data.nextPage > 10000} onClick={() => { if (data.nextPage !== null) setPage(data.nextPage); }}>Next</button>

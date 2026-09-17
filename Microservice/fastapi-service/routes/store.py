@@ -1,10 +1,12 @@
-from fastapi import APIRouter,Depends
+from fastapi import APIRouter,Depends,Query
 from typing import Annotated
 from pydantic import BaseModel
 from services.auth import require_sign_in
 from config.mongo import stores_collections
 from bson import ObjectId
 from typing import Literal
+from fastapi.encoders import jsonable_encoder
+
 router = APIRouter(prefix="/api/store",tags=["creator stores"])
 
 # 1. Define nested structures as their own models
@@ -135,3 +137,99 @@ async def get_store_details(user : Annotated[dict,Depends(require_sign_in)]):
             "success" : False,
             "message" : "No store found"
         }
+
+@router.get("/")
+async def get_stores(
+    page: int = Query(1, ge=1),
+    limit: int = Query(10, ge=1, le=100),
+):
+    skip = (page - 1) * limit
+
+    # Total stores
+    total_stores = await stores_collections.count_documents({})
+
+    pipeline = [
+        # Pagination
+        {"$sort": {"_id": -1}},
+        {"$skip": skip},
+        {"$limit": limit},
+
+        # Get only required fields from userprofiles
+        {
+            "$lookup": {
+                "from": "userprofiles",
+                "let": {
+                    "owner_id": "$ownerId"
+                },
+                "pipeline": [
+                    {
+                        "$match": {
+                            "$expr": {
+                                "$eq": ["$_id", "$$owner_id"]
+                            }
+                        }
+                    },
+                    {
+                        "$project": {
+                            "_id": 1,
+                            "name": 1,
+                            "email": 1,
+                            "subscriber": 1,
+                            "totalviews": 1,
+                            "totalvideos": 1,
+                            "bio": 1,
+                            "location": 1,
+                            "tags": 1,
+                            "profilePicUrl": 1,
+                        }
+                    }
+                ],
+                "as": "ownerProfile",
+            }
+        },
+
+        # Convert ownerProfile array into an object
+        {
+            "$set": {
+                "ownerId": {
+                    "$ifNull": [
+                        {"$arrayElemAt": ["$ownerProfile", 0]},
+                        None,
+                    ]
+                }
+            }
+        },
+
+        # Remove temporary ownerProfile field
+        {
+            "$project": {
+                "ownerProfile": 0
+            }
+        },
+    ]
+
+    stores = await stores_collections.aggregate(
+        pipeline
+    ).to_list(length=limit)
+
+    # Convert ObjectId -> string
+    stores = jsonable_encoder(
+        stores,
+        custom_encoder={ObjectId: str}
+    )
+
+    total_pages = (total_stores + limit - 1) // limit
+
+    return {
+        "success": True,
+        "data": stores,
+        "pagination": {
+            "page": page,
+            "limit": limit,
+            "total": total_stores,
+            "totalPages": total_pages,
+            "hasNext": page < total_pages,
+            "hasPrevious": page > 1,
+        },
+
+    }
