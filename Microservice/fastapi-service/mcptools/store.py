@@ -7,7 +7,7 @@ def register_store_tools(mcp:FastMCP):
     @mcp.tool(annotations=ToolAnnotations(readOnlyHint=True,destructiveHint=False,idempotentHint=True,))
     async def find_creator_stores(page : int,limit : int):
         """find all available stores on vidorahub with pagination with page and limit"""
-        stores = get_stores(page,limit)
+        stores = await get_stores(page,limit)
         return {
             "platform" : "vidorahub",
             "stores" : stores
