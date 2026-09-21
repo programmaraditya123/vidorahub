@@ -21,6 +21,48 @@
 }
 
 .requestStatus, .pagination { margin: 1.2rem; color: #4b5563; }
+.discoveryLoader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 260px;
+  padding: 32px 20px;
+  text-align: center;
+
+  p {
+    margin: 20px 0 6px;
+    color: #241b30;
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1.5;
+  }
+}
+
+.loadingSpinner {
+  width: 44px;
+  height: 44px;
+  box-sizing: border-box;
+  border: 4px solid #ede9fe;
+  border-top-color: #7c3aed;
+  border-radius: 50%;
+  animation: discoverySpin 0.8s linear infinite;
+}
+
+.loadingHint {
+  color: #746b80;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+@keyframes discoverySpin {
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .loadingSpinner { animation: none; }
+}
+
 .pagination {
   display: flex;
   justify-content: center;
@@ -67,6 +109,18 @@
   background: rgba(246, 244, 251, 0.94);
   box-shadow: 0 1px 0 rgba(124, 58, 237, 0.06), 0 4px 20px rgba(124, 58, 237, 0.04);
   backdrop-filter: blur(18px);
+}
+
+.topBarActions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  min-width: 0;
+}
+
+.topBar.storesTopBar {
+  grid-template-columns: minmax(0, 1fr) auto;
 }
 
 .brand {
@@ -822,6 +876,22 @@
     gap: 0.75rem;
     padding: 0.75rem;
     margin-bottom: 0.75rem;
+  }
+
+  .topBarActions {
+    grid-column: 1 / -1;
+    justify-content: center;
+    width: 100%;
+    gap: 8px;
+  }
+
+  .topBar.storesTopBar {
+    grid-template-columns: auto minmax(0, 1fr);
+
+    .topBarActions {
+      grid-column: 2;
+      justify-content: flex-end;
+    }
   }
 
   .brand {

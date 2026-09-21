@@ -7,6 +7,7 @@ import { findProducts, type FindProductsResponse, type ProductSort, type StorePr
 import { formatProductPrice } from "@/src/lib/store/store";
 import styles from "./StoresPage.module.scss";
 import FindStores from "./FindStores";
+import DiscoveryLoader from "./DiscoveryLoader";
 
 type Filters = { query: string; minPrice: string; maxPrice: string; rating: string; sort: ProductSort };
 type SearchState = { key: string; data?: FindProductsResponse; error?: string };
@@ -228,7 +229,7 @@ export default function StoresPage() {
 
   return (
     <section className={styles.page} aria-busy={loading}>
-      <div className={styles.topBar}>
+      <div className={`${styles.topBar} ${viewMode === "stores" ? styles.storesTopBar : ""}`}>
         <div className={styles.brand}>
           <VidorahubIcon.VidorahubIcon width={30} height={30} color="purple" />
           <div><span>VidoraHub Stores</span><small>{viewMode === "stores" ? "Find creator stores" : loading ? "Finding products..." : `${activeCount} products on this page`}</small></div>
@@ -240,7 +241,7 @@ export default function StoresPage() {
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18" /></svg>
           </button>}
         </div>}
-        <div className="topbar-actions">
+        <div className={styles.topBarActions}>
         <div className={styles.viewSwitch} role="group" aria-label="Store view">
           {(["products", "stores"] as const).map((mode) => (
             <button key={mode} type="button" aria-pressed={viewMode === mode} className={viewMode === mode ? styles.activeSwitch : ""} onClick={() => setViewMode(mode)}>
@@ -289,7 +290,7 @@ export default function StoresPage() {
       </dialog>
       {viewMode === "stores" && <FindStores />}
       {viewMode === "products" && validationError && <p className={styles.requestStatus} role="alert">{validationError}</p>}
-      {loading && <p className={styles.requestStatus} role="status">Loading products...</p>}
+      {loading && <DiscoveryLoader type="products" />}
       {viewMode === "products" && current?.error && <div className={styles.requestStatus} role="alert"><p>{current.error}</p><button type="button" onClick={() => setRetry((value) => value + 1)}>Try again</button></div>}
       {viewMode === "products" && !validationError && data && (
         <div className={`${styles.productGrid} marketplace-grid`}>
@@ -362,7 +363,6 @@ export default function StoresPage() {
         .product-search-input:focus, .product-search-input:focus-visible { border: none; outline: none; box-shadow: none; }
         .search-clear { display: grid; place-items: center; flex-shrink: 0; width: 32px; height: 32px; padding: 0; border: none; border-radius: 50%; background: transparent; color: #7c3aed; cursor: pointer; }
         .search-clear:hover { background: #f3eeff; }
-        .topbar-actions { display: flex; align-items: center; justify-content: flex-end; gap: 10px; min-width: 0; }
         .filter-trigger { display: inline-flex; flex-shrink: 0; align-items: center; justify-content: center; gap: 8px; min-width: 44px; min-height: 44px; padding: 10px 16px; border: 1px solid #ddd1ed; border-radius: 12px; background: white; color: #6d28d9; font: inherit; font-size: 14px; font-weight: 650; cursor: pointer; }
         .filter-icon { display: none; }
         .filter-badge { display: grid; place-items: center; min-width: 20px; height: 20px; border-radius: 50%; background: #ede9fe; font-size: 11px; }
@@ -406,7 +406,6 @@ export default function StoresPage() {
         button:focus-visible, input:focus-visible, .rating-option input:focus-visible + span { outline: 3px solid #a78bfa; outline-offset: 3px; }
         @media (hover: hover) { .filter-trigger:hover, .filter-close:hover, .filter-cancel:hover { background: #f5f0ff; } .sort-option:hover, .rating-option:hover > span { border-color: #a78bfa; } .filter-apply:hover:not(:disabled) { background: #6d28d9; } }
         @media (max-width: 600px) {
-          .topbar-actions { grid-column: 1 / -1; justify-content: center; width: 100%; gap: 8px; }
           .filter-icon { display: block; }
           .filter-label { display: none; }
           .filter-trigger { padding: 10px; }

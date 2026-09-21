@@ -6,6 +6,7 @@ import { findStores, type FindStoresResponse, type Store } from "@/src/lib/store
 import styles from "./StoresPage.module.scss";
 import cards from "./StoreCards.module.scss";
 import StoreDetails, { StoreIdentity, storeHref } from "./StoreDetails";
+import DiscoveryLoader from "./DiscoveryLoader";
 
 export default function FindStores() {
   const [selectedStore, setSelectedStore] = useState<Store | null>(null);
@@ -34,7 +35,7 @@ export default function FindStores() {
   }, [page, key]);
 
   return <section aria-label="Find stores" aria-busy={!current}>
-    {!current && <p className={styles.requestStatus} role="status">Loading stores...</p>}
+    {!current && <DiscoveryLoader type="stores" />}
     {current?.error && <div className={styles.requestStatus} role="alert">
       <p>{current.error}</p>
       <button type="button" onClick={() => setRetry((value) => value + 1)}>Try again</button>
