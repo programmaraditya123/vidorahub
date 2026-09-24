@@ -10,7 +10,7 @@ router = APIRouter(
 def home():
     return {
         "platform": "VidoraHub",
-        "message": "VidoraHub MCP server is running",
+        "message": "VidoraHub MCP server is running and updated on 24-09-2026",
         "mcp_endpoint": "/mcp",
         "transport": "streamable-http",
         "database" : db.name,
