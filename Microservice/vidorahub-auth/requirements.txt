@@ -8,6 +8,6 @@ pydantic
 pydantic-settings
 python-dotenv
 PyJWT>=2.10.1,<3
-
+bcrypt
 
 httpx
