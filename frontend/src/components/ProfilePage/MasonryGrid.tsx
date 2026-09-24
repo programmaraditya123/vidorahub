@@ -9,6 +9,7 @@ import { useState } from "react";
 import { useToast } from "@/src/hooks/ui/ToastProvider/ToastProvider";
 import { creatorDeleteVideo } from "@/src/lib/video/videodata";
 import Image from "next/image";
+import Link from "next/link";
 
 type VideoStats = {
   views: number;
@@ -137,6 +138,22 @@ export default function MasonryGrid({ uploads,profilePicUrl }: MasonryGridProps)
             </div>
           </div>
         ))}
+        <Link href="/upload" className={`${styles.card} ${styles.uploadCard}`}>
+          <svg
+            width="36"
+            height="36"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M12 16V3m-5 5 5-5 5 5M4 16v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4" />
+          </svg>
+          <span>Upload video</span>
+        </Link>
       </div>
 
       {/* ✅ CONFIRM MODAL */}
