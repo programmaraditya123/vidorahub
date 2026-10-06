@@ -1,10 +1,13 @@
 """Client registration and browser authorization state."""
 import re
+import base64
+import hashlib
 import secrets
 import time
 from datetime import datetime, timedelta, timezone
 from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 from fastapi import HTTPException
+from cryptography.fernet import Fernet, InvalidToken
 from pymongo.write_concern import WriteConcern
 from config.mongo import (client, settings, oauth_clients_collection, oauth_authorization_codes_collection,
     oauth_sessions_collection, oauth_transactions_collection)
@@ -63,10 +66,10 @@ async def create_oauth_transaction(params):
         expires_at=now() + timedelta(minutes=10)))
     return transaction_id
 
-async def get_oauth_transaction(transaction_id):
+async def get_oauth_transaction(transaction_id, allow_completed=False):
     transaction = await oauth_transactions_collection.find_one(
         {"transaction_id": transaction_id, "expires_at": {"$gt": now()}})
-    if not transaction:
+    if not transaction or (transaction.get("completed") and not allow_completed):
         oauth_error("invalid_request", "Invalid or expired authorization transaction")
     return transaction
 
@@ -94,22 +97,51 @@ async def create_authorization_code(transaction, user_id, session=None):
     return raw_code
 
 
-async def complete_authorization(transaction_id, user_id):
-    """Commit code issuance and single-use consumption together (MongoDB replica set)."""
+def completion_cipher():
+    secret = settings.introspection_secret or settings.jwt_secret
+    if not secret or not secret.get_secret_value():
+        oauth_error("temporarily_unavailable", "Consent recovery secret is not configured", 503)
+    key = base64.urlsafe_b64encode(hashlib.sha256(secret.get_secret_value().encode()).digest())
+    return Fernet(key)
+
+
+async def complete_authorization(transaction_id, user_id, csrf_token):
+    """Commit once; recover the same unused code for the same authenticated browser."""
     async def complete(session):
-        transaction = await oauth_transactions_collection.find_one_and_delete(
+        transaction = await oauth_transactions_collection.find_one(
             {"transaction_id": transaction_id, "expires_at": {"$gt": now()}}, session=session)
         if not transaction:
-            oauth_error("invalid_request", "Authorization transaction already completed or expired")
+            oauth_error("invalid_request", "Authorization transaction expired or missing")
+        if transaction.get("completed"):
+            if (transaction.get("completed_user_id") != user_id or not secrets.compare_digest(
+                    transaction.get("completed_csrf_hash", ""), hash_token(csrf_token))):
+                oauth_error("invalid_request", "Authorization transaction was completed in another session")
+            encrypted = transaction.get("encrypted_code")
+            if not encrypted:
+                return transaction, None
+            try:
+                code = completion_cipher().decrypt(encrypted.encode()).decode()
+            except InvalidToken:
+                oauth_error("invalid_request", "Authorization transaction can no longer be resumed")
+            valid_code = await oauth_authorization_codes_collection.find_one(
+                {"code_hash": hash_token(code), "used": False, "expires_at": {"$gt": now()}}, session=session)
+            if not valid_code:
+                oauth_error("invalid_request", "Authorization transaction code was already redeemed or expired")
+            return transaction, code
         code = await create_authorization_code(transaction, user_id, session=session) if user_id else None
+        encrypted = completion_cipher().encrypt(code.encode()).decode() if code else None
+        await oauth_transactions_collection.find_one_and_update(
+            {"transaction_id": transaction_id}, {"$set": {"completed": True,
+                "completed_user_id": user_id, "completed_csrf_hash": hash_token(csrf_token),
+                "encrypted_code": encrypted}}, session=session)
         return transaction, code
 
     async with await client.start_session() as session:
-        # The driver retries transient transaction/commit failures; aborted work rolls back.
         return await session.with_transaction(
             complete, max_commit_time_ms=5000,
             write_concern=WriteConcern("majority", wtimeout=5000),
         )
+
 
 def callback_url(transaction, **params):
     parsed = urlsplit(transaction["redirect_uri"])

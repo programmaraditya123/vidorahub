@@ -59,11 +59,15 @@ async def authorize(request: Request, client_id: str, redirect_uri: str, respons
 async def login_page(request: Request, transaction_id: str):
     transaction = await get_oauth_transaction(transaction_id)
     client = await validate_authorization(transaction)
+    user_id = await get_oauth_user(request)
+    return render_consent(request, transaction, client, user_id)
+
+
+def render_consent(request, transaction, client, user_id, error_message=None, email=""):
     # Reuse the browser token so reloading consent does not invalidate another tab.
     csrf = request.cookies.get(CSRF_COOKIE, "")
     if not re.fullmatch(r"[A-Za-z0-9_-]{43}", csrf):
         csrf = secrets.token_urlsafe(32)
-    user_id = await get_oauth_user(request)
     style_nonce = secrets.token_urlsafe(24)
     response = templates.TemplateResponse(
         request=request, name="consent.html",
@@ -71,7 +75,8 @@ async def login_page(request: Request, transaction_id: str):
             "client_initial": client["client_name"][:1].upper(),
             "resource": transaction["resource"], "redirect_uri": transaction["redirect_uri"],
             "scopes": transaction["scope"].split(), "signed_in": bool(user_id),
-            "transaction_id": transaction_id, "csrf_token": csrf, "style_nonce": style_nonce},
+            "transaction_id": transaction["transaction_id"], "csrf_token": csrf, "style_nonce": style_nonce,
+            "error_message": error_message, "email": email},
         headers={
             # Keep browser form POST Origin intact; suppress cross-origin referrers.
             "Referrer-Policy": "same-origin",
@@ -98,16 +103,19 @@ async def login_submit(request: Request, transaction_id: str = Form(...),
     issuer = urlsplit(settings.oauth_issuer)
     if origin and origin != f"{issuer.scheme}://{issuer.netloc}":
         oauth_error("invalid_request", "Invalid request origin: open consent at the configured OAUTH_ISSUER (including scheme and port)", 403)
-    transaction = await get_oauth_transaction(transaction_id)
-    await validate_authorization(transaction)
+    transaction = await get_oauth_transaction(transaction_id, allow_completed=True)
+    oauth_client = await validate_authorization(transaction)
     if decision not in {"allow", "deny"}:
         oauth_error("invalid_request", "Invalid consent decision")
     user_id = None
     if decision == "allow":
         user_id = await get_oauth_user(request) or await authenticate_password(email, password)
         if not user_id:
+            if "text/html" in request.headers.get("accept", "") and not transaction.get("completed"):
+                message = "Your sign-in session has expired. Please sign in again." if not email and not password else "The email or password is incorrect. Please try again."
+                return render_consent(request, transaction, oauth_client, None, error_message=message, email=email)
             oauth_error("access_denied", "Invalid email or password", 401)
-    transaction, code = await complete_authorization(transaction_id, user_id)
+    transaction, code = await complete_authorization(transaction_id, user_id, csrf_token)
     if decision == "deny":
         response = RedirectResponse(callback_url(transaction, error="access_denied"), 303)
     else:

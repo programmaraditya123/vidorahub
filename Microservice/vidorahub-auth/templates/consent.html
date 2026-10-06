@@ -45,6 +45,7 @@
     input { width: 100%; background: #fff; color: #292e33; border: 1px solid #dce0db; border-radius: 9px; font: inherit; font-size: 13px; padding: 12px 13px; min-height: 45px; transition: border-color .15s, box-shadow .15s; }
     input::placeholder { color: #a0a5a0; }
     input:focus { outline: none; border-color: #d3545c; box-shadow: 0 0 0 3px #fcebed; }
+    .form-error { background: #fff2f0; border: 1px solid #f2d4d0; border-radius: 9px; padding: 12px; color: #a6323c; font-size: 12px; line-height: 1.6; margin: 0 0 16px; }
     .account-note { font-size: 11px; color: #7b807c; line-height: 1.6; margin: -2px 0 20px; }
     .signed-in { border: 1px solid #dfebdf; background: #f6faf5; border-radius: 10px; padding: 13px; color: #47694b; font-size: 12px; line-height: 1.7; margin-bottom: 20px; }
     .actions { display: grid; grid-template-columns: 1fr 1.7fr; gap: 10px; margin-top: 22px; }
@@ -96,6 +97,7 @@
           </div></div>
           {% else %}<p class="permission-description">No additional permissions requested.</p>{% endfor %}
         </div>
+        {% if error_message %}<p class="form-error" role="alert">{{ error_message }}</p>{% endif %}
         <form method="post" action="/oauth/login">
           <input type="hidden" name="transaction_id" value="{{ transaction_id }}">
           <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
@@ -103,7 +105,7 @@
             <div class="signed-in"><strong>You are signed in to VidoraHub.</strong><br>Review the requested access before continuing.</div>
           {% else %}
             <p class="form-title">Sign in to continue</p>
-            <div class="field"><label for="email">Email address</label><input id="email" name="email" type="email" autocomplete="username" placeholder="you@example.com" maxlength="320" required></div>
+            <div class="field"><label for="email">Email address</label><input id="email" name="email" type="email" autocomplete="username" value="{{ email }}" placeholder="you@example.com" maxlength="320" required></div>
             <div class="field"><label for="password">Password</label><input id="password" name="password" type="password" autocomplete="current-password" placeholder="Enter your password" maxlength="4096" required></div>
             <p class="account-note" id="account-note">Use your existing VidoraHub email and password.</p>
           {% endif %}

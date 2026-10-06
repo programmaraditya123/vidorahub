@@ -23,7 +23,7 @@ For local development use `OAUTH_ISSUER=http://localhost:8000` and `OAUTH_COOKIE
 1. `POST /register` with JSON: `{"redirect_uris":["http://127.0.0.1:3000/callback"],"grant_types":["authorization_code","refresh_token"]}`. Name defaults to `MCP client`; clients are activated by the server. `/oauth/register` remains an alias. Only public clients (`token_endpoint_auth_method=none`) are supported. Redirect strings are preserved and compared exactly. HTTPS is required except for loopback HTTP.
 2. Discover endpoints at `GET /.well-known/oauth-authorization-server`.
 3. Open `GET /authorize` with `client_id`, `redirect_uri`, `response_type=code`, `code_challenge`, `code_challenge_method=S256`, `resource`, and optionally `state` and `scope`. The default scope is `mcp:access`.
-4. The server presents its own `/oauth/login` page with the requested client, destination and permissions. The user signs in with their existing email/password and explicitly allows or denies access. A valid session skips password entry but still requires consent. Transactions expire after ten minutes and are consumed once. The server returns `code` and the original `state` to the registered redirect URI, preserving its existing query string.
+4. The server presents its own `/oauth/login` page with the requested client, destination and permissions. The user signs in with their existing email/password and explicitly allows or denies access. A valid session skips password entry but still requires consent. Transactions expire after ten minutes. Repeated consent submissions by the same authenticated user/browser recover the same unused authorization code instead of issuing another code. The server returns `code` and the original `state` to the registered redirect URI, preserving its existing query string.
 5. `POST /token` with **application/x-www-form-urlencoded** fields: `grant_type=authorization_code`, `client_id`, `code`, `redirect_uri`, `code_verifier`, `resource`. Codes expire after five minutes and are consumed atomically. Clients allowing the refresh grant also receive a refresh token.
 6. Refresh with `grant_type=refresh_token`, `client_id`, `refresh_token`, `resource`, optionally a narrower `scope`. Every refresh rotates the token. Reuse revokes the entire grant, including its access tokens. Grants have a fixed 30-day maximum lifetime; access tokens last 15 minutes.
 7. `POST /revoke` with `token`, `client_id` and optional `token_type_hint`. Either token revokes the entire grant. Unknown tokens return success.
@@ -77,7 +77,7 @@ Protocol references: [MCP authorization](https://modelcontextprotocol.io/specifi
 
 ## Storage failures and login retries
 
-Authorization completion consumes the browser transaction and inserts its code
+Authorization completion marks the browser transaction complete and inserts its code
 in one MongoDB transaction. Use MongoDB Atlas or a replica set (including for local
 development); standalone MongoDB does not support this atomic operation.
 The driver retries eligible reads/writes and transient transaction/commit errors.
@@ -93,8 +93,12 @@ or indexes need to be deleted for this fix.
 Browser storage errors show a retry page with the transaction ID and a support
 reference; passwords are never embedded in retry pages. Missing/expired links tell
 users to restart linking from ChatGPT. Reloading consent preserves the existing
-CSRF token so another pending browser tab remains valid. Completed transactions
-remain single-use.
+CSRF token so another pending browser tab remains valid. Completed transactions retain an encrypted recovery copy of their code until expiry.
+Recovery is bound to the original user and browser CSRF token; redeemed or expired
+codes cannot be recovered or exchanged again. The encryption key is derived from
+`INTROSPECTION_SECRET` (or `JWT_SECRET` as a fallback), so all auth replicas must
+share the same secret. Rotating it invalidates outstanding recovery results. Codes
+remain single-use at `/token`.
 
 `GET /ready` checks database connectivity and returns 503 during an outage.
 503 responses include `Retry-After: 3` and `X-Request-ID`. Server logs record the
@@ -104,3 +108,11 @@ network/Atlas IP allowlists, database credentials/permissions, unsupported stand
 transactions, or index conflicts. OAuth collections need read/write access; the
 existing user database needs read access. Application retries cannot fix persistent
 permissions, bad credentials or blocked network access.
+
+
+A consent form without email/password is valid only while its login session is
+active. If that session expires before submission, browser requests show the
+sign-in form again. Incorrect credentials stay on the form with an inline error;
+passwords are not echoed. Transactions deleted by older deployments or removed by
+TTL cannot be recreated from a transaction ID alone; start a fresh ChatGPT linking
+flow after deploying these changes.

@@ -37,10 +37,10 @@ class Collection:
     async def insert_one(self, doc, session=None):
         self.documents.append(copy.deepcopy(doc))
 
-    async def find_one(self, query):
+    async def find_one(self, query, session=None):
         return next((copy.deepcopy(d) for d in self.documents if self.matches(d, query)), None)
 
-    async def find_one_and_update(self, query, update):
+    async def find_one_and_update(self, query, update, session=None):
         for doc in self.documents:
             if self.matches(doc, query):
                 before = copy.deepcopy(doc)
@@ -267,7 +267,7 @@ def test_consent_csrf_login_and_transaction_single_use(client):
     assert len(client.collections["codes"].documents) == 1
     # Reinstall form cookie to check transaction consumption, independently of CSRF.
     client.cookies.set(authorize.CSRF_COOKIE, csrf, path="/oauth/login")
-    assert client.post("/oauth/login", data=form).status_code == 400
+    assert client.post("/oauth/login", data=form, follow_redirects=False).status_code == 303
     assert client.get(location).status_code == 400
 
 def test_deny_and_session_still_require_consent(client):
@@ -460,7 +460,7 @@ def test_failed_code_write_rolls_back_transaction_and_can_retry(client, monkeypa
     assert client.get(location).status_code == 200
     second = client.post("/oauth/login", data=form, headers={"Accept": "text/html"}, follow_redirects=False)
     assert second.status_code == 303
-    assert not client.collections["transactions"].documents
+    assert all(doc.get("completed") for doc in client.collections["transactions"].documents)
     assert len(collection.documents) == 1
 
 
@@ -474,7 +474,7 @@ def test_session_write_failure_does_not_lose_authorization(client, monkeypatch):
     assert response.status_code == 303
     code = parse_qs(urlsplit(response.headers["location"]).query)["code"][0]
     assert exchange(client, client_id, code).status_code == 200
-    assert not client.collections["transactions"].documents
+    assert all(doc.get("completed") for doc in client.collections["transactions"].documents)
 
 
 def test_storage_read_failure_has_browser_retry_and_api_error(client, monkeypatch):
@@ -532,3 +532,59 @@ def test_readiness_checks_database(client, monkeypatch):
     assert client.get("/ready").json() == {"status": "ready"}
     ping.side_effect = ConnectionFailure()
     assert client.get("/ready").status_code == 503
+
+
+def test_duplicate_allow_resumes_same_unused_code_and_stops_after_redemption(client):
+    client_id = register(client).json()["client_id"]
+    _, form = consent_form(client, client_id)
+    first = client.post("/oauth/login", data=form, follow_redirects=False)
+    second = client.post("/oauth/login", data=form, follow_redirects=False)
+    assert first.status_code == second.status_code == 303
+    assert first.headers["location"] == second.headers["location"]
+    assert len(client.collections["codes"].documents) == 1
+    code = parse_qs(urlsplit(first.headers["location"]).query)["code"][0]
+    assert code not in repr(client.collections["transactions"].documents)
+    assert exchange(client, client_id, code).status_code == 200
+    assert client.post("/oauth/login", data=form, follow_redirects=False).status_code == 400
+
+
+def test_completed_consent_is_bound_to_original_user_and_browser(client):
+    client_id = register(client).json()["client_id"]
+    _, form = consent_form(client, client_id)
+    assert client.post("/oauth/login", data=form, follow_redirects=False).status_code == 303
+    # A new matching cookie/form token still cannot recover another browser's result.
+    other_csrf = "b" * 43
+    cookie = next(cookie for cookie in client.cookies.jar if cookie.name == authorize.CSRF_COOKIE)
+    cookie.value = other_csrf
+    other = dict(form, csrf_token=other_csrf)
+    assert client.post("/oauth/login", data=other, follow_redirects=False).status_code == 400
+    cookie.value = form["csrf_token"]
+    for session in client.collections["sessions"].documents:
+        session["user_id"] = "different-user"
+    assert client.post("/oauth/login", data=form, follow_redirects=False).status_code == 400
+
+
+def test_signed_in_form_recovers_when_login_session_expires(client):
+    client_id = register(client).json()["client_id"]
+    authorize_code(client, client_id)
+    location, form = consent_form(client, client_id)
+    assert 'name="password"' not in client.get(location).text
+    for session in client.collections["sessions"].documents:
+        session["expires_at"] = oauth.now() - timedelta(seconds=1)
+    minimal = {key: form[key] for key in ("transaction_id", "csrf_token", "decision")}
+    response = client.post("/oauth/login", data=minimal, headers={"Accept": "text/html"}, follow_redirects=False)
+    assert response.status_code == 200
+    assert "Please sign in again" in response.text and 'name="password"' in response.text
+    assert not client.collections["transactions"].documents[-1].get("completed")
+    assert client.post("/oauth/login", data=form, follow_redirects=False).status_code == 303
+
+
+def test_wrong_password_stays_on_form_without_echoing_password(client):
+    client_id = register(client).json()["client_id"]
+    _, form = consent_form(client, client_id)
+    form["password"] = "bad-secret-password"
+    response = client.post("/oauth/login", data=form, headers={"Accept": "text/html"})
+    assert response.status_code == 200
+    assert "Please try again" in response.text
+    assert "bad-secret-password" not in response.text
+    assert 'value="user@example.com"' in response.text
