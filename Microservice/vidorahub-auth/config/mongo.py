@@ -9,7 +9,7 @@ class Settings(BaseSettings):
     mongodb_users_database: str | None = None
     jwt_secret: SecretStr | None = None
     oauth_issuer: str = "https://vidorahub-e5925e63.fastapicloud.dev"
-    mcp_resource: str = "https://vidorahub.fastapicloud.dev/mcp"
+    mcp_resource: str = "https://vidorahub-fastapi2-189065286116.asia-south1.run.app/mcp"
     oauth_scopes: str = "mcp:access"
     oauth_cookie_secure: bool = True
     introspection_secret: SecretStr | None = None
