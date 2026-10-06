@@ -73,3 +73,34 @@ python -m pytest tests -q
 Tests replace MongoDB collections with in-memory implementations and skip application startup. They cover registration, unsafe redirects, authorization validation, sign-in, CSRF, consent, single-use transactions, PKCE/client/resource binding, replay, refresh rotation, scope narrowing, revocation, expiry, discovery and introspection authentication. A real MongoDB/proxy deployment smoke test is still required.
 
 Protocol references: [MCP authorization](https://modelcontextprotocol.io/specification/2025-11-25/basic/authorization), [RFC 7591 registration](https://www.rfc-editor.org/rfc/rfc7591), [RFC 7662 introspection](https://www.rfc-editor.org/rfc/rfc7662), [RFC 9700 OAuth security](https://www.rfc-editor.org/rfc/rfc9700).
+
+
+## Storage failures and login retries
+
+Authorization completion consumes the browser transaction and inserts its code
+in one MongoDB transaction. Use MongoDB Atlas or a replica set (including for local
+development); standalone MongoDB does not support this atomic operation.
+The driver retries eligible reads/writes and transient transaction/commit errors.
+A failed/aborted code write keeps the original browser transaction available until
+its normal ten-minute expiry. A remembered login session is optional: if its write
+fails after the code commits, the code is still returned to ChatGPT.
+
+Session writes populate both hashed `session_id` and legacy `session_hash` fields.
+This preserves compatibility with the older unique `session_hash` index, which
+otherwise rejects repeated inserts with a missing/null value. No account records
+or indexes need to be deleted for this fix.
+
+Browser storage errors show a retry page with the transaction ID and a support
+reference; passwords are never embedded in retry pages. Missing/expired links tell
+users to restart linking from ChatGPT. Reloading consent preserves the existing
+CSRF token so another pending browser tab remains valid. Completed transactions
+remain single-use.
+
+`GET /ready` checks database connectivity and returns 503 during an outage.
+503 responses include `Retry-After: 3` and `X-Request-ID`. Server logs record the
+request reference, route, MongoDB exception type and error code, excluding exception
+messages and credentials. Use these to identify deployment-specific failures:
+network/Atlas IP allowlists, database credentials/permissions, unsupported standalone
+transactions, or index conflicts. OAuth collections need read/write access; the
+existing user database needs read access. Application retries cannot fix persistent
+permissions, bad credentials or blocked network access.

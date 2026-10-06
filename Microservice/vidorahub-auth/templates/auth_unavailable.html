@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ 'Please try again' if unavailable else 'Start a new connection' }} &middot; VidoraHub</title>
+  <style nonce="{{ style_nonce }}">
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100svh; display: grid; place-items: center; padding: 24px; background: #f7f7f5; color: #242628; font-family: ui-sans-serif, system-ui, sans-serif; }
+    main { width: 100%; max-width: 460px; padding: 36px; background: white; border: 1px solid #e5e6e3; border-radius: 20px; box-shadow: 0 18px 65px #26382d09; }
+    .brand { color: #ca3c48; font-weight: 750; font-size: 18px; }
+    h1 { font-size: 26px; letter-spacing: -.7px; margin: 26px 0 12px; }
+    p { color: #70747a; font-size: 14px; line-height: 1.7; }
+    button { width: 100%; padding: 13px; margin-top: 15px; border: 0; border-radius: 9px; background: #ca3c48; color: white; font: inherit; font-weight: 650; cursor: pointer; }
+    button:hover { background: #b72e3b; }
+    button:focus-visible { outline: 3px solid #d3545c; outline-offset: 3px; }
+    .reference { margin-top: 25px; font-size: 11px; overflow-wrap: anywhere; }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="brand">VidoraHub</div>
+    {% if unavailable %}
+    <h1>We could not finish signing you in</h1>
+    <p>Our sign-in service is temporarily unavailable. Wait a few seconds, then try again.</p>
+    {% else %}
+    <h1>Start a new connection</h1>
+    <p>This connection is missing, expired, or already completed. Open VidoraHub in ChatGPT to start a new sign-in.</p>
+    {% endif %}
+    {% if transaction_id and unavailable %}
+    <form method="get" action="/oauth/login">
+      <input type="hidden" name="transaction_id" value="{{ transaction_id }}">
+      <button type="submit">Try again</button>
+    </form>
+    {% endif %}
+    <p>If this connection has expired or already completed, return to ChatGPT and start a new connection.</p>
+    {% if request_id %}<p class="reference">Support reference: {{ request_id }}</p>{% endif %}
+  </main>
+</body>
+</html>

@@ -5,7 +5,8 @@ import time
 from datetime import datetime, timedelta, timezone
 from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 from fastapi import HTTPException
-from config.mongo import (settings, oauth_clients_collection, oauth_authorization_codes_collection,
+from pymongo.write_concern import WriteConcern
+from config.mongo import (client, settings, oauth_clients_collection, oauth_authorization_codes_collection,
     oauth_sessions_collection, oauth_transactions_collection)
 from security.token_hash import hash_token
 
@@ -71,7 +72,10 @@ async def get_oauth_transaction(transaction_id):
 
 async def create_oauth_session(response, user_id):
     session_id = secrets.token_urlsafe(32)
-    await oauth_sessions_collection.insert_one({"session_id": hash_token(session_id),
+    session_hash = hash_token(session_id)
+    # Older deployments retain a unique session_hash index. Populate both hash
+    # fields so subsequent sessions do not collide on a missing/null legacy key.
+    await oauth_sessions_collection.insert_one({"session_id": session_hash, "session_hash": session_hash,
         "user_id": user_id, "expires_at": now() + timedelta(seconds=SESSION_SECONDS)})
     response.set_cookie(SESSION_COOKIE, session_id, httponly=True,
         secure=settings.oauth_cookie_secure, samesite="lax", max_age=SESSION_SECONDS)
@@ -80,13 +84,32 @@ async def get_oauth_session(session_id):
     return await oauth_sessions_collection.find_one(
         {"session_id": hash_token(session_id), "expires_at": {"$gt": now()}})
 
-async def create_authorization_code(transaction, user_id):
+async def create_authorization_code(transaction, user_id, session=None):
     raw_code = secrets.token_urlsafe(32)
     fields = {key: transaction[key] for key in ("client_id", "redirect_uri", "resource",
         "scope", "code_challenge", "code_challenge_method")}
     await oauth_authorization_codes_collection.insert_one(dict(fields, user_id=user_id,
-        code_hash=hash_token(raw_code), used=False, expires_at=now() + timedelta(minutes=5)))
+        code_hash=hash_token(raw_code), used=False, expires_at=now() + timedelta(minutes=5)),
+        session=session)
     return raw_code
+
+
+async def complete_authorization(transaction_id, user_id):
+    """Commit code issuance and single-use consumption together (MongoDB replica set)."""
+    async def complete(session):
+        transaction = await oauth_transactions_collection.find_one_and_delete(
+            {"transaction_id": transaction_id, "expires_at": {"$gt": now()}}, session=session)
+        if not transaction:
+            oauth_error("invalid_request", "Authorization transaction already completed or expired")
+        code = await create_authorization_code(transaction, user_id, session=session) if user_id else None
+        return transaction, code
+
+    async with await client.start_session() as session:
+        # The driver retries transient transaction/commit failures; aborted work rolls back.
+        return await session.with_transaction(
+            complete, max_commit_time_ms=5000,
+            write_concern=WriteConcern("majority", wtimeout=5000),
+        )
 
 def callback_url(transaction, **params):
     parsed = urlsplit(transaction["redirect_uri"])

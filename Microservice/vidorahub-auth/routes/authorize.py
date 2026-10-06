@@ -1,19 +1,36 @@
 import secrets
+import logging
+import re
 from pathlib import Path
 from urllib.parse import urlencode, urlsplit
 from fastapi import APIRouter, Form, Query, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
-from config.mongo import settings, oauth_transactions_collection
+from config.mongo import settings
+from pymongo.errors import PyMongoError
 from security.sessions import get_oauth_user
 from services.user_service import authenticate_password
-from services.oauth_service import (now, oauth_error, validate_authorization,
+from services.oauth_service import (oauth_error, validate_authorization,
     create_oauth_transaction, get_oauth_transaction, create_oauth_session,
-    create_authorization_code, callback_url)
+    complete_authorization, callback_url)
 
 router = APIRouter(tags=["OAuth"])
 CSRF_COOKIE = "vh_oauth_csrf"
 templates = Jinja2Templates(directory=Path(__file__).resolve().parents[1] / "templates")
+logger = logging.getLogger(__name__)
+
+
+def problem_page(request, transaction_id=None, status_code=503, request_id=None):
+    nonce = secrets.token_urlsafe(24)
+    return templates.TemplateResponse(
+        request=request, name="auth_unavailable.html",
+        context={"transaction_id": transaction_id, "style_nonce": nonce, "request_id": request_id,
+            "unavailable": status_code == 503},
+        status_code=status_code,
+        headers={**({"Retry-After": "3"} if status_code == 503 else {}), "Referrer-Policy": "same-origin",
+            "Content-Security-Policy": "default-src 'none'; "
+                f"style-src 'nonce-{nonce}'; form-action 'self'; frame-ancestors 'none'; base-uri 'none'"},
+    )
 
 @router.get("/authorize", responses={
     302: {"description": "Open the redirect in a browser to sign in and grant access"},
@@ -42,7 +59,10 @@ async def authorize(request: Request, client_id: str, redirect_uri: str, respons
 async def login_page(request: Request, transaction_id: str):
     transaction = await get_oauth_transaction(transaction_id)
     client = await validate_authorization(transaction)
-    csrf = secrets.token_urlsafe(32)
+    # Reuse the browser token so reloading consent does not invalidate another tab.
+    csrf = request.cookies.get(CSRF_COOKIE, "")
+    if not re.fullmatch(r"[A-Za-z0-9_-]{43}", csrf):
+        csrf = secrets.token_urlsafe(32)
     user_id = await get_oauth_user(request)
     style_nonce = secrets.token_urlsafe(24)
     response = templates.TemplateResponse(
@@ -87,15 +107,16 @@ async def login_submit(request: Request, transaction_id: str = Form(...),
         user_id = await get_oauth_user(request) or await authenticate_password(email, password)
         if not user_id:
             oauth_error("access_denied", "Invalid email or password", 401)
-    consumed = await oauth_transactions_collection.find_one_and_delete(
-        {"transaction_id": transaction_id, "expires_at": {"$gt": now()}})
-    if not consumed:
-        oauth_error("invalid_request", "Authorization transaction already completed")
+    transaction, code = await complete_authorization(transaction_id, user_id)
     if decision == "deny":
         response = RedirectResponse(callback_url(transaction, error="access_denied"), 303)
     else:
-        code = await create_authorization_code(transaction, user_id)
         response = RedirectResponse(callback_url(transaction, code=code), 303)
-        await create_oauth_session(response, user_id)
-    response.delete_cookie(CSRF_COOKIE, path="/oauth/login")
+        try:
+            await create_oauth_session(response, user_id)
+        except PyMongoError as exc:
+            # A remembered session is optional; the committed code must still reach the client.
+            logger.warning("OAuth session creation failed error=%s code=%s",
+                type(exc).__name__, getattr(exc, "code", None))
+    # The cookie expires naturally; other pending consent tabs may still need it.
     return response

@@ -17,7 +17,11 @@ class Settings(BaseSettings):
         env_file_encoding="utf-8", extra="ignore")
 
 settings = Settings()
-client = AsyncIOMotorClient(settings.mongodb_uri, tz_aware=True, serverSelectionTimeoutMS=5000)
+client = AsyncIOMotorClient(
+    settings.mongodb_uri, tz_aware=True,
+    serverSelectionTimeoutMS=10000, connectTimeoutMS=5000, socketTimeoutMS=15000,
+    retryReads=True, retryWrites=True,
+)
 db = client[settings.mongodb_database]
 users_db = client[settings.mongodb_users_database or settings.mongodb_database]
 users_collection = users_db["userprofiles"]

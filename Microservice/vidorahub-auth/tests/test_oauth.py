@@ -34,7 +34,7 @@ class Collection:
                 return False
         return True
 
-    async def insert_one(self, doc):
+    async def insert_one(self, doc, session=None):
         self.documents.append(copy.deepcopy(doc))
 
     async def find_one(self, query):
@@ -50,7 +50,7 @@ class Collection:
     async def update_one(self, query, update):
         await self.find_one_and_update(query, update)
 
-    async def find_one_and_delete(self, query):
+    async def find_one_and_delete(self, query, session=None):
         for index, doc in enumerate(self.documents):
             if self.matches(doc, query):
                 return self.documents.pop(index)
@@ -65,7 +65,25 @@ def client(monkeypatch):
         ("oauth_authorization_codes_collection", "codes"), ("oauth_sessions_collection", "sessions"),
         ("oauth_transactions_collection", "transactions")):
         monkeypatch.setattr(oauth, name, collections[value])
-    monkeypatch.setattr(authorize, "oauth_transactions_collection", collections["transactions"])
+    class Session:
+        async def __aenter__(self):
+            return self
+
+        async def __aexit__(self, *args):
+            pass
+
+        async def with_transaction(self, callback, **kwargs):
+            snapshot = {name: copy.deepcopy(collection.documents) for name, collection in collections.items()}
+            try:
+                return await callback(self)
+            except BaseException:
+                for name, documents in snapshot.items():
+                    collections[name].documents = documents
+                raise
+
+    from types import SimpleNamespace
+    from unittest.mock import AsyncMock
+    monkeypatch.setattr(oauth, "client", SimpleNamespace(start_session=AsyncMock(return_value=Session())))
     for name in ("codes", "tokens", "grants"):
         monkeypatch.setattr(tokens, name, collections[name])
     monkeypatch.setattr(user_service, "users_collection", collections["users"])
@@ -403,3 +421,114 @@ def test_mcp_adapter_checks_issuer_audience_and_fails_closed(monkeypatch):
     assert asyncio.run(verifier.verify_token("access-token")) is None
     data.clear()
     assert asyncio.run(verifier.verify_token("access-token")) is None
+
+
+def consent_form(client, client_id):
+    location = start(client, client_id).headers["location"]
+    client.get(location, headers={"Accept": "text/html"})
+    transaction_id = parse_qs(urlsplit(location).query)["transaction_id"][0]
+    return location, dict(transaction_id=transaction_id,
+        csrf_token=client.cookies.get(authorize.CSRF_COOKIE), decision="allow",
+        email="user@example.com", password="password")
+
+
+def test_failed_code_write_rolls_back_transaction_and_can_retry(client, monkeypatch, caplog):
+    from pymongo.errors import OperationFailure
+    client_id = register(client).json()["client_id"]
+    location, form = consent_form(client, client_id)
+    collection = client.collections["codes"]
+    original_insert = collection.insert_one
+    failed = False
+    async def insert(doc, session=None):
+        nonlocal failed
+        if not failed:
+            failed = True
+            raise OperationFailure("private database error", code=91)
+        return await original_insert(doc, session=session)
+    monkeypatch.setattr(collection, "insert_one", insert)
+    first = client.post("/oauth/login", data=form, headers={"Accept": "text/html"}, follow_redirects=False)
+    assert first.status_code == 503
+    assert "Try again" in first.text
+    assert form["transaction_id"] in first.text
+    assert 'name="password"' not in first.text and 'value="password"' not in first.text
+    assert "private database error" not in first.text and "private database error" not in caplog.text
+    assert first.headers["retry-after"] == "3"
+    assert first.headers["x-request-id"] in caplog.text
+    assert "OperationFailure" in caplog.text and "code=91" in caplog.text
+    assert len(client.collections["transactions"].documents) == 1
+    assert not collection.documents
+    assert client.get(location).status_code == 200
+    second = client.post("/oauth/login", data=form, headers={"Accept": "text/html"}, follow_redirects=False)
+    assert second.status_code == 303
+    assert not client.collections["transactions"].documents
+    assert len(collection.documents) == 1
+
+
+def test_session_write_failure_does_not_lose_authorization(client, monkeypatch):
+    from pymongo.errors import ConnectionFailure
+    from unittest.mock import AsyncMock
+    client_id = register(client).json()["client_id"]
+    _, form = consent_form(client, client_id)
+    monkeypatch.setattr(client.collections["sessions"], "insert_one", AsyncMock(side_effect=ConnectionFailure()))
+    response = client.post("/oauth/login", data=form, follow_redirects=False)
+    assert response.status_code == 303
+    code = parse_qs(urlsplit(response.headers["location"]).query)["code"][0]
+    assert exchange(client, client_id, code).status_code == 200
+    assert not client.collections["transactions"].documents
+
+
+def test_storage_read_failure_has_browser_retry_and_api_error(client, monkeypatch):
+    from pymongo.errors import ServerSelectionTimeoutError
+    from unittest.mock import AsyncMock
+    client_id = register(client).json()["client_id"]
+    location, _ = consent_form(client, client_id)
+    collection = client.collections["transactions"]
+    monkeypatch.setattr(collection, "find_one", AsyncMock(side_effect=ServerSelectionTimeoutError()))
+    browser = client.get(location, headers={"Accept": "text/html"})
+    assert browser.status_code == 503 and "Try again" in browser.text
+    api = client.get(location)
+    assert api.status_code == 503
+    assert api.json()["error"] == "temporarily_unavailable"
+    assert api.json()["request_id"] == api.headers["x-request-id"]
+    assert len(collection.documents) == 1
+
+
+def test_reloading_consent_preserves_forms_in_other_tabs(client):
+    client_id = register(client).json()["client_id"]
+    first_location, first = consent_form(client, client_id)
+    _, second = consent_form(client, client_id)
+    assert first["csrf_token"] == second["csrf_token"]
+    client.get(first_location)
+    response = client.post("/oauth/login", data=first, follow_redirects=False)
+    assert response.status_code == 303
+    response = client.post("/oauth/login", data=second, follow_redirects=False)
+    assert response.status_code == 303
+
+
+def test_multiple_sessions_populate_legacy_unique_hash_field(client):
+    client_id = register(client).json()["client_id"]
+    authorize_code(client, client_id)
+    authorize_code(client, client_id)
+    sessions = client.collections["sessions"].documents
+    assert len(sessions) == 2
+    assert all(session["session_hash"] == session["session_id"] for session in sessions)
+    assert len({session["session_hash"] for session in sessions}) == 2
+
+
+def test_expired_and_missing_browser_transactions_offer_restart(client):
+    for path in ("/oauth/login", "/oauth/login?transaction_id=expired"):
+        response = client.get(path, headers={"Accept": "text/html"})
+        assert response.status_code == 400
+        assert "Start a new connection" in response.text
+        assert "Try again</button>" not in response.text
+
+
+def test_readiness_checks_database(client, monkeypatch):
+    from types import SimpleNamespace
+    from unittest.mock import AsyncMock
+    from pymongo.errors import ConnectionFailure
+    ping = AsyncMock()
+    monkeypatch.setattr(main, "client", SimpleNamespace(admin=SimpleNamespace(command=ping)))
+    assert client.get("/ready").json() == {"status": "ready"}
+    ping.side_effect = ConnectionFailure()
+    assert client.get("/ready").status_code == 503
