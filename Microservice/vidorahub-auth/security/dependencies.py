@@ -1,53 +1,10 @@
-
 from typing import Annotated
-
 import jwt
 from bson import ObjectId
-from fastapi import Depends, HTTPException, Request,Header
+from fastapi import Depends, HTTPException, Request
 from fastapi.security import APIKeyHeader
 from pymongo.errors import PyMongoError
-import secrets
-
-
-from config.mongo import settings, users_collection,oauth_transactions_collection
-from datetime import datetime, timedelta,timezone
-
-async def require_oauth_token(
-    authorization: str | None = Header(default=None),
-):
-
-    if not authorization:
-        raise HTTPException(
-            status_code=401,
-            detail="Authorization required",
-            headers={
-                "WWW-Authenticate": "Bearer"
-            },
-        )
-
-    if not authorization.lower().startswith(
-        "bearer "
-    ):
-        raise HTTPException(
-            status_code=401,
-            detail="Invalid authorization header",
-        )
-
-    token = authorization[7:].strip()
-
-    if not token:
-        raise HTTPException(
-            status_code=401,
-            detail="Access token missing",
-        )
-
-    # JWT validation will be added here.
-
-    return token
-
-
-
-
+from config.mongo import settings, users_collection
 
 # APIKeyHeader also supports the legacy raw-token header accepted by Express.
 authorization_header = APIKeyHeader(
@@ -59,8 +16,8 @@ authorization_header = APIKeyHeader(
 async def require_authenticated_user(
     request: Request,
     authorization: Annotated[str | None, Depends(authorization_header)],
-) -> dict:
-    """Opt in with Depends(require_sign_in); no global auth middleware is needed."""
+) -> str:
+    """Validate existing Vidorahub backend login tokens."""
     def unauthorized(message: str) -> HTTPException:
         return HTTPException(401, detail=message, headers={"WWW-Authenticate": "Bearer"})
 
@@ -99,45 +56,3 @@ async def require_authenticated_user(
     user["_id"] = str(user["_id"])
     request.state.user = user
     return user["_id"]
-
-
-
-async def create_oauth_transaction(
-    *,
-    client_id: str,
-    redirect_uri: str,
-    response_type: str,
-    scope: str | None,
-    state: str | None,
-    code_challenge: str,
-    code_challenge_method: str,
-):
-    transaction_id = secrets.token_urlsafe(32)
-
-    now = datetime.now(timezone.utc)
-
-    await oauth_transactions_collection.insert_one(
-        {
-            "transaction_id": transaction_id,
-
-            "client_id": client_id,
-            "redirect_uri": redirect_uri,
-
-            "response_type": response_type,
-
-            "scope": scope,
-            "state": state,
-
-            "code_challenge": code_challenge,
-            "code_challenge_method":
-                code_challenge_method,
-
-            "created_at": now,
-
-            "expires_at": (
-                now + timedelta(minutes=10)
-            ),
-        }
-    )
-
-    return transaction_id

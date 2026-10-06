@@ -1,342 +1,97 @@
-from fastapi import Header,HTTPException,Response
-import jwt
-from config.mongo import settings,users_collection,oauth_clients_collection
-from bson import ObjectId
-from models.oauth import OAuthClient
-
-
-
-import hashlib
+"""Client registration and browser authorization state."""
+import re
 import secrets
 import time
 from datetime import datetime, timedelta, timezone
+from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
+from fastapi import HTTPException
+from config.mongo import (settings, oauth_clients_collection, oauth_authorization_codes_collection,
+    oauth_sessions_collection, oauth_transactions_collection)
+from security.token_hash import hash_token
 
-from config.mongo import (
-    oauth_clients_collection,
-    oauth_authorization_codes_collection,
-    oauth_sessions_collection
-)
+SESSION_COOKIE = "vh_oauth_session"
+SESSION_SECONDS = 3600
 
+def now():
+    return datetime.now(timezone.utc)
 
-AUTHORIZATION_CODE_EXPIRE_SECONDS = 300
+def oauth_error(error, description, status=400):
+    raise HTTPException(status, detail={"error": error, "error_description": description})
 
-OAUTH_SESSION_EXPIRE_SECONDS = 600
+def validate_scope(scope, allowed=None):
+    scopes = (scope or "").split()
+    if not set(scopes) <= set(settings.oauth_scopes.split()) or (allowed is not None
+        and not set(scopes) <= set(allowed.split())):
+        oauth_error("invalid_scope", "Unsupported scope")
+    return " ".join(dict.fromkeys(scopes))
 
+async def create_oauth_client(data):
+    document = data.model_dump()
+    document["scope"] = validate_scope(data.scope if data.scope is not None else settings.oauth_scopes)
+    document.update(client_id="vhc_" + secrets.token_urlsafe(24),
+        client_id_issued_at=int(time.time()), isActive=True)
+    await oauth_clients_collection.insert_one(dict(document))
+    return document
 
-def generate_session_id() -> str:
-    return secrets.token_urlsafe(48)
+async def get_oauth_client(client_id):
+    client = await oauth_clients_collection.find_one({"client_id": client_id})
+    return client if client and client.get("isActive", True) else None
 
+async def validate_authorization(params):
+    client = await get_oauth_client(params["client_id"])
+    if not client:
+        oauth_error("invalid_client", "Unknown or disabled client")
+    if params["redirect_uri"] not in client.get("redirect_uris", []):
+        oauth_error("invalid_request", "Invalid redirect_uri")
+    if params["response_type"] != "code":
+        oauth_error("unsupported_response_type", "Only code is supported")
+    if "authorization_code" not in client.get("grant_types", []):
+        oauth_error("unauthorized_client", "Authorization code grant is not allowed")
+    if params.get("code_challenge_method") != "S256" or not re.fullmatch(
+        r"[A-Za-z0-9_-]{43}", params.get("code_challenge") or ""):
+        oauth_error("invalid_request", "A valid S256 PKCE challenge is required")
+    if params.get("resource") != settings.mcp_resource:
+        oauth_error("invalid_target", "resource must match the configured MCP resource")
+    params["scope"] = validate_scope(params.get("scope") if params.get("scope") is not None
+        else client.get("scope", settings.oauth_scopes), client.get("scope", settings.oauth_scopes))
+    return client
 
-async def create_oauth_session(
-    response : Response,
-    user_id: str,
-) -> str:
+async def create_oauth_transaction(params):
+    transaction_id = secrets.token_urlsafe(32)
+    await oauth_transactions_collection.insert_one(dict(params, transaction_id=transaction_id,
+        expires_at=now() + timedelta(minutes=10)))
+    return transaction_id
 
-    session_id = generate_session_id()
+async def get_oauth_transaction(transaction_id):
+    transaction = await oauth_transactions_collection.find_one(
+        {"transaction_id": transaction_id, "expires_at": {"$gt": now()}})
+    if not transaction:
+        oauth_error("invalid_request", "Invalid or expired authorization transaction")
+    return transaction
 
-    now = datetime.now(timezone.utc)
+async def create_oauth_session(response, user_id):
+    session_id = secrets.token_urlsafe(32)
+    await oauth_sessions_collection.insert_one({"session_id": hash_token(session_id),
+        "user_id": user_id, "expires_at": now() + timedelta(seconds=SESSION_SECONDS)})
+    response.set_cookie(SESSION_COOKIE, session_id, httponly=True,
+        secure=settings.oauth_cookie_secure, samesite="lax", max_age=SESSION_SECONDS)
 
-    expires_at = (
-        now
-        + timedelta(
-            seconds=OAUTH_SESSION_EXPIRE_SECONDS
-        )
-    )
-
-    await oauth_sessions_collection.insert_one(
-        {
-            "session_id": session_id,
-            "user_id": user_id,
-            "created_at": now,
-            "expires_at": expires_at,
-        }
-    )
-    response.set_cookie(
-        key="oauth_session",
-        value=session_id,
-        httponly=True,   # Prevents JavaScript from reading the cookie (protects against XSS)
-        secure=True,     # Set to True in production (requires HTTPS)
-        samesite="lax",  # Controls cross-site cookie sending
-        max_age=86400    # Expiration time in seconds (e.g., 1 day)
-    )
-
-    return session_id
-
-
-async def get_oauth_session(
-    session_id: str,
-):
+async def get_oauth_session(session_id):
     return await oauth_sessions_collection.find_one(
-        {
-            "session_id": session_id,
-            "expires_at": {
-                "$gt": datetime.now(timezone.utc)
-            },
-        }
-    )
+        {"session_id": hash_token(session_id), "expires_at": {"$gt": now()}})
 
-
-def generate_client_id() -> str:
-    return f"vhc_{secrets.token_urlsafe(24)}"
-
-
-def generate_authorization_code() -> str:
-    return secrets.token_urlsafe(48)
-
-
-def hash_secret(value: str) -> str:
-    return hashlib.sha256(
-        value.encode("utf-8")
-    ).hexdigest()
-
-
-async def create_oauth_client(
-    *,
-    client_name: str,
-    redirect_uris: list[str],
-    grant_types: list[str],
-    response_types: list[str],
-    token_endpoint_auth_method: str,
-    scope : str,
-    isActive : bool
-):
-    client_id = generate_client_id()
-
-    now = int(time.time())
-
-    document = {
-        "client_id": client_id,
-        "client_name": client_name,
-        "redirect_uris": redirect_uris,
-
-        "grant_types": grant_types,
-        "response_types": response_types,
-
-        "token_endpoint_auth_method":
-            token_endpoint_auth_method,
-
-        "client_id_issued_at": now,
-
-        "created_at": datetime.now(timezone.utc),
-        "updated_at": datetime.now(timezone.utc),
-        "scope" : scope,
-        "isActive" : isActive
-    }
-
-    await oauth_clients_collection.insert_one(document)
-
-    return {
-        "client_id": client_id,
-        "client_name": client_name,
-        "redirect_uris": redirect_uris,
-        "grant_types": grant_types,
-        "response_types": response_types,
-        "token_endpoint_auth_method":
-            token_endpoint_auth_method,
-        "client_id_issued_at": now,
-        "scope" : scope,
-        "isActive" : isActive
-    }
-
-
-async def get_oauth_client(
-    client_id: str,
-):
-    return await oauth_clients_collection.find_one(
-        {
-            "client_id": client_id
-        }
-    )
-
-
-def verify_redirect_uri(
-    client: dict,
-    redirect_uri: str,
-) -> bool:
-    return redirect_uri in client.get(
-        "redirect_uris",
-        []
-    )
-
-
-async def create_authorization_code(
-    *,
-    client_id: str,
-    user_id: str,
-    redirect_uri: str,
-    scope: str | None,
-    code_challenge: str,
-    code_challenge_method: str,
-):
-    raw_code = generate_authorization_code()
-
-    code_hash = hash_secret(raw_code)
-
-    expires_at = datetime.now(
-        timezone.utc
-    ) + timedelta(
-        seconds=AUTHORIZATION_CODE_EXPIRE_SECONDS
-    )
-
-    document = {
-        "code_hash": code_hash,
-
-        "client_id": client_id,
-        "user_id": user_id,
-
-        "redirect_uri": redirect_uri,
-
-        "scope": scope,
-
-        "code_challenge": code_challenge,
-        "code_challenge_method":
-            code_challenge_method,
-
-        "expires_at": expires_at,
-
-        "used": False,
-
-        "created_at":
-            datetime.now(timezone.utc),
-    }
-
-    await oauth_authorization_codes_collection.insert_one(
-        document
-    )
-
+async def create_authorization_code(transaction, user_id):
+    raw_code = secrets.token_urlsafe(32)
+    fields = {key: transaction[key] for key in ("client_id", "redirect_uri", "resource",
+        "scope", "code_challenge", "code_challenge_method")}
+    await oauth_authorization_codes_collection.insert_one(dict(fields, user_id=user_id,
+        code_hash=hash_token(raw_code), used=False, expires_at=now() + timedelta(minutes=5)))
     return raw_code
 
-async def authenticate_user(
-    authorization: str | None,
-):
-    if not authorization:
-        raise HTTPException(
-            status_code=401,
-            detail="Authorization header is required",
-            headers={
-                "WWW-Authenticate": "Bearer"
-            },
-        )
-
-    token = authorization.strip()
-    
-
-    if token.lower().startswith("bearer "):
-        token = token[7:].strip()
-
-    if not token:
-        raise HTTPException(
-            status_code=401,
-            detail="Token is missing",
-            headers={
-                "WWW-Authenticate": "Bearer"
-            },
-        )
-    secret = settings.jwt_secret.get_secret_value() if settings.jwt_secret else ""
-    try:
-
-        payload = jwt.decode(
-            token,
-            secret,
-            algorithms=["HS256"],
-            options={
-                "require": [
-                    "exp",
-                    "_id",
-                ]
-            },
-        )
-
-        user_id = payload["_id"]
-
-        if not isinstance(user_id, str):
-            raise ValueError()
-
-        if not ObjectId.is_valid(user_id):
-            raise ValueError()
-
-    except (
-        jwt.InvalidTokenError,
-        TypeError,
-        ValueError,
-    ):
-        raise HTTPException(
-            status_code=401,
-            detail="Invalid or expired token",
-            headers={
-                "WWW-Authenticate": "Bearer"
-            },
-        ) from None
-
-    user = await users_collection.find_one(
-        {
-            "_id": ObjectId(user_id)
-        },
-        {
-            "name": 1,
-            "email": 1,
-            "role": 1,
-            "profilePicUrl": 1,
-            "userSerialNumber": 1,
-        },
-    )
-
-    if not user:
-        raise HTTPException(
-            status_code=401,
-            detail="User not found",
-            headers={
-                "WWW-Authenticate": "Bearer"
-            },
-        )
-
-    return {
-        "user_id": str(user["_id"]),
-        "name": user.get("name"),
-        "email": user.get("email"),
-        "role": user.get("role"),
-        "profilePicUrl": user.get("profilePicUrl"),
-        "userSerialNumber": user.get(
-            "userSerialNumber"
-        ),
-    }
-
-
-
-async def get_oauth_client(
-    client_id: str
-) -> OAuthClient:
-
-    client = await oauth_clients_collection.find_one({"client_id":client_id})
-
-    # if not client:
-    #     raise HTTPException(
-    #         status_code=400,
-    #         detail="Unknown client_id"
-    #     )
-    # if redirect_uri not in client.redirect_uris:
-    #    raise HTTPException(
-    #         status_code=400,
-    #         detail="Invalid redirect_uri"
-    # )
-    # if response_type != "code":
-    #     raise HTTPException(
-    #         status_code=400,
-    #         detail="Unsupported response_type"
-    #     )
-    # if "authorization_code" not in client.grant_types:
-    #     raise HTTPException(
-    #         status_code=400,
-    #         detail="Client does not support authorization_code grant"
-    #     )
-    # if code_challenge_method != "S256":
-    #     raise HTTPException(
-    #         status_code=400,
-    #         detail="Only S256 PKCE is supported"
-    #     )
-    # if resource != EXPECTED_RESOURCE:
-    #     raise HTTPException(
-    #         status_code=400,
-    #         detail="Invalid resource"
-    #     )
-    return client
+def callback_url(transaction, **params):
+    parsed = urlsplit(transaction["redirect_uri"])
+    query = parse_qsl(parsed.query, keep_blank_values=True)
+    query.extend(params.items())
+    if transaction.get("state") is not None:
+        query.append(("state", transaction["state"]))
+    return urlunsplit(parsed._replace(query=urlencode(query)))

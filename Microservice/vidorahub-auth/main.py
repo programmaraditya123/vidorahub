@@ -1,93 +1,58 @@
-from fastapi import FastAPI,Header,Depends,Query
-from fastapi.responses import JSONResponse
 from contextlib import asynccontextmanager
-from config.mongo import client,create_oauth_indexes
-from services.oauth_service import authenticate_user
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from typing import Annotated
-from security.dependencies import require_authenticated_user 
-# from startup_functions.db import create_default_oauth_client
-from routes.oauth import router as oauth_router
-from routes.authorize import router as authorize_router
+from fastapi import FastAPI, Depends, Request, HTTPException
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse
+from pymongo.errors import PyMongoError
+from config.mongo import client, create_oauth_indexes
+from routes import authorize, metadata, oauth, revoke, token
+from security.dependencies import require_authenticated_user
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):
+async def lifespan(app):
     await client.admin.command("ping")
-    print("MongoDB connected successfully")
     await create_oauth_indexes()
-    # await create_default_oauth_client()
-    yield
+    try:
+        yield
+    finally:
+        client.close()
 
-    # async with mcp.session_manager.run():
-    # yield
+app = FastAPI(title="VidoraHub Authorization Server", version="1.0.0", lifespan=lifespan)
+for module in (metadata, oauth, authorize, token, revoke):
+    app.include_router(module.router)
+
+@app.middleware("http")
+async def response_security(request: Request, call_next):
+    response = await call_next(request)
+    response.headers["Cache-Control"] = "no-store"
+    response.headers["Pragma"] = "no-cache"
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers.setdefault("Referrer-Policy", "no-referrer")
+    # FastAPI's docs load CDN assets and inline scripts to render their UI.
+    docs_paths = {app.docs_url, app.redoc_url, app.swagger_ui_oauth2_redirect_url}
+    if request.scope.get("path") not in docs_paths:
+        response.headers.setdefault("Content-Security-Policy", "default-src 'none'; form-action 'self'; frame-ancestors 'none'; base-uri 'none'")
+    return response
 
 
-app = FastAPI(
-    title="VidoraHub Authorization Server",
-    version="1.0.0",
-    lifespan=lifespan
-)
+@app.exception_handler(HTTPException)
+async def oauth_exception(request, exc):
+    body = exc.detail if isinstance(exc.detail, dict) else {"error": "invalid_request", "error_description": exc.detail}
+    return JSONResponse(body, status_code=exc.status_code, headers=exc.headers)
 
-app.include_router(oauth_router)
-app.include_router(authorize_router)
+@app.exception_handler(RequestValidationError)
+async def invalid_request(request, exc):
+    if request.scope.get("path") in {"/register", "/oauth/register"}:
+        return JSONResponse({"error": "invalid_client_metadata", "error_description": "Invalid public client registration metadata"}, status_code=400)
+    return JSONResponse({"error": "invalid_request", "error_description": "Missing or invalid request parameters"}, status_code=400)
 
-@app.get('/')
-def home():
-    return "the mcp-auth backend is runing"
+@app.exception_handler(PyMongoError)
+async def database_unavailable(request, exc):
+    return JSONResponse({"error": "temporarily_unavailable", "error_description": "Authentication storage is unavailable"}, status_code=503)
 
-@app.get("/.well-known/oauth-authorization-server")
-async def oauth_authorization_server():
-    return {
-        "issuer": "https://auth.vidorahub.com",
-
-        "authorization_endpoint":
-            "https://auth.vidorahub.com/authorize",
-
-        "token_endpoint":
-            "https://auth.vidorahub.com/token",
-
-        "response_types_supported": [
-            "code"
-        ],
-
-        "grant_types_supported": [
-            "authorization_code",
-            "refresh_token"
-        ],
-
-        "code_challenge_methods_supported": [
-            "S256"
-        ]
-    }
-
-# security = HTTPBearer()
+@app.get("/")
+async def home():
+    return {"service": "vidorahub-auth", "status": "ok"}
 
 @app.get("/auth/me")
-async def get_authenticated_user(user_id : Annotated[str,Depends(require_authenticated_user)]):
-
-
-    return {
-        "authenticated": True,
-        "user": user_id,
-    }
-
-
-
-
-
-# @app.get("/authorize")
-# async def authorize(
-#     user_id: Annotated[
-#         str,
-#         Depends(require_authenticated_user)
-#     ],
-
-#     response_type: str = Query(...),
-#     client_id: str = Query(...),
-#     redirect_uri: str = Query(...),
-#     state: str | None = Query(default=None),
-#     code_challenge: str = Query(...),
-#     code_challenge_method: str = Query(...),
-#     resource: str = Query(...),
-# ):
-    
+async def get_authenticated_user(user_id: str = Depends(require_authenticated_user)):
+    return {"authenticated": True, "user": user_id}

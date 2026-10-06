@@ -1,13 +1,12 @@
 fastapi[standard]
 uvicorn[standard]>=0.30.0
-mcp<2
 motor
 pymongo
-
-pydantic
+pydantic>=2,<3
 pydantic-settings
 python-dotenv
+python-multipart
 PyJWT>=2.10.1,<3
 bcrypt
-
 httpx
+Jinja2>=3.1,<4
