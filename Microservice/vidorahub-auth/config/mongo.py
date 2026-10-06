@@ -7,7 +7,7 @@ class Settings(BaseSettings):
     mongodb_database : str
     jwt_secret: SecretStr | None = None
 
-    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
+    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8",extra ="ignore")
 
 settings = Settings()
 
@@ -18,6 +18,8 @@ db = client[settings.mongodb_database]
 users_collection = db["userprofiles"]
 oauth_clients_collection = db["oauth_client"]
 oauth_authorization_codes_collection=db["oauth_authorization_codes"]
+oauth_sessions_collection = db["oauth_sessions"]
+oauth_transactions_collection = db["oauth_transactions"]
 
 
 async def create_oauth_indexes():
@@ -33,6 +35,25 @@ async def create_oauth_indexes():
     )
 
     await oauth_authorization_codes_collection.create_index(
+        "expires_at",
+        expireAfterSeconds=0,
+    )
+
+    await oauth_sessions_collection.create_index(
+    "session_id",
+    unique=True,
+    )
+
+    await oauth_sessions_collection.create_index(
+        "expires_at",
+        expireAfterSeconds=0,
+    )
+    await oauth_transactions_collection.create_index(
+    "transaction_id",
+    unique=True,
+    )
+
+    await oauth_transactions_collection.create_index(
         "expires_at",
         expireAfterSeconds=0,
     )

@@ -6,14 +6,16 @@ from services.oauth_service import authenticate_user
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from typing import Annotated
 from security.dependencies import require_authenticated_user 
-from startup_functions.db import create_default_oauth_client
+# from startup_functions.db import create_default_oauth_client
+from routes.oauth import router as oauth_router
+from routes.authorize import router as authorize_router
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     await client.admin.command("ping")
     print("MongoDB connected successfully")
     await create_oauth_indexes()
-    await create_default_oauth_client()
+    # await create_default_oauth_client()
     yield
 
     # async with mcp.session_manager.run():
@@ -25,6 +27,9 @@ app = FastAPI(
     version="1.0.0",
     lifespan=lifespan
 )
+
+app.include_router(oauth_router)
+app.include_router(authorize_router)
 
 @app.get('/')
 def home():
@@ -55,7 +60,7 @@ async def oauth_authorization_server():
         ]
     }
 
-security = HTTPBearer()
+# security = HTTPBearer()
 
 @app.get("/auth/me")
 async def get_authenticated_user(user_id : Annotated[str,Depends(require_authenticated_user)]):
@@ -65,6 +70,10 @@ async def get_authenticated_user(user_id : Annotated[str,Depends(require_authent
         "authenticated": True,
         "user": user_id,
     }
+
+
+
+
 
 # @app.get("/authorize")
 # async def authorize(

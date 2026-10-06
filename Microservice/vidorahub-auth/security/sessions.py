@@ -1,17 +1,26 @@
+from fastapi import Request
 
-import secrets
-from datetime import datetime, timedelta, timezone
-
-
-SESSION_LIFETIME = timedelta(hours=1)
-
-
-def generate_session_id() -> str:
-    return secrets.token_urlsafe(32)
+from services.oauth_service import (
+    get_oauth_session,
+)
 
 
-def session_expiry() -> datetime:
-    return (
-        datetime.now(timezone.utc)
-        + SESSION_LIFETIME
+async def get_oauth_user(
+    request: Request,
+):
+    session_id = request.cookies.get(
+        "vh_oauth_session"
     )
+    print("+++++++++",session_id)
+
+    if not session_id:
+        return None
+
+    session = await get_oauth_session(
+        session_id
+    )
+
+    if not session:
+        return None
+
+    return session["user_id"]
