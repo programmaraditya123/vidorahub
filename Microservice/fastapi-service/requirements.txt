@@ -1,6 +1,6 @@
 fastapi[standard]
 uvicorn[standard]>=0.30.0
-mcp<2
+mcp>=1.14.1,<2
 motor
 pymongo
 

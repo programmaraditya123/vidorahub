@@ -75,8 +75,8 @@ MCP tool list. The advertised tools are `search_vidorahub_videos` and
 | `minPrice` / `maxPrice` | Inclusive nonnegative price bounds | No price bounds |
 | `rating` | Minimum `rating.average`, from 1 to 5 inclusive | No rating filter |
 | `sort` | `latest`, `price_asc`, or `price_desc` | `latest` |
-| `page` | Page number, 1–10000 | 1 |
-| `limit` | Products per page, 1–100 | 20 |
+| `page` | Page number, 1â€“10000 | 1 |
+| `limit` | Products per page, 1â€“100 | 20 |
 
 Example: `/api/products/find?query=shirt&minPrice=100&maxPrice=2000&rating=4&sort=price_asc`
 
@@ -149,9 +149,47 @@ const response = await fetch(`${FASTAPI_URL}/api/auth/check-session`, {
 
 Use the token returned by backend login. Legacy raw Authorization tokens also
 work. CORS permits Authorization for configured frontend origins. Existing
-products, videos, health, and MCP endpoints remain public. This dependency
+products, videos and health endpoints remain public. MCP HTTP requests require OAuth. This dependency
 protects HTTP routes, not MCP tool calls. If adding cross-origin POST/PUT/DELETE
 routes, also allow those methods in main.py.
 
 Run auth tests: `.\.venv\Scripts\python.exe -m unittest test_auth -v`.
 Tests use real JWT verification with mocked MongoDB; they do not access live users.
+
+
+## MCP OAuth and ChatGPT discovery
+
+The HTTP MCP transport now requires OAuth access tokens from the separate
+Vidorahub auth server. Existing Express login JWTs still apply only to the
+selected REST APIs. STDIO continues to use its local transport.
+
+Set these deployment environment variables on the MCP service:
+
+```env
+OAUTH_ISSUER=https://vidorahub-e5925e63.fastapicloud.dev
+MCP_RESOURCE=https://vidorahub.fastapicloud.dev/mcp
+OAUTH_SCOPES=mcp:access
+INTROSPECTION_SECRET=<same random secret configured on the auth service>
+```
+
+Set the same issuer, resource and introspection secret on the auth deployment,
+and set `OAUTH_COOKIE_SECURE=true` there for HTTPS. The local `.env` files have
+matching generated secrets; transfer them through your deployment's secret settings,
+not through source control. Redeploy both services after updating their configuration.
+
+The MCP service exposes public metadata at `/.well-known/oauth-protected-resource`
+and `/.well-known/oauth-protected-resource/mcp`. A compatibility alias at
+`/mcp/.well-known/oauth-protected-resource` resolves the challenge URL emitted
+by older MCP SDK versions. All return the public MCP resource and auth issuer.
+Missing/invalid bearer tokens receive 401 with a discovery challenge; insufficient
+scopes receive 403. Valid access tokens are introspected at the auth service and
+checked for issuer, audience, expiry and scopes before MCP tools execute.
+A missing introspection secret or unavailable auth service rejects access.
+
+In ChatGPT add `https://vidorahub.fastapicloud.dev/mcp` with OAuth and dynamic
+client registration. The auth service already provides `/register` and S256 PKCE.
+Use the ChatGPT-provided callback when registering a predefined client.
+
+Run isolated OAuth tests from this directory:
+`python -m unittest test_mcp_oauth -v`.
+These tests mock MongoDB and introspection and exercise the real MCP transport.

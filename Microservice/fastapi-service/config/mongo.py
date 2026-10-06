@@ -1,13 +1,21 @@
 from motor.motor_asyncio import AsyncIOMotorClient
 from pydantic_settings import BaseSettings,SettingsConfigDict
 from pydantic import SecretStr
+from pathlib import Path
 
 class Settings(BaseSettings):
     mongodb_uri : str
     mongodb_database : str
     jwt_secret: SecretStr | None = None
+    oauth_issuer: str = "https://vidorahub-e5925e63.fastapicloud.dev"
+    mcp_resource: str = "https://vidorahub.fastapicloud.dev/mcp"
+    oauth_scopes: str = "mcp:access"
+    introspection_secret: SecretStr | None = None
 
-    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
+    model_config = SettingsConfigDict(
+        env_file=Path(__file__).resolve().parents[1] / ".env",
+        env_file_encoding="utf-8", extra="ignore",
+    )
 
 settings = Settings()
 

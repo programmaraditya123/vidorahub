@@ -5,10 +5,12 @@ from typing import Literal
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from mcp.server.fastmcp import FastMCP
+from mcp.server.auth.settings import AuthSettings
 from mcp.server.transport_security import TransportSecuritySettings
 from mcp.types import ToolAnnotations
 
-from config.mongo import db,client
+from config.mongo import db, client, settings
+from services.mcp_auth import VidoraHubTokenVerifier
 from services.search import search_videos,find_trending_video
 from services.videos import get_Video_Details
 from routes.health import router as main_router
@@ -28,6 +30,14 @@ mcp = FastMCP(
     json_response=True,
     stateless_http=True,
     streamable_http_path="/mcp",
+    auth=AuthSettings(
+        issuer_url=settings.oauth_issuer,
+        resource_server_url=settings.mcp_resource,
+        required_scopes=settings.oauth_scopes.split(),
+    ),
+    token_verifier=VidoraHubTokenVerifier(
+        settings.oauth_issuer, settings.mcp_resource, settings.introspection_secret,
+    ),
     transport_security=TransportSecuritySettings(
         enable_dns_rebinding_protection=True,
         allowed_hosts=[
@@ -197,6 +207,19 @@ app.include_router(video_router)
 app.include_router(product_router)
 app.include_router(auth_router)
 app.include_router(store_router)
+
+
+@app.get("/.well-known/oauth-protected-resource", tags=["OAuth"])
+@app.get("/.well-known/oauth-protected-resource/mcp", include_in_schema=False)
+@app.get("/mcp/.well-known/oauth-protected-resource", include_in_schema=False)
+async def oauth_protected_resource():
+    # The last alias also supports older SDKs that advertise this URL in 401s.
+    return {
+        "resource": settings.mcp_resource,
+        "authorization_servers": [settings.oauth_issuer.rstrip("/")],
+        "scopes_supported": settings.oauth_scopes.split(),
+        "bearer_methods_supported": ["header"],
+    }
 
 
 
