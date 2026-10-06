@@ -14,7 +14,7 @@ from mcp.server.auth.provider import AccessToken
 from pydantic import SecretStr
 
 ISSUER = "https://vidorahub-e5925e63.fastapicloud.dev"
-RESOURCE = "https://vidorahub.fastapicloud.dev/mcp"
+RESOURCE = "https://vidorahub-fastapi2-189065286116.asia-south1.run.app/mcp"
 HEADERS = {"Accept": "application/json, text/event-stream"}
 
 
@@ -30,7 +30,7 @@ class MCPOAuthTests(unittest.TestCase):
             setattr(mongo, name, MagicMock())
         with patch.dict(sys.modules, {"config.mongo": mongo}):
             cls.main = importlib.import_module("main")
-        cls.client = TestClient(cls.main.app, base_url="https://vidorahub.fastapicloud.dev")
+        cls.client = TestClient(cls.main.app, base_url="https://vidorahub-fastapi2-189065286116.asia-south1.run.app")
         cls.client.__enter__()
 
     @classmethod

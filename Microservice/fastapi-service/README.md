@@ -5,7 +5,7 @@ The MCP endpoint is `/mcp` (Streamable HTTP). `/`, `/health`, and
 The tools currently read the sample catalog in `constants/videos.py`.
 
 The production host `vidorahub.fastapicloud.dev` is explicitly allowed.
-After deploying this code, use `https://vidorahub.fastapicloud.dev/mcp`
+After deploying this code, use `https://vidorahub-fastapi2-189065286116.asia-south1.run.app/mcp`
 in Gemini Spark's custom-app URL field. A `421 Invalid Host header`
 response means MCP host validation rejected the hostname; `/health` can
 still succeed in that situation. Other domains need `MCP_ALLOWED_HOSTS`.
@@ -167,7 +167,7 @@ Set these deployment environment variables on the MCP service:
 
 ```env
 OAUTH_ISSUER=https://vidorahub-e5925e63.fastapicloud.dev
-MCP_RESOURCE=https://vidorahub.fastapicloud.dev/mcp
+MCP_RESOURCE=https://vidorahub-fastapi2-189065286116.asia-south1.run.app/mcp
 OAUTH_SCOPES=mcp:access
 INTROSPECTION_SECRET=<same random secret configured on the auth service>
 ```
@@ -186,7 +186,7 @@ scopes receive 403. Valid access tokens are introspected at the auth service and
 checked for issuer, audience, expiry and scopes before MCP tools execute.
 A missing introspection secret or unavailable auth service rejects access.
 
-In ChatGPT add `https://vidorahub.fastapicloud.dev/mcp` with OAuth and dynamic
+In ChatGPT add `https://vidorahub-fastapi2-189065286116.asia-south1.run.app/mcp` with OAuth and dynamic
 client registration. The auth service already provides `/register` and S256 PKCE.
 Use the ChatGPT-provided callback when registering a predefined client.
 

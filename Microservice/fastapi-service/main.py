@@ -2,6 +2,7 @@ import argparse
 import os
 from contextlib import asynccontextmanager
 from typing import Literal
+from urllib.parse import urlsplit
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from mcp.server.fastmcp import FastMCP
@@ -25,6 +26,9 @@ def env_list(name: str) -> list[str]:
     return [value.strip() for value in os.getenv(name, "").split(",") if value.strip()]
 
 
+mcp_resource_url = urlsplit(settings.mcp_resource)
+
+
 mcp = FastMCP(
     "VidoraHub",
     json_response=True,
@@ -43,9 +47,11 @@ mcp = FastMCP(
         allowed_hosts=[
             "localhost", "localhost:*", "127.0.0.1", "127.0.0.1:*", "[::1]", "[::1]:*",
             "vidorahub.fastapicloud.dev", "vidorahub.fastapicloud.dev:443",
+            mcp_resource_url.netloc, f"{mcp_resource_url.hostname}:443",
             *env_list("MCP_ALLOWED_HOSTS"),
         ],
         allowed_origins=[
+            f"{mcp_resource_url.scheme}://{mcp_resource_url.netloc}",
             "http://localhost", "http://localhost:*", "http://127.0.0.1", "http://127.0.0.1:*",
             "https://vidorahub.fastapicloud.dev","www.vidorahub.com","https://www.vidorahub.com","https://studio.vidorahub.com",
             *env_list("MCP_ALLOWED_ORIGINS"),
