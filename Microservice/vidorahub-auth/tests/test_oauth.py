@@ -4,7 +4,7 @@ import os
 import sys
 from datetime import timedelta
 from pathlib import Path
-from urllib.parse import parse_qs, urlsplit
+from urllib.parse import parse_qs, unquote, urlsplit
 
 os.environ["MONGODB_URI"] = "mongodb://localhost:27017"
 os.environ["MONGODB_DATABASE"] = "oauth_tests"
@@ -588,6 +588,40 @@ def test_wrong_password_stays_on_form_without_echoing_password(client):
     assert "Please try again" in response.text
     assert "bad-secret-password" not in response.text
     assert 'value="user@example.com"' in response.text
+
+
+@pytest.mark.parametrize("redirect,origin", [
+    ("https://client.example/callback?existing=value", "https://client.example"),
+    ("http://127.0.0.1:3000/callback", "http://127.0.0.1:3000"),
+    ("http://[::1]:3000/callback", "http://[::1]:3000"),
+    ("https://client.example:8443/callback", "https://client.example:8443"),
+    ("https://b\u00fccher.example/callback", "https://xn--bcher-kva.example"),
+])
+def test_consent_csp_allows_only_self_and_validated_callback_origin(client, redirect, origin):
+    client_id = register(client, redirect_uris=[redirect]).json()["client_id"]
+    location = start(client, client_id, redirect_uri=redirect).headers["location"]
+    page = client.get(location)
+    assert page.status_code == 200
+    policy = page.headers["content-security-policy"]
+    directive = next(part.strip() for part in policy.split(";") if part.strip().startswith("form-action "))
+    assert directive == f"form-action 'self' {origin}"
+    assert "default-src 'none'" in policy and "frame-ancestors 'none'" in policy
+    transaction_id = parse_qs(urlsplit(location).query)["transaction_id"][0]
+    form = dict(transaction_id=transaction_id, csrf_token=client.cookies.get(authorize.CSRF_COOKIE),
+        decision="allow", email="user@example.com", password="wrong-password")
+    retry = client.post("/oauth/login", data=form, headers={"Accept": "text/html"})
+    assert retry.status_code == 200
+    assert f"form-action 'self' {origin};" in retry.headers["content-security-policy"]
+    form["password"] = "password"
+    response = client.post("/oauth/login", data=form, follow_redirects=False)
+    assert response.status_code == 303
+    assert unquote(response.headers["location"]).startswith(redirect)
+
+
+def test_callback_cannot_inject_csp_directives():
+    directive = authorize.consent_form_action("https://example.com;script-src=evil.example/callback")
+    assert ";" not in directive
+    assert directive == "'self' https://example.com%3Bscript-src%3Devil.example"
 
 
 def test_login_resumes_pending_browser_link_when_query_is_missing(client):

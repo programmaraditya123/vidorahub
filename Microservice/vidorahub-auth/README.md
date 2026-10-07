@@ -77,6 +77,13 @@ Protocol references: [MCP authorization](https://modelcontextprotocol.io/specifi
 
 ## Storage failures and login retries
 
+The consent page's CSP permits form submission to this service and the validated
+OAuth callback origin. Chrome checks the cross-origin redirect after the login
+POST against `form-action`; allowing only `'self'` can block the callback even
+after login successfully returns 303. Callback paths and query parameters are
+excluded from this policy, and callback origins are encoded to prevent directive
+injection. Other pages keep their existing policy.
+
 If login says "Start a new connection", begin a fresh authorization from the app
 connecting to VidoraHub. Each browser transaction expires after ten minutes and
 MongoDB then cleans it up with a TTL index. Opening `/oauth/login` directly in

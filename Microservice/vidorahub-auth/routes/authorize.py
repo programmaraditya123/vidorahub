@@ -2,7 +2,7 @@ import secrets
 import logging
 import re
 from pathlib import Path
-from urllib.parse import urlencode, urlsplit
+from urllib.parse import quote, urlencode, urlsplit
 from fastapi import APIRouter, Form, Query, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
@@ -71,12 +71,27 @@ async def login_page(request: Request, transaction_id: str | None = Query(None,
     return render_consent(request, transaction, client, user_id)
 
 
+def consent_form_action(redirect_uri):
+    """Allow the validated callback origin through a browser's form redirect check."""
+    callback = urlsplit(redirect_uri)
+    hostname = callback.hostname.encode("idna").decode("ascii")
+    if ":" in hostname:
+        hostname = f"[{hostname}]"
+    if callback.port is not None:
+        hostname += f":{callback.port}"
+    # A registered URL must never introduce extra CSP directives or source tokens.
+    origin = f"{callback.scheme}://{quote(hostname, safe='[]:.-')}"
+    return f"'self' {origin}"
+
+
 def render_consent(request, transaction, client, user_id, error_message=None, email=""):
     # Reuse the browser token so reloading consent does not invalidate another tab.
     csrf = request.cookies.get(CSRF_COOKIE, "")
     if not re.fullmatch(r"[A-Za-z0-9_-]{43}", csrf):
         csrf = secrets.token_urlsafe(32)
     style_nonce = secrets.token_urlsafe(24)
+    # Chrome also checks the cross-origin 303 callback against the source page's CSP.
+    form_action = consent_form_action(transaction["redirect_uri"])
     response = templates.TemplateResponse(
         request=request, name="consent.html",
         context={"client_name": client["client_name"],
@@ -89,7 +104,7 @@ def render_consent(request, transaction, client, user_id, error_message=None, em
             # Keep browser form POST Origin intact; suppress cross-origin referrers.
             "Referrer-Policy": "same-origin",
             "Content-Security-Policy": "default-src 'none'; "
-                f"style-src 'nonce-{style_nonce}'; form-action 'self'; "
+                f"style-src 'nonce-{style_nonce}'; form-action {form_action}; "
                 "frame-ancestors 'none'; base-uri 'none'",
         },
     )
