@@ -81,6 +81,21 @@ class MCPOAuthTests(unittest.TestCase):
             self.assertEqual(response.status_code, 200, response.text)
             names = {tool["name"] for tool in response.json()["result"]["tools"]}
             self.assertIn("search_vidorahub_videos", names)
+            self.assertIn("get_current_vidorahub_user", names)
+
+    def test_current_user_tool_uses_server_resolver_without_user_arguments(self):
+        token = AccessToken(token="valid", client_id="client", scopes=["mcp:access"],
+            expires_at=int(time.time()) + 600, resource=RESOURCE)
+        user = {"id": "507f1f77bcf86cd799439011", "name": "Test User"}
+        with patch.object(self.main.mcp._token_verifier, "verify_token", AsyncMock(return_value=token)), \
+                patch.object(self.main, "get_current_mcp_user", AsyncMock(return_value=user)) as resolver:
+            response = self.client.post("/mcp", headers={**HEADERS, "Authorization": "Bearer valid"},
+                json={"jsonrpc": "2.0", "id": 3, "method": "tools/call", "params": {
+                    "name": "get_current_vidorahub_user", "arguments": {}}})
+        self.assertEqual(response.status_code, 200, response.text)
+        self.assertFalse(response.json()["result"].get("isError", False))
+        self.assertIn(user["id"], response.text)
+        resolver.assert_awaited_once_with()
 
     def test_health_is_still_public(self):
         self.assertEqual(self.client.get("/health").json(), {"status": "ok"})

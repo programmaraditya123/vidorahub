@@ -6,7 +6,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from pymongo.errors import PyMongoError
 from config.mongo import client, create_oauth_indexes, db, users_db
-from routes import authorize, metadata, oauth, revoke, token
+from routes import authorize, metadata, oauth, revoke, token, users
 from security.dependencies import require_authenticated_user
 
 logger = logging.getLogger(__name__)
@@ -23,7 +23,7 @@ async def lifespan(app):
         client.close()
 
 app = FastAPI(title="VidoraHub Authorization Server", version="1.0.0", lifespan=lifespan)
-for module in (metadata, oauth, authorize, token, revoke):
+for module in (metadata, oauth, authorize, token, revoke, users):
     app.include_router(module.router)
 
 @app.middleware("http")

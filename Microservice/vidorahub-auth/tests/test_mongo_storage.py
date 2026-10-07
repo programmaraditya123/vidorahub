@@ -106,6 +106,8 @@ def test_real_mongo_authorize_login_tokens_and_refresh(monkeypatch):
                     "resource": mongo.settings.mcp_resource})
                 assert response.status_code == 200, response.text
                 access = response.json()["access_token"]
+                profile = browser.get("/oauth/userinfo", headers={"Authorization": "Bearer " + access})
+                assert profile.status_code == 200 and profile.json()["user"]["id"] == str(user_id)
                 response = browser.post("/introspect", data={"token": access},
                     headers={"Authorization": "Bearer smoke-test-secret"})
                 assert response.json()["active"] and response.json()["sub"] == str(user_id)

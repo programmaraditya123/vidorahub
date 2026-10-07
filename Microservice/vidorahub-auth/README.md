@@ -33,6 +33,9 @@ Tokens and session IDs are stored as SHA-256 hashes. All expiry checks happen in
 
 ## Connect the MCP resource server
 
+See [User identity and MCP tool reuse](USER_IDENTITY.md) for `/oauth/userinfo`,
+the reusable user helpers, token collections, and ChatGPT's validation flow.
+
 The separate `Microservice/fastapi-service` MCP service must validate bearer tokens and advertise protected-resource metadata. Its HTTP transport is wired to `services/mcp_auth.py` for introspection. Deploy both services with matching issuer, resource and introspection-secret settings. Deploying this auth service alone does not protect an older MCP deployment.
 
 The MCP service is configured with `AuthSettings` and a token verifier. For another resource service, `integrations/mcp_verifier.py` is a reusable adapter; the wiring is:

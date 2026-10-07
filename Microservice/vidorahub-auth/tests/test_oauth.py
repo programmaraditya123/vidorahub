@@ -11,6 +11,7 @@ os.environ["MONGODB_DATABASE"] = "oauth_tests"
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 import bcrypt
+from bson import ObjectId
 import pytest
 from fastapi.testclient import TestClient
 from pydantic import SecretStr
@@ -37,8 +38,12 @@ class Collection:
     async def insert_one(self, doc, session=None):
         self.documents.append(copy.deepcopy(doc))
 
-    async def find_one(self, query, session=None):
-        return next((copy.deepcopy(d) for d in self.documents if self.matches(d, query)), None)
+    async def find_one(self, query, projection=None, session=None, **kwargs):
+        document = next((copy.deepcopy(d) for d in self.documents if self.matches(d, query)), None)
+        if document is not None and projection is not None:
+            return {key: value for key, value in document.items()
+                if projection.get(key) or (key == "_id" and projection.get("_id", 1))}
+        return document
 
     async def find_one_and_update(self, query, update, session=None):
         for doc in self.documents:
@@ -92,7 +97,8 @@ def client(monkeypatch):
     monkeypatch.setattr(settings, "mcp_resource", "https://mcp.example/mcp")
     monkeypatch.setattr(settings, "oauth_scopes", "mcp:access")
     monkeypatch.setattr(settings, "introspection_secret", SecretStr("test-resource-secret"))
-    collections["users"].documents.append({"_id": "user-1", "email": "user@example.com",
+    collections["users"].documents.append({"_id": ObjectId("507f1f77bcf86cd799439011"),
+        "name": "Test User", "role": 0, "email": "user@example.com",
         "password": bcrypt.hashpw(b"password", bcrypt.gensalt(rounds=4)).decode()})
     # No context manager: skip Mongo startup; every collection used below is replaced.
     http = TestClient(main.app)
@@ -201,7 +207,7 @@ def test_full_flow_rotation_reuse_revocation_and_storage(client):
     first = response.json()
     assert response.headers["cache-control"] == "no-store"
     identity = introspect(client, first["access_token"])
-    assert identity["active"] and identity["sub"] == "user-1" and identity["aud"] == settings.mcp_resource
+    assert identity["active"] and identity["sub"] == "507f1f77bcf86cd799439011" and identity["aud"] == settings.mcp_resource
     form = dict(grant_type="refresh_token", client_id=client_id,
         refresh_token=first["refresh_token"], resource=settings.mcp_resource)
     response = client.post("/token", data=form)
@@ -622,6 +628,63 @@ def test_callback_cannot_inject_csp_directives():
     directive = authorize.consent_form_action("https://example.com;script-src=evil.example/callback")
     assert ";" not in directive
     assert directive == "'self' https://example.com%3Bscript-src%3Devil.example"
+
+
+def test_oauth_userinfo_returns_only_current_user_safe_fields(client):
+    client_id = register(client).json()["client_id"]
+    pair = exchange(client, client_id, authorize_code(client, client_id)).json()
+    response = client.get("/oauth/userinfo", headers={"Authorization": "Bearer " + pair["access_token"]})
+    assert response.status_code == 200
+    assert response.json() == {"authenticated": True, "user": {
+        "id": "507f1f77bcf86cd799439011", "name": "Test User", "email": "user@example.com",
+        "role": 0, "profilePicUrl": None}}
+    assert "password" not in response.text and "token_hash" not in response.text
+    assert response.headers["cache-control"] == "no-store"
+    assert client.get("/oauth/userinfo", headers={"Authorization": "Bearer " + pair["refresh_token"]}).status_code == 401
+    assert client.collections["tokens"].documents[0]["token_hash"] == hash_token(pair["access_token"])
+
+
+@pytest.mark.parametrize("header", [None, "Basic credentials", "Bearer invalid", "raw-token"])
+def test_oauth_userinfo_requires_valid_bearer_access_token(client, header):
+    response = client.get("/oauth/userinfo", headers={"Authorization": header} if header else {})
+    assert response.status_code == 401 and "Bearer" in response.headers["www-authenticate"]
+
+
+@pytest.mark.parametrize("condition,status", [("expired", 401), ("revoked", 401),
+    ("client_disabled", 401), ("grant_revoked", 401), ("wrong_audience", 401),
+    ("missing_scope", 403), ("user_missing", 401), ("user_blocked", 401), ("user_deleted", 401)])
+def test_oauth_userinfo_rejects_unusable_identity(client, condition, status):
+    client_id = register(client).json()["client_id"]
+    pair = exchange(client, client_id, authorize_code(client, client_id)).json()
+    access = next(doc for doc in client.collections["tokens"].documents if doc["kind"] == "access")
+    if condition == "expired":
+        access["expires_at"] = oauth.now() - timedelta(seconds=1)
+    elif condition == "revoked":
+        access["revoked"] = True
+    elif condition == "client_disabled":
+        client.collections["clients"].documents[0]["isActive"] = False
+    elif condition == "grant_revoked":
+        client.collections["grants"].documents[0]["revoked"] = True
+    elif condition == "wrong_audience":
+        access["resource"] = "https://other.example/mcp"
+    elif condition == "missing_scope":
+        access["scope"] = ""
+    elif condition == "user_missing":
+        client.collections["users"].documents.clear()
+    else:
+        client.collections["users"].documents[0]["isBlocked" if condition == "user_blocked" else "isDeleted"] = True
+    response = client.get("/oauth/userinfo", headers={"Authorization": "Bearer " + pair["access_token"]})
+    assert response.status_code == status
+
+
+def test_oauth_userinfo_storage_failure_returns_503(client, monkeypatch):
+    from pymongo.errors import ConnectionFailure
+    from unittest.mock import AsyncMock
+    client_id = register(client).json()["client_id"]
+    pair = exchange(client, client_id, authorize_code(client, client_id)).json()
+    monkeypatch.setattr(client.collections["users"], "find_one", AsyncMock(side_effect=ConnectionFailure()))
+    response = client.get("/oauth/userinfo", headers={"Authorization": "Bearer " + pair["access_token"]})
+    assert response.status_code == 503 and response.json()["error"] == "temporarily_unavailable"
 
 
 def test_login_resumes_pending_browser_link_when_query_is_missing(client):

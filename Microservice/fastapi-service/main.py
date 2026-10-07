@@ -12,6 +12,7 @@ from mcp.types import ToolAnnotations
 
 from config.mongo import db, client, settings
 from services.mcp_auth import VidoraHubTokenVerifier
+from services.mcp_user import get_current_mcp_user
 from services.search import search_videos,find_trending_video
 from services.videos import get_Video_Details
 from routes.health import router as main_router
@@ -58,6 +59,12 @@ mcp = FastMCP(
         ],
     ),
 )
+
+
+@mcp.tool(annotations=ToolAnnotations(readOnlyHint=True, destructiveHint=False, idempotentHint=True))
+async def get_current_vidorahub_user() -> dict:
+    """Get the VidoraHub profile of the authenticated caller."""
+    return await get_current_mcp_user()
 
 
 @mcp.tool(annotations=ToolAnnotations(readOnlyHint=True, destructiveHint=False, idempotentHint=True))
