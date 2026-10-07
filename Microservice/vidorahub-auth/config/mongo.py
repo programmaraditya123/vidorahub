@@ -1,5 +1,6 @@
 from pathlib import Path
 from motor.motor_asyncio import AsyncIOMotorClient
+from pymongo.write_concern import WriteConcern
 from pydantic import SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -22,7 +23,8 @@ client = AsyncIOMotorClient(
     serverSelectionTimeoutMS=10000, connectTimeoutMS=5000, socketTimeoutMS=15000,
     retryReads=True, retryWrites=True,
 )
-db = client[settings.mongodb_database]
+db = client.get_database(settings.mongodb_database,
+    write_concern=WriteConcern("majority", wtimeout=5000))
 users_db = client[settings.mongodb_users_database or settings.mongodb_database]
 users_collection = users_db["userprofiles"]
 oauth_clients_collection = db["oauth_client"]

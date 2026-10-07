@@ -9,12 +9,16 @@ from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 from fastapi import HTTPException
 from cryptography.fernet import Fernet, InvalidToken
 from pymongo.write_concern import WriteConcern
+from pymongo.read_concern import ReadConcern
+from pymongo import ReadPreference
 from config.mongo import (client, settings, oauth_clients_collection, oauth_authorization_codes_collection,
     oauth_sessions_collection, oauth_transactions_collection)
 from security.token_hash import hash_token
 
 SESSION_COOKIE = "vh_oauth_session"
 SESSION_SECONDS = 3600
+TRANSACTION_COOKIE = "vh_oauth_transaction"
+TRANSACTION_SECONDS = 600
 
 def now():
     return datetime.now(timezone.utc)
@@ -63,7 +67,7 @@ async def validate_authorization(params):
 async def create_oauth_transaction(params):
     transaction_id = secrets.token_urlsafe(32)
     await oauth_transactions_collection.insert_one(dict(params, transaction_id=transaction_id,
-        expires_at=now() + timedelta(minutes=10)))
+        completed=False, created_at=now(), expires_at=now() + timedelta(seconds=TRANSACTION_SECONDS)))
     return transaction_id
 
 async def get_oauth_transaction(transaction_id, allow_completed=False):
@@ -136,9 +140,15 @@ async def complete_authorization(transaction_id, user_id, csrf_token):
                 "encrypted_code": encrypted}}, session=session)
         return transaction, code
 
+    return await run_oauth_transaction(complete)
+
+
+async def run_oauth_transaction(callback):
+    """Use the same client and commit policy for all related OAuth writes."""
     async with await client.start_session() as session:
         return await session.with_transaction(
-            complete, max_commit_time_ms=5000,
+            callback, max_commit_time_ms=5000,
+            read_concern=ReadConcern("snapshot"), read_preference=ReadPreference.PRIMARY,
             write_concern=WriteConcern("majority", wtimeout=5000),
         )
 

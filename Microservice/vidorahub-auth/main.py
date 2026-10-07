@@ -5,7 +5,7 @@ from fastapi import FastAPI, Depends, Request, HTTPException
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from pymongo.errors import PyMongoError
-from config.mongo import client, create_oauth_indexes
+from config.mongo import client, create_oauth_indexes, db, users_db
 from routes import authorize, metadata, oauth, revoke, token
 from security.dependencies import require_authenticated_user
 
@@ -15,6 +15,8 @@ logger = logging.getLogger(__name__)
 async def lifespan(app):
     await client.admin.command("ping")
     await create_oauth_indexes()
+    logger.info("OAuth storage ready database=%s users_database=%s transactions_collection=oauth_transactions",
+        db.name, users_db.name)
     try:
         yield
     finally:

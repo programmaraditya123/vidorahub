@@ -12,7 +12,7 @@ from security.sessions import get_oauth_user
 from services.user_service import authenticate_password
 from services.oauth_service import (oauth_error, validate_authorization,
     create_oauth_transaction, get_oauth_transaction, create_oauth_session,
-    complete_authorization, callback_url)
+    complete_authorization, callback_url, TRANSACTION_COOKIE, TRANSACTION_SECONDS)
 
 router = APIRouter(tags=["OAuth"])
 CSRF_COOKIE = "vh_oauth_csrf"
@@ -52,11 +52,19 @@ async def authorize(request: Request, client_id: str, redirect_uri: str, respons
         code_challenge_method=code_challenge_method)
     await validate_authorization(params)
     transaction_id = await create_oauth_transaction(params)
-    return RedirectResponse("/oauth/login?" + urlencode({"transaction_id": transaction_id}), 302)
+    response = RedirectResponse("/oauth/login?" + urlencode({"transaction_id": transaction_id}), 302)
+    response.set_cookie(TRANSACTION_COOKIE, transaction_id, httponly=True,
+        secure=settings.oauth_cookie_secure, samesite="lax", max_age=TRANSACTION_SECONDS, path="/")
+    return response
 
 @router.get("/login", include_in_schema=False)
 @router.get("/oauth/login", response_class=HTMLResponse)
-async def login_page(request: Request, transaction_id: str):
+async def login_page(request: Request, transaction_id: str | None = Query(None,
+    description="Use the transaction_id from /authorize. Browsers can resume the latest pending link from their cookie.")):
+    if transaction_id is None:
+        transaction_id = request.cookies.get(TRANSACTION_COOKIE)
+    if not transaction_id:
+        oauth_error("invalid_request", "Missing authorization transaction; start a new connection")
     transaction = await get_oauth_transaction(transaction_id)
     client = await validate_authorization(transaction)
     user_id = await get_oauth_user(request)
@@ -126,5 +134,8 @@ async def login_submit(request: Request, transaction_id: str = Form(...),
             # A remembered session is optional; the committed code must still reach the client.
             logger.warning("OAuth session creation failed error=%s code=%s",
                 type(exc).__name__, getattr(exc, "code", None))
-    # The cookie expires naturally; other pending consent tabs may still need it.
+    # Keep CSRF and a newer pending link available to other consent tabs.
+    if request.cookies.get(TRANSACTION_COOKIE) == transaction_id:
+        response.delete_cookie(TRANSACTION_COOKIE, path="/", secure=settings.oauth_cookie_secure,
+            httponly=True, samesite="lax")
     return response

@@ -14,7 +14,7 @@ python -m uvicorn main:app --host 127.0.0.1 --port 8000
 
 Configure `MONGODB_URI` and `MONGODB_DATABASE` for the existing Vidorahub database. Set `OAUTH_ISSUER` to this service's public origin, `MCP_RESOURCE` to the exact public MCP endpoint, and `INTROSPECTION_SECRET` to a long random secret shared only with the MCP service. `JWT_SECRET` is optional and only enables `/auth/me` for existing Express login JWTs.
 
-If existing accounts are in another database on the same MongoDB cluster, set `MONGODB_USERS_DATABASE` to that database. User lookups (password sign-in and `/auth/me`) use its `userprofiles` collection; OAuth clients, transactions and tokens remain in `MONGODB_DATABASE`. When unset, both use `MONGODB_DATABASE`. In this workspace the existing backend accounts are in `test`, while OAuth records are in `vidorahub`.
+If existing accounts are in another database on the same MongoDB cluster, set `MONGODB_USERS_DATABASE` to that database. User lookups (password sign-in and `/auth/me`) use its `userprofiles` collection; OAuth clients, transactions and tokens remain in `MONGODB_DATABASE`. When unset, both use `MONGODB_DATABASE`. The checked workspace and deployment use `test` for both accounts and OAuth records. Browser authorization records are in `test.oauth_transactions`; the separate `transactions` collection is not used by this service.
 
 For local development use `OAUTH_ISSUER=http://localhost:8000` and `OAUTH_COOKIE_SECURE=false`. Production must use HTTPS and secure cookies. Never publish `.env`.
 
@@ -76,6 +76,33 @@ Protocol references: [MCP authorization](https://modelcontextprotocol.io/specifi
 
 
 ## Storage failures and login retries
+
+If login says "Start a new connection", begin a fresh authorization from the app
+connecting to VidoraHub. Each browser transaction expires after ten minutes and
+MongoDB then cleans it up with a TTL index. Opening `/oauth/login` directly in
+the same browser resumes its latest pending transaction using an HttpOnly cookie.
+An explicit transaction ID takes priority; expired or completed transactions are
+never replaced with another request's consent details.
+
+Code exchange and refresh rotation commit consumption, grant creation, and token
+inserts together. A failed token write rolls back the consumed code or refresh
+token so the same request can be retried. Initial OAuth writes also require
+majority acknowledgment. Startup logs identify the configured OAuth and account
+databases without printing credentials.
+
+To verify the complete flow with real MongoDB, run this optional test from this
+directory. It creates and removes a randomly named temporary database and never
+changes existing users or OAuth records. The credentials need permission to
+create and drop that temporary database.
+
+```powershell
+$env:VHOAUTH_RUN_MONGO_TESTS = "1"
+python -m pytest tests/test_mongo_storage.py -q
+Remove-Item Env:VHOAUTH_RUN_MONGO_TESTS
+```
+
+Set `VHOAUTH_MONGO_TEST_URI` to use a test cluster; otherwise the test reads
+`MONGODB_URI` from `.env`.
 
 Authorization completion marks the browser transaction complete and inserts its code
 in one MongoDB transaction. Use MongoDB Atlas or a replica set (including for local

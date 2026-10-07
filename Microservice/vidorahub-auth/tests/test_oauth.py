@@ -588,3 +588,83 @@ def test_wrong_password_stays_on_form_without_echoing_password(client):
     assert "Please try again" in response.text
     assert "bad-secret-password" not in response.text
     assert 'value="user@example.com"' in response.text
+
+
+def test_login_resumes_pending_browser_link_when_query_is_missing(client):
+    client_id = register(client).json()["client_id"]
+    response = start(client, client_id)
+    transaction_id = parse_qs(urlsplit(response.headers["location"]).query)["transaction_id"][0]
+    assert client.cookies.get(oauth.TRANSACTION_COOKIE) == transaction_id
+    for path in ("/oauth/login", "/login"):
+        page = client.get(path, headers={"Accept": "text/html"})
+        assert page.status_code == 200
+        assert f'value="{transaction_id}"' in page.text
+    # An explicit invalid link must never silently switch to another transaction.
+    assert client.get("/oauth/login?transaction_id=unknown").status_code == 400
+    client.collections["transactions"].documents[0]["expires_at"] = oauth.now() - timedelta(seconds=1)
+    assert client.get("/oauth/login", headers={"Accept": "text/html"}).status_code == 400
+
+
+def test_completing_older_tab_preserves_newer_pending_browser_link(client):
+    client_id = register(client).json()["client_id"]
+    _, first = consent_form(client, client_id)
+    _, second = consent_form(client, client_id)
+    assert client.post("/oauth/login", data=first, follow_redirects=False).status_code == 303
+    assert client.cookies.get(oauth.TRANSACTION_COOKIE) == second["transaction_id"]
+    assert client.get("/oauth/login").status_code == 200
+    assert client.post("/oauth/login", data=second, follow_redirects=False).status_code == 303
+    assert not client.cookies.get(oauth.TRANSACTION_COOKIE)
+
+
+@pytest.mark.parametrize("failed_collection", ["grants", "tokens"])
+def test_code_exchange_storage_failure_can_retry(client, monkeypatch, failed_collection):
+    from pymongo.errors import OperationFailure
+    client_id = register(client).json()["client_id"]
+    code = authorize_code(client, client_id)
+    collection = client.collections[failed_collection]
+    original_insert = collection.insert_one
+    calls = 0
+
+    async def insert(document, session=None):
+        nonlocal calls
+        calls += 1
+        # For tokens fail after the access token was inserted, before refresh.
+        if calls == (2 if failed_collection == "tokens" else 1):
+            raise OperationFailure("simulated write failure", code=91)
+        return await original_insert(document, session=session)
+
+    monkeypatch.setattr(collection, "insert_one", insert)
+    assert exchange(client, client_id, code).status_code == 503
+    assert not client.collections["codes"].documents[0]["used"]
+    assert not client.collections["grants"].documents
+    assert not client.collections["tokens"].documents
+    response = exchange(client, client_id, code)
+    assert response.status_code == 200
+    assert introspect(client, response.json()["access_token"])["active"]
+
+
+def test_refresh_storage_failure_preserves_original_token_for_retry(client, monkeypatch):
+    from pymongo.errors import OperationFailure
+    client_id = register(client).json()["client_id"]
+    pair = exchange(client, client_id, authorize_code(client, client_id)).json()
+    collection = client.collections["tokens"]
+    original_insert = collection.insert_one
+    calls = 0
+
+    async def insert(document, session=None):
+        nonlocal calls
+        calls += 1
+        if calls == 2:
+            raise OperationFailure("simulated refresh write failure", code=91)
+        return await original_insert(document, session=session)
+
+    monkeypatch.setattr(collection, "insert_one", insert)
+    form = dict(grant_type="refresh_token", client_id=client_id,
+        refresh_token=pair["refresh_token"], resource=settings.mcp_resource)
+    assert client.post("/token", data=form).status_code == 503
+    assert len(collection.documents) == 2
+    assert not next(doc for doc in collection.documents if doc["kind"] == "refresh")["used"]
+    assert introspect(client, pair["access_token"])["active"]
+    response = client.post("/token", data=form)
+    assert response.status_code == 200
+    assert introspect(client, response.json()["access_token"])["active"]
