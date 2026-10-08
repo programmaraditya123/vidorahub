@@ -67,17 +67,21 @@ async def get_creator_uploads(id : str, page:int =1,limit:int = 20):
         {
             "$project":{
                 "_id" : 1,
+                "title" : 1,
                 "description": 1,
+                "duration" : 1,
+                "contentType" : 1,
+
                 "thumbnailUrl": 1,
                 "category": 1,
                 "tags": 1,
                 "stats": 1,
                 "createdAt": 1,
         
-                "uploader._id": 1,
-                "uploader.username": 1,
-                "uploader.name": 1,
-                "uploader.avatar": 1
+                # "uploader._id": 1,
+                # "uploader.username": 1,
+                # "uploader.name": 1,
+                # "uploader.avatar": 1
 
             }
         }
@@ -129,4 +133,64 @@ async def get_creator_uploads(id : str, page:int =1,limit:int = 20):
 
 
 
+async def update_title(id,videoId,updatedtitle):
+    try:
+        object_id = ObjectId(id)
+        video_id = ObjectId(videoId)
+    except InvalidId:
+        return {
+            "success":False,
+            "error":"Invalid user ID or videoId"
+            }
+
+    filter = {
+        "_id":video_id,
+        "uploader":object_id,
+        "isDeleted" : False
+        }
+
+    validate = await videos_collection.find_one(filter)
+
+    current_title = validate.get("title", "")
+
+    if current_title == updatedtitle:
+        return {
+            "success": False,
+            "message": "New title is same as current title"
+        }
+
+    iteration = validate.get("titleUpdateIteration", 0) + 1
+
+    history_field = f"updatedTitle{iteration}"
+
+    update_data = {
+        "$set": {
+            "title": updatedtitle,
+            history_field: current_title,
+            "titleUpdateIteration": iteration
+        }
+    }
+
+    await videos_collection.update_one(
+        filter,
+        update_data
+    )
+
+
+    validate["_id"] = str(validate["_id"])
+    validate["uploader"] = str(validate["uploader"])
+    
+
+    if not validate:
+        return {
+            "success" : False,
+            "message" : "User has no permissions to update title ",
+        }
+    else:
+        return {
+            "success" : True,
+            "message" :  "title updated successfully",
+        }
+
+    
     
