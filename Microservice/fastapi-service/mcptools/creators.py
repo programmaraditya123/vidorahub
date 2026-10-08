@@ -20,6 +20,6 @@ def register_creator_tools(mcp:FastMCP):
         """you can update the title of the video just pass the videoId and updated title that you want to update"""
         user = await get_current_mcp_user()
         user_id = ObjectId(user["id"]) or ObjectId(user["_id"])
-        updated = await update_title(id=user_id,videoId=videoid,updatedtitle=update_title)
+        updated = await update_title(id=user_id,videoId=videoid,updatedtitle=updatedtitle)
         return updated
     
