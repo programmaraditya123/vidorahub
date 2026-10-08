@@ -22,6 +22,8 @@ from routes.auth import router as auth_router
 from services.storeproducts.products import find_products
 from routes.store import router as store_router
 from mcptools.store import register_store_tools
+from mcptools.creators import register_creator_tools
+from routes.creator.creatorvideos import router as creatoruploads
 
 def env_list(name: str) -> list[str]:
     return [value.strip() for value in os.getenv(name, "").split(",") if value.strip()]
@@ -185,6 +187,7 @@ async def find_products_viodrahub(
     }
 
 register_store_tools(mcp)
+register_creator_tools(mcp)
 
 
 @asynccontextmanager
@@ -220,6 +223,7 @@ app.include_router(video_router)
 app.include_router(product_router)
 app.include_router(auth_router)
 app.include_router(store_router)
+app.include_router(creatoruploads)
 
 
 @app.get("/.well-known/oauth-protected-resource", tags=["OAuth"])

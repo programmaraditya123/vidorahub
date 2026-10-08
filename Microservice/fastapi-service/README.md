@@ -1,5 +1,9 @@
 # VidoraHub MCP server
 
+For local browser login, obtaining an access token, and calling authenticated
+user tools, follow [Local MCP testing](LOCAL_TESTING.md). The included
+`scripts/check_local_mcp.py` handles PKCE and the callback, then calls the tool.
+
 The MCP endpoint is `/mcp` (Streamable HTTP). `/`, `/health`, and
 `/api/videos/trending` are ordinary HTTP routes, not MCP endpoints.
 The tools currently read the sample catalog in `constants/videos.py`.
