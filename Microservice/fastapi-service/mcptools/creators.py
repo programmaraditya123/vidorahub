@@ -30,7 +30,7 @@ def register_creator_tools(mcp:FastMCP):
         updated = await update_description(id=user_id,videoId=videoid,updateddescription=updateddescription)
         return updated
     @mcp.tool(annotations = ToolAnnotations(readOnlyHint=True,destructiveHint=True,idempotentHint=True,))
-    async def update_creator_user_video_tags(videoid,updatedtags:str):
+    async def update_creator_user_video_tags(videoid,updatedtags:list[str]):
         """you can update the tags of the video just pass the videoId and updated tags array that you want to update"""
         user = await get_current_mcp_user()
         user_id = ObjectId(user["id"]) or ObjectId(user["_id"])
