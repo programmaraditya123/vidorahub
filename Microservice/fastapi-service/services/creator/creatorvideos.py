@@ -1,6 +1,7 @@
 from bson import ObjectId
 from bson.errors import InvalidId
-from config.mongo import videos_collection
+from config.mongo import videos_collection,title_update_history
+from datetime import datetime, timezone
 
 async def get_creator_uploads(id : str, page:int =1,limit:int = 20):
     try:
@@ -166,15 +167,26 @@ async def update_title(id,videoId,updatedtitle):
     update_data = {
         "$set": {
             "title": updatedtitle,
-            history_field: current_title,
+            # history_field: current_title,
             "titleUpdateIteration": iteration
         }
     }
 
-    await videos_collection.update_one(
-        filter,
-        update_data
-    )
+    update_history = {
+       
+            "uploader" : object_id,
+            "video_id" : video_id,
+            "prevoiustitle" : current_title,
+            "updatedtitle" : updatedtitle,
+            "updateiteration" : iteration,
+      
+            "updatedAt": datetime.now(timezone.utc)
+         
+    }
+
+    await title_update_history.insert_one(update_history)
+
+    await videos_collection.update_one(filter,update_data)
 
 
     validate["_id"] = str(validate["_id"])
