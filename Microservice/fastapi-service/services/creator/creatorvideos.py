@@ -1,6 +1,6 @@
 from bson import ObjectId
 from bson.errors import InvalidId
-from config.mongo import videos_collection,title_update_history
+from config.mongo import videos_collection,title_update_history,description_update_history,tag_update_history
 from datetime import datetime, timezone
 
 async def get_creator_uploads(id : str, page:int =1,limit:int = 20):
@@ -204,5 +204,146 @@ async def update_title(id,videoId,updatedtitle):
             "message" :  "title updated successfully",
         }
 
+
+async def update_description(id,videoId,updateddescription):
+    try:
+        object_id = ObjectId(id)
+        video_id = ObjectId(videoId)
+    except InvalidId:
+        return {
+            "success":False,
+            "error":"Invalid user ID or videoId"
+            }
+
+    filter = {
+        "_id":video_id,
+        "uploader":object_id,
+        "isDeleted" : False
+        }
+
+    validate = await videos_collection.find_one(filter)
+
+    current_description = validate.get("description", "")
+
+    if current_description == updateddescription:
+        return {
+            "success": False,
+            "message": "New description is same as current description"
+        }
+
+    iteration = validate.get("discriptionUpdateIteration", 0) + 1
+
+    history_field = f"updatedTitle{iteration}"
+
+    update_data = {
+        "$set": {
+            "description": updateddescription,
+            # history_field: current_title,
+            "descriptionUpdateIteration": iteration
+        }
+    }
+
+    update_history = {
+       
+            "uploader" : object_id,
+            "video_id" : video_id,
+            "prevoiusdescription" : current_description,
+            "updateddescription" : updateddescription,
+            "updateiteration" : iteration,
+      
+            "updatedAt": datetime.now(timezone.utc)
+         
+    }
+
+    await description_update_history.insert_one(update_history)
+
+    await videos_collection.update_one(filter,update_data)
+
+
+    validate["_id"] = str(validate["_id"])
+    validate["uploader"] = str(validate["uploader"])
     
+
+    if not validate:
+        return {
+            "success" : False,
+            "message" : "User has no permissions to update description ",
+        }
+    else:
+        return {
+            "success" : True,
+            "message" :  "Video Desription updated successfully",
+        }  
+
+
+
+async def update_tags(id,videoId,updatedtags):
+    try:
+        object_id = ObjectId(id)
+        video_id = ObjectId(videoId)
+    except InvalidId:
+        return {
+            "success":False,
+            "error":"Invalid user ID or videoId"
+            }
+
+    filter = {
+        "_id":video_id,
+        "uploader":object_id,
+        "isDeleted" : False
+        }
+
+    validate = await videos_collection.find_one(filter)
+
+    current_tags = validate.get("tags",[])
+
+    if current_tags == updatedtags:
+        return {
+            "success": False,
+            "message": "New tags is same as current tags"
+        }
+
+    iteration = validate.get("tagUpdateIteration", 0) + 1
+
+    # history_field = f"updatedtags{iteration}"
+
+    update_data = {
+        "$set": {
+            "tags": updatedtags,
+            # history_field: current_title,
+            "tagsUpdateIteration": iteration
+        }
+    }
+
+    update_history = {
+       
+            "uploader" : object_id,
+            "video_id" : video_id,
+            "prevoiusdescription" : current_tags,
+            "updateddescription" : updatedtags,
+            "updateiteration" : iteration,
+      
+            "updatedAt": datetime.now(timezone.utc)
+         
+    }
+
+    await tag_update_history.insert_one(update_history)
+
+    await videos_collection.update_one(filter,update_data)
+
+
+    validate["_id"] = str(validate["_id"])
+    validate["uploader"] = str(validate["uploader"])
+    
+
+    if not validate:
+        return {
+            "success" : False,
+            "message" : "User has no permissions to update tags ",
+        }
+    else:
+        return {
+            "success" : True,
+            "message" :  "Video Tags updated successfully",
+        }  
     
