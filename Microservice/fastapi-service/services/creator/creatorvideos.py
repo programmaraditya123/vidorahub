@@ -277,7 +277,7 @@ async def update_description(id,videoId,updateddescription):
 
 
 
-async def update_tags(id,videoId,updatedtags):
+async def update_tags(id,videoId,updatedtags : list[str]):
     try:
         object_id = ObjectId(id)
         video_id = ObjectId(videoId)
@@ -294,6 +294,19 @@ async def update_tags(id,videoId,updatedtags):
         }
 
     validate = await videos_collection.find_one(filter)
+
+    # Ensure tags are stored as an array of strings.
+    if not isinstance(updatedtags, list):
+        return {
+            "success": False,
+            "message": "Tags must be an array of strings"
+        }
+
+    updatedtags = [
+        tag.strip()
+        for tag in updatedtags
+        if isinstance(tag, str) and tag.strip()
+    ]
 
     current_tags = validate.get("tags",[])
 
@@ -319,8 +332,8 @@ async def update_tags(id,videoId,updatedtags):
        
             "uploader" : object_id,
             "video_id" : video_id,
-            "prevoiusdescription" : current_tags,
-            "updateddescription" : updatedtags,
+            "prevoiustags" : current_tags,
+            "updatedtags" : updatedtags,
             "updateiteration" : iteration,
       
             "updatedAt": datetime.now(timezone.utc)
