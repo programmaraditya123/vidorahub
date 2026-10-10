@@ -1,5 +1,8 @@
 # VidoraHub MCP server
 
+For the secret-free ChatGPT plugin ZIP, build command and public submission steps,
+see [ChatGPT plugin packaging](CHATGPT_PLUGIN.md).
+
 For local browser login, obtaining an access token, and calling authenticated
 user tools, follow [Local MCP testing](LOCAL_TESTING.md). The included
 `scripts/check_local_mcp.py` handles PKCE and the callback, then calls the tool.

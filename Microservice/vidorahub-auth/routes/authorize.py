@@ -139,10 +139,22 @@ async def login_submit(request: Request, transaction_id: str = Form(...),
                 return render_consent(request, transaction, oauth_client, None, error_message=message, email=email)
             oauth_error("access_denied", "Invalid email or password", 401)
     transaction, code = await complete_authorization(transaction_id, user_id, csrf_token)
-    if decision == "deny":
-        response = RedirectResponse(callback_url(transaction, error="access_denied"), 303)
+    destination = (callback_url(transaction, error="access_denied") if decision == "deny"
+        else callback_url(transaction, code=code))
+    if "text/html" in request.headers.get("accept", ""):
+        # End the form navigation before entering the client's redirect chain.
+        # Browsers can apply the consent page's form-action to every 303 hop,
+        # including destinations beyond the registered callback origin.
+        response = templates.TemplateResponse(
+            request=request, name="oauth_continue.html",
+            context={"destination": destination},
+            headers={"Referrer-Policy": "no-referrer",
+                "Content-Security-Policy": "default-src 'none'; form-action 'none'; "
+                    "frame-ancestors 'none'; base-uri 'none'"},
+        )
     else:
-        response = RedirectResponse(callback_url(transaction, code=code), 303)
+        response = RedirectResponse(destination, 303)
+    if decision == "allow":
         try:
             await create_oauth_session(response, user_id)
         except PyMongoError as exc:

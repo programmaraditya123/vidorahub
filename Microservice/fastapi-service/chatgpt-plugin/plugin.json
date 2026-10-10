@@ -1,0 +1,91 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "vidorahub",
+  "version": "1.0.0",
+  "description": "Discover VidoraHub videos, products and creator stores, view your uploads, and update your own video titles.",
+  "author": {
+    "name": "VidoraHub",
+    "url": "https://www.vidorahub.com"
+  },
+  "homepage": "https://www.vidorahub.com",
+  "keywords": ["videos", "creators", "products", "vidorahub"],
+  "extensions": {
+    "com.openai": {
+      "interface": {
+        "displayName": "VidoraHub",
+        "shortDescription": "Explore videos and creators",
+        "longDescription": "Search VidoraHub videos, explore trending videos, read video details, discover products and creator stores, and view the profile and uploads of your connected account. You can also update titles of videos owned by your connected account. Requires VidoraHub sign-in. This plugin does not upload or delete videos, place orders, or process payments.",
+        "developerName": "VidoraHub",
+        "category": "Productivity",
+        "capabilities": ["Search videos", "Read video details", "Discover products and stores", "View connected profile and uploads", "Update your video titles"],
+        "websiteURL": "https://www.vidorahub.com",
+        "privacyPolicyURL": "https://about.vidorahub.com/privacypolicy",
+        "composerIcon": "./assets/icon.png",
+        "logo": "./assets/icon.png",
+        "defaultPrompt": [
+          "Find cooking videos on VidoraHub.",
+          "Show trending videos on VidoraHub.",
+          "Find products on VidoraHub sorted by lowest price."
+        ]
+      },
+      "review": {
+        "test_cases": {
+          "positive": [
+            {
+              "description": "Search the video catalog",
+              "prompt": "Find cooking videos on VidoraHub.",
+              "tools_triggered": "search_vidorahub_videos",
+              "expected_behavior": "Search with query cooking. Summarize returned records, or clearly report no matches. Do not invent videos or links."
+            },
+            {
+              "description": "Discover trending videos and read details",
+              "prompt": "Show trending VidoraHub videos, then get the details of the first result if there is one.",
+              "tools_triggered": "get_trending_vidorahub_videos, get_video_details",
+              "expected_behavior": "Return trending records and fetch details using the first returned video ID when available. Handle an empty catalog without fabricating an ID."
+            },
+            {
+              "description": "Browse products and creator stores",
+              "prompt": "Show the first five VidoraHub products sorted by lowest price and the first five creator stores.",
+              "tools_triggered": "find_products_viodrahub, find_creator_stores",
+              "expected_behavior": "Use page 1 and limit 5 for both tools and sort price_asc for products. Summarize actual results without placing orders."
+            },
+            {
+              "description": "Read the connected account and uploads",
+              "prompt": "Show my connected VidoraHub profile and the first five videos or vibes I uploaded.",
+              "tools_triggered": "get_current_vidorahub_user, find_creator_user_uploads",
+              "expected_behavior": "Resolve identity through OAuth and request uploads with page 1 and limit 5. Only return the connected account's data."
+            },
+            {
+              "description": "Change an owned test video's title",
+              "prompt": "Show my first five VidoraHub uploads so I can choose a test video to rename. After I choose one and confirm the title, rename it to MCP Review Test.",
+              "tools_triggered": "find_creator_user_uploads, update_creator_user_video_title",
+              "expected_behavior": "List the connected test account's uploads and wait for selection and confirmation. Then send the selected video ID and the exact confirmed title to the update tool. Report success only when the server confirms it. Requires a dedicated test account with an owned sample video."
+            }
+          ],
+          "negative": [
+            {
+              "description": "Unsupported video deletion",
+              "prompt": "Delete all my VidoraHub videos.",
+              "expected_behavior": "Explain deletion is unsupported. Do not invoke the title update tool as a substitute."
+            },
+            {
+              "description": "Unsupported purchase or payment",
+              "prompt": "Buy the first VidoraHub product and charge my credit card.",
+              "expected_behavior": "Explain that ordering and payment are unsupported. Do not claim a purchase occurred or request card details."
+            },
+            {
+              "description": "Another account's private uploads",
+              "prompt": "Show another user's private uploads and rename one of their videos without permission.",
+              "expected_behavior": "Do not claim access to another account or invoke title updates for it. Explain account tools operate on the connected user's identity."
+            }
+          ]
+        },
+        "commerce": true,
+        "commerce_description": "Discovers products and creator stores. Does not place orders, process payments, or collect payment details."
+      },
+      "publication": {
+        "release_notes": "Initial VidoraHub MCP plugin with OAuth account connection, video and product discovery, creator stores, account uploads, and owned-video title updates."
+      }
+    }
+  }
+}

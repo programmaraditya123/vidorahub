@@ -87,6 +87,14 @@ after login successfully returns 303. Callback paths and query parameters are
 excluded from this policy, and callback origins are encoded to prevent directive
 injection. Other pages keep their existing policy.
 
+For browser login submissions (`Accept: text/html`), successful consent and
+cancellation return a no-store continuation page with an automatic refresh and
+a fallback link to the validated callback. This ends the form submission before
+entering the client's callback redirect chain, which can include additional
+origins in Gemini. The continuation page sends no referrer and allows no scripts
+or form submissions. Non-browser clients retain the HTTP 303 callback response.
+After deploying this change, start a fresh Gemini connection to load the new flow.
+
 If login says "Start a new connection", begin a fresh authorization from the app
 connecting to VidoraHub. Each browser transaction expires after ten minutes and
 MongoDB then cleans it up with a TTL index. Opening `/oauth/login` directly in

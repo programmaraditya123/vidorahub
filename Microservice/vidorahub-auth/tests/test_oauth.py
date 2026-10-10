@@ -465,7 +465,8 @@ def test_failed_code_write_rolls_back_transaction_and_can_retry(client, monkeypa
     assert not collection.documents
     assert client.get(location).status_code == 200
     second = client.post("/oauth/login", data=form, headers={"Accept": "text/html"}, follow_redirects=False)
-    assert second.status_code == 303
+    assert second.status_code == 200
+    assert "Continue to your app" in second.text
     assert all(doc.get("completed") for doc in client.collections["transactions"].documents)
     assert len(collection.documents) == 1
 
@@ -628,6 +629,58 @@ def test_callback_cannot_inject_csp_directives():
     directive = authorize.consent_form_action("https://example.com;script-src=evil.example/callback")
     assert ";" not in directive
     assert directive == "'self' https://example.com%3Bscript-src%3Devil.example"
+
+
+@pytest.mark.parametrize("decision", ["allow", "deny"])
+def test_browser_consent_ends_form_navigation_before_google_callback(client, decision):
+    from html.parser import HTMLParser
+
+    class Continuation(HTMLParser):
+        def __init__(self):
+            super().__init__()
+            self.refresh = None
+            self.link = None
+            self.tags = []
+
+        def handle_starttag(self, tag, attrs):
+            self.tags.append(tag)
+            attrs = dict(attrs)
+            if tag == "meta" and attrs.get("http-equiv") == "refresh":
+                self.refresh = attrs["content"]
+            if tag == "a":
+                self.link = attrs["href"]
+                assert attrs["rel"] == "noreferrer"
+
+    redirect = "https://oauth-redirect.googleusercontent.com/r/example?existing=value"
+    state = '\"><script>alert(1)</script> & state'
+    client_id = register(client, redirect_uris=[redirect]).json()["client_id"]
+    location = start(client, client_id, redirect_uri=redirect, state=state).headers["location"]
+    page = client.get(location)
+    assert page.status_code == 200
+    transaction_id = parse_qs(urlsplit(location).query)["transaction_id"][0]
+    form = dict(transaction_id=transaction_id, csrf_token=client.cookies.get(authorize.CSRF_COOKIE),
+        decision=decision, email="user@example.com", password="password")
+    response = client.post("/oauth/login", data=form, headers={"Accept": "text/html"}, follow_redirects=False)
+    assert response.status_code == 200
+    assert "location" not in response.headers
+    assert response.headers["cache-control"] == "no-store"
+    assert response.headers["referrer-policy"] == "no-referrer"
+    assert "form-action 'none'" in response.headers["content-security-policy"]
+    parsed = Continuation()
+    parsed.feed(response.text)
+    assert "script" not in parsed.tags and "form" not in parsed.tags
+    assert parsed.refresh == "0;url=" + parsed.link
+    assert parsed.link.startswith(redirect + "&")
+    query = parse_qs(urlsplit(parsed.link).query)
+    assert query["state"] == [state] and query["existing"] == ["value"]
+    assert "password" not in response.text and form["csrf_token"] not in response.text
+    if decision == "allow":
+        assert exchange(client, client_id, query["code"][0], redirect_uri=redirect).status_code == 200
+        assert client.collections["sessions"].documents
+    else:
+        assert query["error"] == ["access_denied"] and "code" not in query
+        assert not client.collections["codes"].documents
+        assert not client.collections["sessions"].documents
 
 
 def test_oauth_userinfo_returns_only_current_user_safe_fields(client):
