@@ -1,6 +1,6 @@
 from mcp.server.fastmcp import FastMCP
 from mcp.types import ToolAnnotations
-from services.creator.creatorvideos import get_creator_uploads,update_title,update_description
+from services.creator.creatorvideos import get_creator_uploads,update_title,update_description,update_tags
 from services.mcp_user import get_current_mcp_user
 from bson import ObjectId
 
@@ -34,6 +34,6 @@ def register_creator_tools(mcp:FastMCP):
         """you can update the tags of the video just pass the videoId and updated tags array that you want to update"""
         user = await get_current_mcp_user()
         user_id = ObjectId(user["id"]) or ObjectId(user["_id"])
-        updated = await update_description(id=user_id,videoId=videoid,updatedtags=updatedtags)
+        updated = await update_tags(id=user_id,videoId=videoid,updatedtags=updatedtags)
         return updated
     
