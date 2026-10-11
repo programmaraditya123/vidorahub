@@ -1,0 +1,80 @@
+.carousel {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  margin: 0 1.2rem 1.6rem;
+  border-radius: 24px;
+  background: #1c1231;
+  color: #fff;
+  box-shadow: 0 16px 40px #39215e20;
+
+  button, a { -webkit-tap-highlight-color: transparent; }
+  button { font: inherit; cursor: pointer; }
+  button:focus-visible, a:focus-visible { outline: 3px solid #e9c5ff; outline-offset: 3px; }
+  &[data-moving="true"] .imageTrack { animation-play-state: running; }
+}
+
+.slideRegion { min-height: 440px; }
+.slide { position: relative; min-height: 440px; animation: reveal 450ms ease-out both; }
+.artwork { position: absolute; inset: 0 0 0 32%; display: flex; gap: 12px; overflow: hidden; transform: rotate(-8deg) scale(1.14); }
+.column { flex: 1; min-width: 0; height: 100%; }
+.imageTrack { animation: drift 36s linear infinite paused; will-change: transform; }
+.column:nth-child(even) .imageTrack { animation-direction: reverse; animation-duration: 44s; }
+.imageGroup { display: grid; gap: 12px; min-height: 480px; padding-bottom: 12px; }
+.imageTile { position: relative; min-height: 190px; overflow: hidden; border-radius: 14px; background: linear-gradient(135deg, #684b88, #31203e); }
+.imageTile img { object-fit: cover; }
+.monogram { display: grid; place-items: center; width: 100%; font-size: clamp(160px, 30vw, 360px); font-weight: 800; color: #d3a6ff50; background: radial-gradient(ellipse, #a855f750, transparent 70%); }
+.scrim { position: absolute; inset: 0; background: linear-gradient(90deg, #1c1231 2%, #1c1231f5 26%, #1c1231ba 53%, #1c123122 100%), linear-gradient(0deg, #1c1231e8, transparent 45%); }
+.copy { position: relative; padding: 36px 40px 90px; width: min(65%, 640px); overflow-wrap: anywhere; }
+.eyebrow { display: inline-flex; align-items: center; gap: 9px; color: #e5c9ff; font-size: 10px; font-weight: 700; letter-spacing: 2px; }
+.eyebrow > span { width: 7px; height: 7px; border-radius: 50%; background: #d8b4fe; box-shadow: 0 0 14px #d8b4fe99; }
+.location { margin: 20px 0 6px; color: #ddd1e9; font-size: 12px; }
+.copy h2 { margin: 12px 0; font-size: clamp(28px, 3.6vw, 46px); line-height: 1.12; letter-spacing: -1.4px; text-wrap: balance; }
+.description { font-size: 13px; line-height: 1.8; color: #e1d8eb; max-width: 460px; }
+.tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 16px; }
+.tags span { padding: 6px 10px; border-radius: 30px; background: #ffffff12; border: 1px solid #ffffff29; font-size: 10px; }
+.subcategories { margin-top: 9px; color: #d7c6e7; font-size: 11px; line-height: 1.6; }
+.actions { display: flex; flex-wrap: wrap; align-items: center; gap: 20px; margin-top: 22px; }
+.visit { display: inline-flex; justify-content: space-between; align-items: center; gap: 26px; min-height: 44px; padding: 12px 18px; border-radius: 12px; background: #fff; color: #392052; font-size: 12px; font-weight: 700; transition: background 150ms; }
+.visit:hover { background: #f1e6ff; }
+.website { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; color: #f1e6ff; font-size: 12px; text-decoration: underline; text-underline-offset: 4px; }
+.products { margin-top: 18px; color: #cbb9dc; font-size: 10px; line-height: 1.6; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.controls { position: absolute; inset: auto 32px 18px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.counter { font-size: 14px; font-weight: 650; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.counter > span { color: #cbb9dc; font-size: 11px; font-weight: 400; }
+.dots { display: flex; justify-content: center; flex-wrap: wrap; }
+.dots button { display: grid; place-items: center; width: 28px; height: 44px; border: none; background: transparent; }
+.dots button span { width: 5px; height: 5px; border-radius: 10px; background: #ffffff66; transition: width 200ms, background 200ms; }
+.dots button[aria-pressed="true"] span { width: 20px; background: #e9c5ff; }
+.navigation { display: flex; gap: 6px; }
+.navigation button { width: 44px; height: 44px; border: 1px solid #ffffff40; border-radius: 50%; background: #1c1231aa; color: #fff; font-size: 18px; }
+.navigation button:hover { background: #69458b; }
+.status { min-height: 440px; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 20px; padding: 32px; text-align: center; background: radial-gradient(ellipse at top right, #69369770, transparent 65%); }
+.status p { font-size: 14px; color: #e1d8eb; }
+.status button { padding: 12px 20px; border: 0; border-radius: 10px; background: #fff; color: #392052; }
+.loading { animation: pulse 1.8s ease-in-out infinite alternate; }
+@keyframes drift { to { transform: translateY(-50%); } }
+@keyframes reveal { from { opacity: 0.35; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes pulse { to { opacity: 0.6; } }
+@media (max-width: 900px) {
+  .copy { width: 78%; padding: 30px 28px 90px; }
+  .artwork { left: 25%; }
+  .scrim { background: linear-gradient(90deg, #1c1231f5, #1c1231bf 60%, #1c123155), linear-gradient(0deg, #1c1231, transparent 50%); }
+}
+@media (max-width: 600px) {
+  .carousel { margin: 0 0.75rem 1.2rem; border-radius: 18px; }
+  .slide, .slideRegion, .status { min-height: 470px; }
+  .copy { width: 100%; padding: 28px 22px 104px; }
+  .copy h2 { max-width: 90%; font-size: 32px; }
+  .description { max-width: 95%; font-size: 12px; }
+  .artwork { left: 15%; gap: 8px; opacity: 0.75; }
+  .imageTile { min-height: 160px; }
+  .controls { inset: auto 18px 16px; flex-wrap: wrap; gap: 0; }
+  .dots { order: 3; width: 100%; }
+  .dots button { height: 24px; }
+  .navigation { margin-left: auto; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .slide, .imageTrack, .loading { animation: none; }
+  .dots button span, .visit { transition: none; }
+}

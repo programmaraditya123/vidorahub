@@ -8,6 +8,7 @@ import { formatProductPrice } from "@/src/lib/store/store";
 import styles from "./StoresPage.module.scss";
 import FindStores from "./FindStores";
 import DiscoveryLoader from "./DiscoveryLoader";
+import StoreCarousel from "./StoreCarousel";
 
 type Filters = { query: string; minPrice: string; maxPrice: string; rating: string; sort: ProductSort };
 type SearchState = { key: string; data?: FindProductsResponse; error?: string };
@@ -288,6 +289,7 @@ export default function StoresPage() {
           </footer>
         </form>
       </dialog>
+      <StoreCarousel />
       {viewMode === "stores" && <FindStores />}
       {viewMode === "products" && validationError && <p className={styles.requestStatus} role="alert">{validationError}</p>}
       {loading && <DiscoveryLoader type="products" />}

@@ -21,6 +21,7 @@ from routes.products import router as product_router
 from routes.auth import router as auth_router
 from services.storeproducts.products import find_products
 from routes.store import router as store_router
+from routes.storehomepage import router as storehomepage
 from mcptools.store import register_store_tools
 from mcptools.creators import register_creator_tools
 from routes.creator.creatorvideos import router as creatoruploads
@@ -224,6 +225,7 @@ app.include_router(product_router)
 app.include_router(auth_router)
 app.include_router(store_router)
 app.include_router(creatoruploads)
+app.include_router(storehomepage)
 
 
 @app.get("/.well-known/oauth-protected-resource", tags=["OAuth"])
