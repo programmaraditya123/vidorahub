@@ -47,7 +47,7 @@ async def updateVideoDescription(
     user : Annotated[dict,Depends(require_sign_in)] = None
    ):
     id = user["_id"]  
-    updatedVideo = await update_description(id=id,videoId=data.video_id,updatedtags=data.description)
+    updatedVideo = await update_description(id=id,videoId=data.video_id,updateddescription=data.description)
     
     return updatedVideo
 

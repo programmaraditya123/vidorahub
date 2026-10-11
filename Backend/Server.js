@@ -17,6 +17,7 @@ const accountProfiles = require('./modules/accountprofiles/accountprofiles.route
 const recommendation = require('./modules/recommendation/recommendation.route')
 const saveVideo = require('./modules/savevideo/savevideo.route')
 const videoProgress = require('./modules/videoprogress/videoprogress.route')
+const categorySubcategory = require('./modules/categorysubcategory/categorysubcategory.route')
 const search = require('./modules/search/search.route')
 const dns = require("dns");
 
@@ -127,6 +128,9 @@ app.use("/api/v1",videoProgress)
 
 //this are the routes for search functionality 
 app.use("/api/v1",search)
+
+//this are the routes for category and subcategory functionality
+app.use("/api/v1",categorySubcategory)
 
 const PORT = process.env.PORT || 8000;
 
