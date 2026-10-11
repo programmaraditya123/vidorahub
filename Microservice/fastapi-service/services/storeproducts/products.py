@@ -76,6 +76,8 @@ async def find_products(
     products = results[:limit]
     for product in products:
         product["_id"] = str(product["_id"])
+        product["category"] = str(product["category"])
+        # product["subcategory"] = str(product["subcategory"])
         creator = product.get("creatorId")
         if creator and isinstance(creator.get("_id"), ObjectId):
             creator["_id"] = str(creator["_id"])
