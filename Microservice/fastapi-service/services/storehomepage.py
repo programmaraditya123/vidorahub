@@ -1,4 +1,4 @@
-from config.mongo import stores_collections, products_collections
+from config.mongo import stores_collections, products_collections,product_category_collection
 
 
 async def get_stores_first_carousel():
@@ -37,8 +37,8 @@ async def get_stores_first_carousel():
 
     products = await cursor.to_list(length=None)
 
-    print("Owner IDs:", owners)
-    print("Matched products:", len(products))
+    # print("Owner IDs:", owners)
+    # print("Matched products:", len(products))
 
     # Group products by creatorId
     products_by_owner = {}
@@ -61,3 +61,56 @@ async def get_stores_first_carousel():
         store["ownerId"] = str(owner_id)
 
     return {"stores": stores}
+
+
+async def get_categories():
+    pipeline = [
+        {
+            "$lookup": {
+                "from": "products",
+                "let": {"categoryId": "$_id"},
+                "pipeline": [
+                    {
+                        "$match": {
+                            "$expr": {
+                                "$eq": ["$category", "$$categoryId"]
+                            }
+                        }
+                    },
+                    {
+                        "$match": {
+                            "isDeleted": {"$ne": True}
+                        }
+                    },
+                    {
+                        "$project": {
+                            "_id": 1,
+                            "images": 1
+                        }
+                    },
+                    {"$limit": 4}
+                ],
+                "as": "products"
+            }
+        },
+        {
+            "$project": {
+                "_id": 1,
+                "name": 1,
+                "slug": 1,
+                "products": 1
+            }
+        }
+    ]
+
+    cursor = product_category_collection.aggregate(pipeline)
+    result = await cursor.to_list(length=None)
+
+    # Convert ObjectIds to strings
+    for category in result:
+        category["_id"] = str(category["_id"])
+
+        for product in category.get("products", []):
+            product["_id"] = str(product["_id"])
+
+    return result

@@ -4,11 +4,12 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import VidorahubIcon from "@/src/icons/VidorahubIcon";
 import { findProducts, type FindProductsResponse, type ProductSort, type StoreProduct } from "@/src/lib/storeproducts/storeproducts";
-import { formatProductPrice } from "@/src/lib/store/store";
+import { formatProductPrice, getProductCategoryName } from "@/src/lib/store/store";
 import styles from "./StoresPage.module.scss";
 import FindStores from "./FindStores";
 import DiscoveryLoader from "./DiscoveryLoader";
 import StoreCarousel from "./StoreCarousel";
+import CategoryCards from "@/app/stores/CategoryCards";
 
 type Filters = { query: string; minPrice: string; maxPrice: string; rating: string; sort: ProductSort };
 type SearchState = { key: string; data?: FindProductsResponse; error?: string };
@@ -57,7 +58,7 @@ function ProductDetails({ product, onClose }: { product: StoreProduct; onClose: 
           {images.length > 1 && <div className="thumbnails">{images.map((url, index) => <button key={`${url}-${index}`} type="button" aria-label={`Show image ${index + 1}`} aria-pressed={index === imageIndex} onClick={() => setImageIndex(index)}><img src={url} alt="" loading="lazy" /></button>)}</div>}
         </section>
         <div className="detail-copy">
-          <div className="category-line">{product.category || "Product"}{product.brand && <span> / {product.brand}</span>}</div>
+          <div className="category-line">{getProductCategoryName(product.category) || "Product"}{product.brand && <span> / {product.brand}</span>}</div>
           <h2 id="product-detail-title">{product.name}</h2>
           <div className="detail-rating"><span aria-hidden="true">★</span> {product.rating?.average !== undefined ? `${product.rating.average} / 5` : "Not yet rated"}<span className="review-count">({product.rating?.count ?? 0} reviews)</span></div>
           <p className="detail-price">{formatProductPrice(product.price, product.currency)}<small>{product.currency || "INR"}</small></p>
@@ -68,7 +69,7 @@ function ProductDetails({ product, onClose }: { product: StoreProduct; onClose: 
           {product.analytics && <section className="activity"><h3>Product activity</h3><dl>{Object.entries(product.analytics).map(([label, value]) => value !== undefined && <div key={label}><dt>{label}</dt><dd>{value.toLocaleString()}</dd></div>)}</dl></section>}
           <details className="more-details"><summary>Additional details</summary><dl>
             {product.brand && <div><dt>Brand</dt><dd>{product.brand}</dd></div>}
-            <div><dt>Category</dt><dd>{product.category || "Not specified"}</dd></div>
+            <div><dt>Category</dt><dd>{getProductCategoryName(product.category) || "Not specified"}</dd></div>
             {product.createdAt && <div><dt>Added</dt><dd><time dateTime={product.createdAt}>{dateLabel(product.createdAt)}</time></dd></div>}
             {product.updatedAt && <div><dt>Last updated</dt><dd><time dateTime={product.updatedAt}>{dateLabel(product.updatedAt)}</time></dd></div>}
             <div><dt>Product ID</dt><dd>{product._id}</dd></div>
@@ -290,6 +291,7 @@ export default function StoresPage() {
         </form>
       </dialog>
       <StoreCarousel />
+      <CategoryCards />
       {viewMode === "stores" && <FindStores />}
       {viewMode === "products" && validationError && <p className={styles.requestStatus} role="alert">{validationError}</p>}
       {loading && <DiscoveryLoader type="products" />}
@@ -303,8 +305,9 @@ export default function StoresPage() {
                 {product.brand && <span>{product.brand}</span>}
               </div>
               <div className={`${styles.productBody} card-body`}>
-                <div className={`${styles.productMeta} card-meta`}><span>{product.category}</span><strong>{product.rating?.count ? `${product.rating.average ?? 0} rating` : "Not yet rated"}</strong></div>
-                <h2>{product.name}</h2><p>{product.description}</p>
+                {/* <div className={`${styles.productMeta} card-meta`}><span>{getProductCategoryName(product.category)}</span><strong>{product.rating?.count ? `${product.rating.average ?? 0} rating` : "Not yet rated"}</strong></div> */}
+                <h2>{product.name}</h2>
+                <p>{product.description}</p>
                 <div className={`${styles.priceRow} card-price`}><strong>{formatProductPrice(product.price, product.currency)}</strong></div>
                 <div className={`${styles.creatorRow} card-creator`}>
                   <div><small>By {creatorName(product)}</small><span>{product.rating?.count ?? 0} reviews</span></div>

@@ -16,7 +16,7 @@ export type ApiProduct = {
   creatorId?: string;
   name: string;
   description?: string;
-  category: string;
+  category: string | { _id: string; name: string } | null;
   tags?: string[];
   brand?: string;
   price: number;
@@ -118,13 +118,18 @@ function resolveStockLabel(product: ApiProduct): string {
   return "—";
 }
 
+export function getProductCategoryName(category: ApiProduct["category"]): string {
+  return typeof category === "string" ? category : category?.name ?? "";
+}
+
 export function mapProductForCard(product: ApiProduct): ProductType {
   const images = (product.images ?? []).filter(Boolean);
+  const category = getProductCategoryName(product.category);
 
   return {
     id: product._id,
     title: product.name,
-    category: product.category,
+    category,
     description: product.description?.trim() || "",
     price: product.price,
     currency: product.currency ?? "INR",
@@ -139,6 +144,6 @@ export function mapProductForCard(product: ApiProduct): ProductType {
     rating: product.rating,
     updatedAt: formatRelativeTime(product.updatedAt),
     createdAt: product.createdAt,
-    size: product.brand?.trim() || product.category,
+    size: product.brand?.trim() || category,
   };
 }

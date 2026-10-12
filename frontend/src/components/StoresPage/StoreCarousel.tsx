@@ -41,9 +41,9 @@ const StoreSlide = memo(function StoreSlide({ store }: { store: CarouselStore })
     </div>
     <div className={styles.scrim} />
     <div className={styles.copy}>
-      <span className={styles.eyebrow}><span /> THE STORE SPOTLIGHT</span>
-      {store.location && <p className={styles.location}>{store.location}</p>}
+      {/* <span className={styles.eyebrow}><span /> THE STORE SPOTLIGHT</span> */}
       <h2>{store.name}</h2>
+      {store.location && <p className={styles.location}>{store.location}</p>}
       <p className={styles.description}>{store.description || "Discover something new from this independent store."}</p>
       {!!store.category?.length && <div className={styles.tags} aria-label="Categories">
         {store.category.map((category, index) => <span key={`${category}-${index}`}>{category}</span>)}
@@ -53,9 +53,6 @@ const StoreSlide = memo(function StoreSlide({ store }: { store: CarouselStore })
         {store.ownerId && <Link prefetch={false} href={`/channel/${encodeURIComponent(store.ownerId)}?tab=store`} className={styles.visit}>Explore store <span aria-hidden="true">↗</span></Link>}
         {website && <a href={website} target="_blank" rel="noopener noreferrer" className={styles.website}>Website <span aria-hidden="true">↗</span></a>}
       </div>
-      {!!store.products?.length && <p className={styles.products} title={store.products.map((product) => product.name).join(", ")}>
-        In this store: {store.products.map((product) => product.name).join(" · ")}
-      </p>}
     </div>
   </article>;
 });
